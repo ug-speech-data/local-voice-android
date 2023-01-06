@@ -14,9 +14,13 @@ data class Participant(
     var age: Int,
     val gender: String,
     val status: String? = UPLOAD_STATUS_PENDING,
-    @SerializedName("id")
-    val remoteId: Long?,
-
+    var momoNumber: String? = null,
+    var network: String? = null,
+    var environment: String? = null,
+    var locale: String? = null,
+    var deviceId: String? = null,
+    var fullname: String? = null,
+    var audioDurationInSeconds: Long? = 0,
     @PrimaryKey(autoGenerate = true)
     @SerializedName("local_id")
     var id: Long = 0,

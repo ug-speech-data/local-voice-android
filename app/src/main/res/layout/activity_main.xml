@@ -26,9 +26,13 @@
             tools:text="Missing Config" />
 
         <androidx.cardview.widget.CardView
+            android:id="@+id/images_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp">
+            android:layout_margin="10dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackgroundBorderless">
 
             <LinearLayout
                 android:layout_width="match_parent"

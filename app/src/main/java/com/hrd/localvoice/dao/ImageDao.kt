@@ -25,6 +25,10 @@ interface ImageDao {
     @Query("SELECT * from $IMAGES_TABLE WHERE descriptionCount <:maxDescriptionCount AND localURl IS NOT NULL ORDER BY remoteId ASC")
     fun getImages(maxDescriptionCount: Int): LiveData<List<Image>>
 
+
+    @Query("SELECT * from $IMAGES_TABLE ORDER BY remoteId ASC")
+    fun getImages(): LiveData<List<Image>>
+
     @Query("SELECT * FROM $IMAGES_TABLE WHERE remoteId = :remoteId")
     fun getImage(remoteId: Long): Image
 }

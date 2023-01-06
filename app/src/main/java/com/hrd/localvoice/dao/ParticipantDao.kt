@@ -19,9 +19,19 @@ interface ParticipantDao {
     @Delete
     fun deleteParticipant(participant: Participant)
 
+    @Update()
+    fun updateParticipant(participant: Participant)
+
     @Query("SELECT * from $PARTICIPANT_TABLE ORDER BY id ASC")
     fun getParticipants(): LiveData<List<Participant>>
 
+    @Query("SELECT * from $PARTICIPANT_TABLE ORDER BY id DESC LIMIT 1")
+    fun getLastParticipant(): Participant
+
     @Query("SELECT * FROM $PARTICIPANT_TABLE WHERE id = :id")
     fun getParticipant(id: Long): LiveData<Participant>
+
+
+    @Query("SELECT * FROM $PARTICIPANT_TABLE WHERE id = :id")
+    fun getParticipantNow(id: Long): Participant
 }

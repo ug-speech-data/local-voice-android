@@ -7,6 +7,7 @@ import com.hrd.localvoice.DataRepository
 import com.hrd.localvoice.models.Audio
 import com.hrd.localvoice.models.Configuration
 import com.hrd.localvoice.models.Image
+import com.hrd.localvoice.models.Participant
 
 
 class RecorderActivityViewModel(application: Application) : AndroidViewModel(application) {
@@ -26,5 +27,9 @@ class RecorderActivityViewModel(application: Application) : AndroidViewModel(app
 
     fun getConfiguration(): LiveData<Configuration?>? {
         return repository.configuration
+    }
+
+    fun getParticipantById(id: Long): Participant? {
+        return repository.getParticipantById(id)
     }
 }

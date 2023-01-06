@@ -3,6 +3,7 @@ package com.hrd.localvoice.network
 import com.hrd.localvoice.network.response_models.AuthenticationResponse
 import com.hrd.localvoice.network.response_models.ConfigurationResponse
 import com.hrd.localvoice.network.response_models.ImagesResponse
+import com.hrd.localvoice.network.response_models.UploadResponse
 import okhttp3.MultipartBody
 import okhttp3.ResponseBody
 import retrofit2.Call
@@ -33,8 +34,9 @@ interface ApiService {
     @POST("upload-audio/")
     fun uploadAudioFile(
         @Part file: MultipartBody.Part?,
-        @Part remoteImageId: MultipartBody.Part?,
-    ): Call<ResponseBody?>?
+        @Part audioDataBody: MultipartBody.Part?,
+        @Part participantDataBody: MultipartBody.Part?,
+    ): Call<UploadResponse?>?
 
     @GET("get-mobile-app-configurations/")
     fun getConfigurations(): Call<ConfigurationResponse?>?

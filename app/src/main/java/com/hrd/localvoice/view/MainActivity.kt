@@ -25,7 +25,8 @@ import com.hrd.localvoice.utils.Constants
 import com.hrd.localvoice.utils.Constants.SHARED_PREFS_FILE
 import com.hrd.localvoice.utils.Functions.Companion.getPathFromUri
 import com.hrd.localvoice.view.authentication.LoginActivity
-import com.hrd.localvoice.view.myaudios.MyAudiosActivity
+import com.hrd.localvoice.view.local_files.MyAudiosActivity
+import com.hrd.localvoice.view.local_files.MyImagesActivity
 import com.hrd.localvoice.view.participants.ParticipantBioActivity
 import com.hrd.localvoice.workers.UpdateAssignedImagesWorker
 import com.hrd.localvoice.workers.UpdateConfigurationWorker
@@ -77,8 +78,14 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, ParticipantBioActivity::class.java))
         }
 
+        // Open recorded audios activity
         binding.audiosCard.setOnClickListener {
             startActivity(Intent(this, MyAudiosActivity::class.java))
+        }
+
+        // Open downloaded images acivity
+        binding.imagesCard.setOnClickListener {
+            startActivity(Intent(this, MyImagesActivity::class.java))
         }
 
         //Update tasks load info
@@ -129,7 +136,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Enqueue upload worker
-
         val uploadWorker =
             PeriodicWorkRequest.Builder(UploadWorker::class.java, 15, TimeUnit.MINUTES)
                 .setConstraints(constraints)

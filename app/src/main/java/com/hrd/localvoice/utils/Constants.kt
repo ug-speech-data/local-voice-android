@@ -16,8 +16,9 @@ object Constants {
     const val USER_OBJECT = "com.hrd.localvoice.USER_OBJECT"
 
 //    const val TEST_BASE_API_URL: String = "https://745a-197-255-119-9.ngrok.io/api/"
-    const val TEST_BASE_API_URL: String = "https://localvoice.pythonanywhere.com/api/"
+//    const val TEST_BASE_API_URL: String = "https://localvoice.pythonanywhere.com/api/"
 
-    //    const val TEST_BASE_API_URL: String = "http://10.0.2.2:8000/api/"
+    const val TEST_BASE_API_URL: String = "http://192.168.8.100:8000/api/"
+
     const val LIVE_BASE_API_URL: String = "https://localvoice.pythonanywhere.com/api/"
 }

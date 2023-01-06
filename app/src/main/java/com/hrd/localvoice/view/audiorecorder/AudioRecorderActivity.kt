@@ -3,6 +3,7 @@ package com.hrd.localvoice.view.audiorecorder
 import android.Manifest
 import android.app.ActivityManager
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Build
@@ -19,12 +20,16 @@ import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
+import com.hrd.localvoice.AppRoomDatabase
 import com.hrd.localvoice.R
 import com.hrd.localvoice.databinding.ActivityAudioRecorderBinding
 import com.hrd.localvoice.models.Audio
 import com.hrd.localvoice.models.Image
+import com.hrd.localvoice.models.Participant
+import com.hrd.localvoice.utils.Constants
 import com.hrd.localvoice.utils.WaveRecorder
-import com.hrd.localvoice.view.participants.ParticipantBioActivity
+import com.hrd.localvoice.view.participants.ParticipantBioActivity.Companion.currentParticipantData
+import com.hrd.localvoice.view.participants.ParticipantCompensationDetailsActivity
 
 class AudioRecorderActivity : AppCompatActivity() {
     private val tag = "AudioRecorderActivity"
@@ -34,9 +39,10 @@ class AudioRecorderActivity : AppCompatActivity() {
     private lateinit var recorder: WaveRecorder
     private var currentImageIndex = 0
     private val REQUEST_PERMISSIONS_CODE = 4
+    private var totalAudioDurationInSeconds = 0L
+    private var currentParticipant: Participant? = null
 
-    // List of images described by the current
-    // participant
+    // List of images described by the current participant
     private var describedImages: MutableList<Image> = mutableListOf()
 
     private val PERMISSIONS = arrayOf(
@@ -52,6 +58,20 @@ class AudioRecorderActivity : AppCompatActivity() {
         title = "Recorder"
         setup()
         recorder = WaveRecorder(this)
+
+        AppRoomDatabase.databaseWriteExecutor.execute {
+            // Retrieve current participant
+            val prefsEditor: SharedPreferences =
+                getSharedPreferences(Constants.SHARED_PREFS_FILE, MODE_PRIVATE)
+            val participantId = prefsEditor.getLong(currentParticipantData, -1)
+
+            currentParticipant = viewModel.getParticipantById(participantId)
+
+            if (currentParticipant == null) {
+                Toast.makeText(this, "No participant found", Toast.LENGTH_LONG)
+                    .show()
+            }
+        }
 
         //Check Permissions
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && permissionsDenied()) {
@@ -122,13 +142,22 @@ class AudioRecorderActivity : AppCompatActivity() {
         binding.saveButton.setOnClickListener {
             val currentImage = availableImages[currentImageIndex.mod(availableImages.size)]
             val fileName =
-                "image_" + currentImage.remoteId.toString().padStart(6, '0') + "_description.wav"
+                "image_" + currentImage.remoteId.toString()
+                    .padStart(6, '0') + "_description_${System.currentTimeMillis()}.wav"
             val result = recorder.saveAudioIntoFile(fileName)
-            if (result != null) {
+            if (result != null && currentParticipant != null) {
                 val description = currentImage.name
                 val audio =
-                    Audio(1, System.currentTimeMillis(), currentImage.remoteId, result, description)
+                    Audio(
+                        1,
+                        System.currentTimeMillis(),
+                        currentImage.remoteId,
+                        result,
+                        description,
+                        participantId = currentParticipant!!.id
+                    )
                 viewModel.insertAudio(audio)
+                totalAudioDurationInSeconds += recorder.audioDuration()
 
                 // Increase image description count
                 currentImage.descriptionCount += 1
@@ -263,8 +292,8 @@ class AudioRecorderActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.action_next_respondent) {
-            startActivity(Intent(this, ParticipantBioActivity::class.java))
+        if (item.itemId == R.id.action_next) {
+            startActivity(Intent(this, ParticipantCompensationDetailsActivity::class.java))
         }
         return super.onOptionsItemSelected(item)
     }

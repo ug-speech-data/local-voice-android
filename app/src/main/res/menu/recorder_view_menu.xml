@@ -2,8 +2,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/action_next_respondent"
+        android:id="@+id/action_next"
         android:orderInCategory="2"
-        android:title="@string/next_participant"
+        android:title="@string/done"
         app:showAsAction="ifRoom" />
 </menu>

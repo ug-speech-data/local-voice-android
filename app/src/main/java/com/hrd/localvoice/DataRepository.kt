@@ -29,6 +29,10 @@ class DataRepository(application: Application) {
         return imageDao?.getImages(maxDescriptionCount)
     }
 
+    fun getImages(): LiveData<List<Image>>? {
+        return imageDao?.getImages()
+    }
+
     fun insertAudio(audio: Audio) {
         AppRoomDatabase.databaseWriteExecutor.execute {
             audioDao?.insertAudio(audio)
@@ -47,16 +51,26 @@ class DataRepository(application: Application) {
         }
     }
 
+    fun deleteImage(image: Image) {
+        AppRoomDatabase.databaseWriteExecutor.execute {
+            imageDao?.deleteImage(image)
+        }
+    }
+
     fun getAudios(): LiveData<List<Audio>>? {
         return audioDao?.getAudios()
     }
-
 
     fun updateImage(image: Image) {
         AppRoomDatabase.databaseWriteExecutor.execute {
             imageDao?.updateImage(image)
         }
     }
+
+    fun getParticipantById(id: Long): Participant? {
+        return participantDao?.getLastParticipant()
+    }
+
 
     init {
         db = AppRoomDatabase.getDatabase(application)

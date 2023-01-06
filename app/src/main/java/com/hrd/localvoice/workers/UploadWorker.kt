@@ -10,13 +10,14 @@ import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.work.Worker
 import androidx.work.WorkerParameters
+import com.google.gson.Gson
 import com.hrd.localvoice.AppRoomDatabase
 import com.hrd.localvoice.network.RestApiFactory
+import com.hrd.localvoice.network.response_models.UploadResponse
 import com.hrd.localvoice.utils.Constants.AUDIO_STATUS_UPLOADED
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
-import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -28,7 +29,7 @@ class UploadWorker(
 ) : Worker(context, workerParams) {
     private val uploadNotificationChannel = "com.hrd.localvoice.upload-notification-channel"
     private val tag = "UploadWorker"
-    val apiService = RestApiFactory.create(context)
+    private val apiService = RestApiFactory.create(context)
     val database: AppRoomDatabase? = AppRoomDatabase.INSTANCE
 
     override fun doWork(): Result {
@@ -36,35 +37,54 @@ class UploadWorker(
         return Result.success()
     }
 
-    private fun uploadPendingAudios() {
+    fun uploadPendingAudios() {
         var uploadedAudioCount = 0
         database?.AudioDao()?.getPendingAudios()?.forEach { audio ->
+            val participant =
+                AppRoomDatabase.INSTANCE?.ParticipantDao()
+                    ?.getParticipantNow(audio.participantId!!)
+
+            val gson = Gson()
+            val audioString: String = gson.toJson(audio)
+            val participantString = gson.toJson(participant)
+
+
             val file = File(audio.localFileURl)
             if (file.exists()) {
                 val requestFile: RequestBody = RequestBody.create(MediaType.parse("audio/*"), file)
                 val audioFile =
                     MultipartBody.Part.createFormData("audio_file", file.name, requestFile)
 
-                val idRequest =
-                    RequestBody.create(MediaType.parse("text/plain"), "${audio.remoteImageID}")
+                val audioDataRequest =
+                    RequestBody.create(MediaType.parse("text/plain"), audioString)
+                val participantDataRequest =
+                    RequestBody.create(MediaType.parse("text/plain"), participantString)
 
-                val remoteImageBody =
-                    MultipartBody.Part.createFormData("remote_image_id", null, idRequest)
+                val audioDataBody =
+                    MultipartBody.Part.createFormData("audio_data", null, audioDataRequest)
 
-                apiService?.uploadAudioFile(audioFile, remoteImageBody)
-                    ?.enqueue(object : Callback<ResponseBody?> {
+                val participantDataBody =
+                    MultipartBody.Part.createFormData(
+                        "participant_data",
+                        null,
+                        participantDataRequest
+                    )
+
+                apiService?.uploadAudioFile(audioFile, audioDataBody, participantDataBody)
+                    ?.enqueue(object : Callback<UploadResponse?> {
                         override fun onResponse(
-                            call: Call<ResponseBody?>, response: Response<ResponseBody?>
+                            call: Call<UploadResponse?>, response: Response<UploadResponse?>
                         ) {
-                            audio.status = AUDIO_STATUS_UPLOADED
-
-                            AppRoomDatabase.databaseWriteExecutor.execute {
-                                database.AudioDao().updateAudio(audio)
+                            if (response.body()?.success == true) {
+                                audio.status = AUDIO_STATUS_UPLOADED
+                                AppRoomDatabase.databaseWriteExecutor.execute {
+                                    database.AudioDao().updateAudio(audio)
+                                }
+                                uploadedAudioCount++
                             }
-                            uploadedAudioCount++
                         }
 
-                        override fun onFailure(call: Call<ResponseBody?>, t: Throwable) {
+                        override fun onFailure(call: Call<UploadResponse?>, t: Throwable) {
                             Toast.makeText(
                                 context, "Error: ${t.message}", Toast.LENGTH_LONG
                             ).show()

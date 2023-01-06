@@ -154,6 +154,7 @@ class AudioRecorderActivity : AppCompatActivity() {
                         currentImage.remoteId,
                         result,
                         description,
+                        duration = recorder.audioDuration(),
                         participantId = currentParticipant!!.id
                     )
                 viewModel.insertAudio(audio)

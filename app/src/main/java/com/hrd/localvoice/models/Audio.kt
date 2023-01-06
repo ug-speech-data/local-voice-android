@@ -30,6 +30,8 @@ data class Audio(
     var status: String = UPLOAD_STATUS_PENDING,
     var remoteId: Long? = null,
     var remoteURL: Long? = null,
+    var duration: Long? = null,
+    var sizeInBytes: Long? = null,
     val participantId: Long? = null,
     @PrimaryKey(autoGenerate = true)
     var id: Long = 0,

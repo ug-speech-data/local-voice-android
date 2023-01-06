@@ -146,6 +146,9 @@ class MainActivity : AppCompatActivity() {
             ExistingPeriodicWorkPolicy.REPLACE,
             uploadWorker
         )
+
+        // Tests
+
     }
 
     @RequiresApi(Build.VERSION_CODES.M)

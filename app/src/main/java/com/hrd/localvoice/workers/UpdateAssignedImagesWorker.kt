@@ -1,14 +1,13 @@
 package com.hrd.localvoice.workers
 
 import android.content.Context
-import android.os.Environment
-import android.util.Log
 import android.widget.Toast
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.hrd.localvoice.AppRoomDatabase
 import com.hrd.localvoice.network.RestApiFactory
 import com.hrd.localvoice.network.response_models.ImagesResponse
+import com.hrd.localvoice.utils.BinaryFileDownloader
 import com.hrd.localvoice.utils.Functions
 import retrofit2.Call
 import retrofit2.Callback
@@ -53,19 +52,21 @@ class UpdateAssignedImagesWorker(
                                         ).exists()
                                     ) {
                                         // Local file does not exist
-                                        val title = "${image.name}.$extension"
-                                        // Start download
-                                        Functions.downloadFile(context, sourceUrl, "images/$title")
 
-                                        // Update configuration
-                                        val file = File(
-                                            Environment.getExternalStoragePublicDirectory(
-                                                Environment.DIRECTORY_DOCUMENTS
-                                            ),
-                                            "LocalVoice${File.separator}images/$title"
-                                        )
-                                        image.localURl = file.absolutePath
-                                        database?.ImageDao()?.insertImage(image)
+                                        val title =
+                                            "${image.remoteId}_${System.currentTimeMillis()}.$extension"
+
+                                        // Start download
+                                        Thread {
+                                            val downloader = BinaryFileDownloader()
+                                            val destinationName =
+                                                downloader.download(context, sourceUrl, title)
+                                            if (destinationName != null) {
+                                                // Update configuration
+                                                image.localURl = destinationName
+                                                database?.ImageDao()?.insertImage(image)
+                                            }
+                                        }.start()
                                     }
                                 }
                             }

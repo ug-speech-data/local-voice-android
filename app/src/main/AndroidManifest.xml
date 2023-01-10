@@ -41,7 +41,7 @@
                 android:value="" />
         </activity>
         <activity
-            android:name=".view.VideoPlayerActivity"
+            android:name=".view.videoplayer.VideoPlayerActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:exported="false"
             android:label="@string/title_activity_video_player"

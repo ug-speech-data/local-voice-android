@@ -16,7 +16,7 @@ import com.hrd.localvoice.R
 import com.hrd.localvoice.databinding.ActivityParticipantBioBinding
 import com.hrd.localvoice.models.Participant
 import com.hrd.localvoice.utils.Constants
-import com.hrd.localvoice.view.VideoPlayerActivity
+import com.hrd.localvoice.view.videoplayer.VideoPlayerActivity
 
 
 class ParticipantBioActivity : AppCompatActivity() {
@@ -60,28 +60,25 @@ class ParticipantBioActivity : AppCompatActivity() {
                 binding.genderErrorLabel.visibility = View.GONE
             }
 
-            // Locale
-            var locale = ""
-            val selectedLocaleId: Int = binding.localeGroup.checkedRadioButtonId
-            if (selectedLocaleId == -1) {
-                binding.localeErrorLabel.visibility = View.VISIBLE
-            } else {
-                val radioButton: RadioButton = binding.localeGroup.findViewById(selectedLocaleId)
-                locale = radioButton.text.toString()
-                binding.localeErrorLabel.visibility = View.GONE
-            }
-
             if (environment.isEmpty()) {
                 binding.environmentErrorLabel.visibility = View.VISIBLE
             } else {
                 binding.environmentErrorLabel.visibility = View.GONE
             }
 
-            if (age.isNotEmpty() && gender.isNotEmpty() && locale.isNotEmpty() && environment.isNotEmpty()) {
+            // Privacy Policy
+            val checkedPrivacyPolicy = binding.privacyPolicyCheckBox.isChecked
+            if (!checkedPrivacyPolicy) {
+                binding.privacyPolicyErrorLabel.visibility = View.VISIBLE
+            } else {
+                binding.privacyPolicyErrorLabel.visibility = View.GONE
+            }
+
+            if (age.isNotEmpty() && gender.isNotEmpty() && environment.isNotEmpty() && checkedPrivacyPolicy) {
                 val participant = Participant(
                     age.toInt(), gender, null, null, environment = environment,
-                    locale = locale,
-                    deviceId = deviceId
+                    deviceId = deviceId,
+                    acceptedPrivacyPolicy = checkedPrivacyPolicy
                 )
                 viewModel.createParticipant(participant)
                 Thread(saveLastParticipantInSharedPreferences).start()

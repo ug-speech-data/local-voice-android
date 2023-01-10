@@ -18,6 +18,8 @@ data class Configuration(
 
     @SerializedName("max_image_description_count") var maxImageDescriptionCount: Int? = 3,
 
+    @SerializedName("participant_privacy_statement") var privacyPolicyStatement: String? = "",
+
     @PrimaryKey(autoGenerate = true)
     var id: Long = 0,
 ) : Parcelable

@@ -50,7 +50,7 @@ class UploadWorker(
 
 
             val file = File(audio.localFileURl)
-            if (file.exists()) {
+            if (file.exists() && participant?.momoNumber != null) {
                 val requestFile: RequestBody = RequestBody.create(MediaType.parse("audio/*"), file)
                 val audioFile =
                     MultipartBody.Part.createFormData("audio_file", file.name, requestFile)

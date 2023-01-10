@@ -19,6 +19,5 @@ object Constants {
 //    const val TEST_BASE_API_URL: String = "https://localvoice.pythonanywhere.com/api/"
 
     const val TEST_BASE_API_URL: String = "http://192.168.8.100:8000/api/"
-
-    const val LIVE_BASE_API_URL: String = "https://localvoice.pythonanywhere.com/api/"
+    const val LIVE_BASE_API_URL: String = "https://lvapi.dodziraynard.me/api/"
 }

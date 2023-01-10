@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="?attr/fullscreenBackgroundColor"
     android:theme="@style/ThemeOverlay.LocalVoice.FullscreenContainer"
-    tools:context=".view.VideoPlayerActivity">
+    tools:context=".view.videoplayer.VideoPlayerActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/fullscreen_content"

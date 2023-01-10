@@ -21,6 +21,7 @@ data class Participant(
     var deviceId: String? = null,
     var fullname: String? = null,
     var audioDurationInSeconds: Long? = 0,
+    var acceptedPrivacyPolicy : Boolean? = false,
     @PrimaryKey(autoGenerate = true)
     @SerializedName("local_id")
     var id: Long = 0,

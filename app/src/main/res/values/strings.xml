@@ -74,4 +74,7 @@
     <string name="select_environment">Select environment</string>
     <string name="done">Done</string>
     <string name="home">Home</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="accept_our">Accept Our</string>
+    <string name="please_accept_our_privacy_policy">Please accept our privacy policy</string>
 </resources>

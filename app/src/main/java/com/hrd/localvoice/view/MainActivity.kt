@@ -21,6 +21,7 @@ import androidx.work.*
 import com.hrd.localvoice.AppRoomDatabase
 import com.hrd.localvoice.R
 import com.hrd.localvoice.databinding.ActivityMainBinding
+import com.hrd.localvoice.utils.BinaryFileDownloader
 import com.hrd.localvoice.utils.Constants
 import com.hrd.localvoice.utils.Constants.SHARED_PREFS_FILE
 import com.hrd.localvoice.utils.Functions.Companion.getPathFromUri
@@ -32,6 +33,7 @@ import com.hrd.localvoice.workers.UpdateAssignedImagesWorker
 import com.hrd.localvoice.workers.UpdateConfigurationWorker
 import com.hrd.localvoice.workers.UploadWorker
 import java.io.File
+import java.io.FileOutputStream
 import java.util.concurrent.TimeUnit
 
 
@@ -83,12 +85,11 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, MyAudiosActivity::class.java))
         }
 
-        // Open downloaded images acivity
+        // Open downloaded images activity
         binding.imagesCard.setOnClickListener {
             startActivity(Intent(this, MyImagesActivity::class.java))
         }
 
-        //Update tasks load info
         // Fetch maximum description count from db
         viewModel.getConfiguration()?.observe(this) { configuration ->
             if (configuration == null || !File(configuration.demoVideoLocalUrl).exists()) {
@@ -146,9 +147,6 @@ class MainActivity : AppCompatActivity() {
             ExistingPeriodicWorkPolicy.REPLACE,
             uploadWorker
         )
-
-        // Tests
-
     }
 
     @RequiresApi(Build.VERSION_CODES.M)

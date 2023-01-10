@@ -143,7 +143,10 @@ class AudioRecorderActivity : AppCompatActivity() {
             val currentImage = availableImages[currentImageIndex.mod(availableImages.size)]
             val fileName =
                 "image_" + currentImage.remoteId.toString()
-                    .padStart(6, '0') + "_description_${System.currentTimeMillis()}.wav"
+                    .padStart(
+                        6,
+                        '0'
+                    ) + "_description_${currentImage.descriptionCount + 1}_${System.currentTimeMillis()}.wav"
             val result = recorder.saveAudioIntoFile(fileName)
             if (result != null && currentParticipant != null) {
                 val description = currentImage.name
@@ -175,7 +178,6 @@ class AudioRecorderActivity : AppCompatActivity() {
             }
         }
     }
-
 
     private fun setup() {
         viewModel = ViewModelProvider(this)[RecorderActivityViewModel::class.java]
@@ -249,6 +251,8 @@ class AudioRecorderActivity : AppCompatActivity() {
     }
 
     private fun showImageAtIndex(index: Int) {
+        binding.timerLabel.text = "00:00"
+
         val currentImage = availableImages[index.mod(availableImages.size)]
         val options: RequestOptions =
             RequestOptions().fitCenter().placeholder(R.mipmap.loading).error(R.mipmap.loading)

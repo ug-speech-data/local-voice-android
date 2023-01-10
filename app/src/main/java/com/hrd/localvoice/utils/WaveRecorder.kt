@@ -7,7 +7,6 @@ import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaPlayer
 import android.media.MediaRecorder
-import android.os.Environment
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import java.io.File
@@ -15,6 +14,7 @@ import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
 import kotlin.math.abs
+
 
 class WaveRecorder(private var context: Context) {
     private val audioSampleRate = 44100
@@ -40,11 +40,7 @@ class WaveRecorder(private var context: Context) {
     }
 
     fun playBackRecording() {
-        val file = File(
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS),
-            File.separator + "AudioRecorder/audios"
-        )
-        val fileName = file.absolutePath + File.separator + "temp.wav"
+        val fileName = File(context.filesDir, "temp.wav").absolutePath
 
         if (mediaPlayer == null) {
             mediaPlayer = MediaPlayer()
@@ -271,18 +267,10 @@ class WaveRecorder(private var context: Context) {
     }
 
     private fun saveIntoSaveFile(finalAudioData: ByteArray, fileName: String?): String? {
-        val file = File(
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS),
-            File.separator + "AudioRecorder/audios"
-        )
-        if (!(file.exists() || file.mkdirs())) {
-            Log.d(TAG, "saveIntoSaveFile: Couldn't create directory.")
-            return null
-        }
         val saveToFile = if (fileName == null) {
-            file.absolutePath + File.separator + "temp.wav"
+            File(context.filesDir, "temp.wav").absolutePath
         } else {
-            file.absolutePath + File.separator + fileName
+            File(context.filesDir, fileName).absolutePath
         }
 
         val out: FileOutputStream

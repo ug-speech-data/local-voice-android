@@ -42,51 +42,61 @@ class ParticipantCompensationDetailsActivity : AppCompatActivity() {
         }
 
         binding.homeButton.setOnClickListener {
-            startActivity(Intent(this, MainActivity::class.java))
+            if (saveDetails()) {
+                startActivity(Intent(this, MainActivity::class.java))
+                finish()
+            }
         }
 
         binding.nextParticipant.setOnClickListener {
-            // Phone
-            val phone = binding.phoneInput.text.toString()
-            if (phone.isEmpty()) {
-                binding.phoneErrorLabel.visibility = View.VISIBLE
-            } else {
-                binding.phoneErrorLabel.visibility = View.GONE
-            }
-
-            // Network
-            var network = ""
-            val selectedId: Int = binding.networkGroup.checkedRadioButtonId
-            if (selectedId == -1) {
-                binding.networkErrorLabel.visibility = View.VISIBLE
-            } else {
-                val radioButton: RadioButton = binding.networkGroup.findViewById(selectedId)
-                network = radioButton.text.toString()
-                binding.networkErrorLabel.visibility = View.GONE
-            }
-
-            // Full name
-            val fullName = binding.fullNameInput.text.toString()
-            if (fullName.isEmpty()) {
-                binding.fullNameErrorLabel.visibility = View.VISIBLE
-            } else {
-                binding.fullNameErrorLabel.visibility = View.GONE
-            }
-
-            if (phone.isNotEmpty() && network.isNotEmpty() && fullName.isNotEmpty() && currentParticipant != null) {
-                currentParticipant!!.momoNumber = phone
-                currentParticipant!!.network = network
-                currentParticipant!!.fullname = fullName
-
-                AppRoomDatabase.databaseWriteExecutor.execute {
-                    AppRoomDatabase.INSTANCE?.ParticipantDao()
-                        ?.updateParticipant(currentParticipant!!)
-                }
-
+            if (saveDetails()) {
                 startActivity(Intent(this, ParticipantBioActivity::class.java))
-            } else {
-                Toast.makeText(this, "Please fix the errors.", Toast.LENGTH_LONG).show()
+                finish()
             }
         }
+    }
+
+    private fun saveDetails(): Boolean {
+        // Phone
+        val phone = binding.phoneInput.text.toString()
+        if (phone.isEmpty()) {
+            binding.phoneErrorLabel.visibility = View.VISIBLE
+        } else {
+            binding.phoneErrorLabel.visibility = View.GONE
+        }
+
+        // Network
+        var network = ""
+        val selectedId: Int = binding.networkGroup.checkedRadioButtonId
+        if (selectedId == -1) {
+            binding.networkErrorLabel.visibility = View.VISIBLE
+        } else {
+            val radioButton: RadioButton = binding.networkGroup.findViewById(selectedId)
+            network = radioButton.text.toString()
+            binding.networkErrorLabel.visibility = View.GONE
+        }
+
+        // Full name
+        val fullName = binding.fullNameInput.text.toString()
+        if (fullName.isEmpty()) {
+            binding.fullNameErrorLabel.visibility = View.VISIBLE
+        } else {
+            binding.fullNameErrorLabel.visibility = View.GONE
+        }
+
+        if (phone.isNotEmpty() && network.isNotEmpty() && fullName.isNotEmpty() && currentParticipant != null) {
+            currentParticipant!!.momoNumber = phone
+            currentParticipant!!.network = network
+            currentParticipant!!.fullname = fullName
+
+            AppRoomDatabase.databaseWriteExecutor.execute {
+                AppRoomDatabase.INSTANCE?.ParticipantDao()
+                    ?.updateParticipant(currentParticipant!!)
+            }
+            return true
+        } else {
+            Toast.makeText(this, "Please fix the errors.", Toast.LENGTH_LONG).show()
+        }
+        return false;
     }
 }

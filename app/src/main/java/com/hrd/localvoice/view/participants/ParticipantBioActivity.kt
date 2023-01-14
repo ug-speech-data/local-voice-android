@@ -6,14 +6,14 @@ import android.os.Build
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.RadioButton
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.hrd.localvoice.AppRoomDatabase
 import com.hrd.localvoice.R
 import com.hrd.localvoice.databinding.ActivityParticipantBioBinding
+import com.hrd.localvoice.models.Configuration
 import com.hrd.localvoice.models.Participant
 import com.hrd.localvoice.utils.Constants
 import com.hrd.localvoice.view.videoplayer.VideoPlayerActivity
@@ -21,6 +21,7 @@ import com.hrd.localvoice.view.videoplayer.VideoPlayerActivity
 
 class ParticipantBioActivity : AppCompatActivity() {
     private lateinit var viewModel: ParticipantBioActivityViewModel
+    private var configuration: Configuration? = null
 
     companion object {
         const val currentParticipantData = "com.hrd.localvoice.currentParticipant"
@@ -30,23 +31,34 @@ class ParticipantBioActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         val binding = ActivityParticipantBioBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        viewModel = ViewModelProvider(this)[ParticipantBioActivityViewModel::class.java]
 
         // Show back button
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
         title = getString(R.string.participant_bio)
 
-        viewModel = ViewModelProvider(this)[ParticipantBioActivityViewModel::class.java]
+        viewModel.configuration?.observe(this) {
+            configuration = it
+        }
+
         var environment = ""
         val deviceId = Build.MANUFACTURER + " " + Build.MODEL
 
+        // Privacy policy
+        binding.privacyPolicyLabel.setOnClickListener {
+            showPrivacyPolicyBottomSheetDialog()
+        }
+
         binding.nextButton.setOnClickListener {
             // Age
-            val age = binding.ageInput.text.toString()
-            if (age.isEmpty()) {
+            val age = binding.ageInput.text.toString().toIntOrNull()
+            val ageIsValid: Boolean;
+            if ((age == null) || (age.toString().length != 2)) {
                 binding.ageErrorLabel.visibility = View.VISIBLE
+                ageIsValid = false
             } else {
                 binding.ageErrorLabel.visibility = View.GONE
+                ageIsValid = true
             }
 
             // Gender
@@ -74,9 +86,9 @@ class ParticipantBioActivity : AppCompatActivity() {
                 binding.privacyPolicyErrorLabel.visibility = View.GONE
             }
 
-            if (age.isNotEmpty() && gender.isNotEmpty() && environment.isNotEmpty() && checkedPrivacyPolicy) {
+            if (ageIsValid && gender.isNotEmpty() && environment.isNotEmpty() && checkedPrivacyPolicy) {
                 val participant = Participant(
-                    age.toInt(), gender, null, null, environment = environment,
+                    age!!, gender, null, null, environment = environment,
                     deviceId = deviceId,
                     acceptedPrivacyPolicy = checkedPrivacyPolicy
                 )
@@ -109,6 +121,23 @@ class ParticipantBioActivity : AppCompatActivity() {
                     environment = environments[position]
                 }
             }
+    }
+
+    private fun showPrivacyPolicyBottomSheetDialog() {
+        val bottomSheetDialog = BottomSheetDialog(this)
+        bottomSheetDialog.setContentView(R.layout.privacy_policy_bottom_sheet_dialog_layout)
+
+        val textView = bottomSheetDialog.findViewById<TextView>(R.id.privacy_policy_text)
+        val actionButton = bottomSheetDialog.findViewById<Button>(R.id.action_button)
+
+        actionButton?.setOnClickListener {
+            bottomSheetDialog.dismiss();
+        }
+
+        if (configuration != null && textView != null) {
+            textView.text = configuration?.privacyPolicyStatement
+        }
+        bottomSheetDialog.show()
     }
 
     private val saveLastParticipantInSharedPreferences = Runnable {

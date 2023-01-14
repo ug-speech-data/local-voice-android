@@ -3,9 +3,10 @@ package com.hrd.localvoice.view.videoplayer
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.*
-import android.util.Log
 import android.view.*
+import android.widget.Button
 import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -14,6 +15,7 @@ import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.PlaybackException
 import com.google.android.exoplayer2.Player
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.hrd.localvoice.R
 import com.hrd.localvoice.databinding.ActivityVideoPlayerBinding
 import com.hrd.localvoice.models.Configuration
@@ -78,8 +80,24 @@ class VideoPlayerActivity : AppCompatActivity() {
             configuration = it
             initializePlayer()
         }
+
+        showPrivacyPolicyBottomSheetDialog()
     }
 
+    private fun showPrivacyPolicyBottomSheetDialog() {
+        val bottomSheetDialog = BottomSheetDialog(this)
+        bottomSheetDialog.setContentView(R.layout.demo_video_info_bottom_sheet_dialog_layout)
+
+        val actionButton = bottomSheetDialog.findViewById<Button>(R.id.action_button)
+        actionButton?.setOnClickListener {
+            bottomSheetDialog.dismiss();
+            player?.playWhenReady = true
+            if (player?.isPlaying == false) {
+                player?.play()
+            }
+        }
+        bottomSheetDialog.show()
+    }
 
     @SuppressLint("InlinedApi")
     private val hidePart2Runnable = Runnable {
@@ -175,7 +193,7 @@ class VideoPlayerActivity : AppCompatActivity() {
             binding.videoView.player = player
         }
 
-        player!!.playWhenReady = true
+        player!!.playWhenReady = false
         player!!.seekTo(0)
         val file = configuration?.demoVideoLocalUrl?.let { File(it) }
         if (file?.exists() == true) {
@@ -236,6 +254,11 @@ class VideoPlayerActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         releasePlayer()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        initializePlayer()
     }
 
     override fun onStop() {

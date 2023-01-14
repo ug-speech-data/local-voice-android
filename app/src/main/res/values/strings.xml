@@ -36,7 +36,7 @@
     <string name="other">Other</string>
     <string name="age">Age</string>
     <string name="please_choose_gender">Please choose gender</string>
-    <string name="age_is_required">Age is required</string>
+    <string name="age_is_required">Please enter a number between 10 and 99</string>
     <string name="full_screen">Full screen</string>
     <string name="title_activity_video_player">VideoPlayerActivity</string>
     <string name="dummy_button">Dummy Button</string>
@@ -56,7 +56,7 @@
     <string name="noisy_environment_message">This environment is too noisy.</string>
     <string name="record_participants">Record Audio</string>
     <string name="starting_recording_message">Start recording here. Speak to your participants in a quiet environment. Encourage your participants to rehearse before starting the recording.</string>
-    <string name="previous_audios_message">Click here to view all your previous recordings and their upload status. You can retry the upload.</string>
+    <string name="previous_audios_message"><b>Click</b> here to view all your previous recordings and their upload status. You can retry the upload.</string>
     <string name="previous_audios">Previous Audios</string>
     <string name="background_noise_check_message">Checking background noise level. \nPlease be silent 5 seconds.</string>
     <string name="no_data_found">No data found.</string>
@@ -77,4 +77,12 @@
     <string name="privacy_policy">Privacy Policy</string>
     <string name="accept_our">Accept Our</string>
     <string name="please_accept_our_privacy_policy">Please accept our privacy policy</string>
+    <string name="momo_number">Momo Number</string>
+    <string name="enter_a_validate_10_digit_ghanaian_momo_number">Enter a validate 10-digit Ghanaian momo number</string>
+    <string name="network">Network</string>
+    <string name="full_name">Full Name</string>
+    <string name="enter_your_full_name">Enter your full name</string>
+    <string name="read_me">READ ME</string>
+    <string name="video_instructions">Here is a demo video of a sample description recording. A good description does not contain phrases like \"I can see\", \"the picture\" etc. \n\nClick on \"\<b>Continue</b>\" when done watching the demo video to continue or skip.</string>
+    <string name="click_to_view_images"><b>Click</b> view all the downloaded images and their number descriptions.</string>
 </resources>

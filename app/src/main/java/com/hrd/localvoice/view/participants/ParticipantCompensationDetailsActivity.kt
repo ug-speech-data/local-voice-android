@@ -19,7 +19,6 @@ class ParticipantCompensationDetailsActivity : AppCompatActivity() {
     private lateinit var viewModel: ParticipantBioActivityViewModel
     private var currentParticipant: Participant? = null
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityParticipantCompensationDetailsBinding.inflate(layoutInflater)
@@ -59,10 +58,13 @@ class ParticipantCompensationDetailsActivity : AppCompatActivity() {
     private fun saveDetails(): Boolean {
         // Phone
         val phone = binding.phoneInput.text.toString()
-        if (phone.isEmpty()) {
+        val phoneIsValid: Boolean
+        if (phone.length != 10 || !phone.startsWith("0")) {
             binding.phoneErrorLabel.visibility = View.VISIBLE
+            phoneIsValid = false
         } else {
             binding.phoneErrorLabel.visibility = View.GONE
+            phoneIsValid = true
         }
 
         // Network
@@ -84,7 +86,7 @@ class ParticipantCompensationDetailsActivity : AppCompatActivity() {
             binding.fullNameErrorLabel.visibility = View.GONE
         }
 
-        if (phone.isNotEmpty() && network.isNotEmpty() && fullName.isNotEmpty() && currentParticipant != null) {
+        if (phoneIsValid && network.isNotEmpty() && fullName.isNotEmpty() && currentParticipant != null) {
             currentParticipant!!.momoNumber = phone
             currentParticipant!!.network = network
             currentParticipant!!.fullname = fullName

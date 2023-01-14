@@ -27,24 +27,24 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
-                    android:text="Momo Number" />
+                    android:text="@string/momo_number" />
 
                 <EditText
                     android:id="@+id/phone_input"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:autofillHints="age"
-                    android:drawableStart="@drawable/ic_baseline_access_time_24"
+                    android:drawableStart="@drawable/ic_baseline_attach_money_24"
                     android:drawablePadding="5dp"
                     android:drawableTint="@color/gray_600"
-                    android:hint="Momo Number"
+                    android:hint="@string/momo_number"
                     android:inputType="text" />
 
                 <TextView
                     android:id="@+id/phone_error_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Enter a validate 10-digit Ghanaian momo number"
+                    android:text="@string/enter_a_validate_10_digit_ghanaian_momo_number"
                     android:textColor="@color/purple_700"
                     android:visibility="gone"
                     app:layout_constraintStart_toStartOf="parent"
@@ -55,7 +55,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="30dp"
-                    android:text="Network" />
+                    android:text="@string/network" />
 
                 <RadioGroup
                     android:id="@+id/network_group"
@@ -94,24 +94,24 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="30dp"
-                    android:text="Full Name" />
+                    android:text="@string/full_name" />
 
                 <EditText
                     android:id="@+id/full_name_input"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:autofillHints="name"
-                    android:drawableStart="@drawable/ic_baseline_access_time_24"
+                    android:drawableStart="@drawable/ic_baseline_person_outline_24"
                     android:drawablePadding="5dp"
                     android:drawableTint="@color/gray_600"
-                    android:hint="Full Name"
+                    android:hint="@string/full_name"
                     android:inputType="text" />
 
                 <TextView
                     android:id="@+id/full_name_error_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Enter your full name"
+                    android:text="@string/enter_your_full_name"
                     android:textColor="@color/purple_700"
                     android:visibility="gone"
                     app:layout_constraintStart_toStartOf="parent"

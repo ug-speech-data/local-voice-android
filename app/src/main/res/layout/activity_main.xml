@@ -19,11 +19,20 @@
             android:layout_height="wrap_content"
             android:layout_gravity="end"
             android:layout_marginHorizontal="10dp"
-            android:layout_marginVertical="20dp"
+            android:layout_marginVertical="5dp"
             android:drawablePadding="3dp"
             app:drawableStartCompat="@drawable/ic_outline_info_24"
             app:drawableTint="@color/gray_600"
             tools:text="Missing Config" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/update_local_images"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginHorizontal="10dp"
+            android:text="@string/update_local_images"
+            android:textAllCaps="false" />
 
         <androidx.cardview.widget.CardView
             android:id="@+id/images_card"
@@ -39,7 +48,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="10dp"
                 android:orientation="vertical"
-                android:padding="10dp">
+                android:paddingHorizontal="10dp">
 
                 <TextView
                     android:id="@+id/assigned_images_info"
@@ -53,18 +62,13 @@
                     android:id="@+id/expected_description_count"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="10dp"
                     tools:text="25 Descriptions" />
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/update_local_images"
-                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="end"
-                    android:text="@string/update_local_images"
-                    android:textAllCaps="false" />
-
+                    android:layout_marginTop="5dp"
+                    android:text="@string/click_to_view_images" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
@@ -73,6 +77,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
+            android:backgroundTint="@color/purple_700"
             android:clickable="true"
             android:focusable="true"
             android:foreground="?attr/selectableItemBackgroundBorderless">
@@ -88,14 +93,15 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/record_participants"
+                    android:textColor="@color/white"
                     android:textSize="20sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="20dp"
-                    android:text="@string/starting_recording_message" />
+                    android:text="@string/starting_recording_message"
+                    android:textColor="@color/white" />
             </LinearLayout>
 
         </androidx.cardview.widget.CardView>
@@ -119,7 +125,6 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="10dp"
                     android:text="@string/previous_audios"
                     android:textSize="20sp"
                     android:textStyle="bold" />
@@ -127,8 +132,6 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="20dp"
-
                     android:text="@string/previous_audios_message" />
             </LinearLayout>
 

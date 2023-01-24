@@ -12,14 +12,8 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class Configuration(
     var demoVideoLocalUrl: String = "",
-
-    @SerializedName("demo_video_url")
-    var demoVideoRemoteUrl: String = "",
-
+    @SerializedName("demo_video_url") var demoVideoRemoteUrl: String = "",
     @SerializedName("max_image_description_count") var maxImageDescriptionCount: Int? = 3,
-
     @SerializedName("participant_privacy_statement") var privacyPolicyStatement: String? = "",
-
-    @PrimaryKey(autoGenerate = true)
-    var id: Long = 0,
+    @PrimaryKey(autoGenerate = true) var id: Long = 0,
 ) : Parcelable

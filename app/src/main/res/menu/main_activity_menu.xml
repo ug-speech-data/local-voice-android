@@ -2,8 +2,17 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/action_logout"
+        android:id="@+id/action_profile"
+        android:icon="@drawable/ic_baseline_person_outline_24"
+        app:iconTint="@color/gray_400"
         android:orderInCategory="1"
-        android:title="Logout"
+        android:title="@string/profile"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_logout"
+        app:iconTint="@color/gray_400"
+        android:orderInCategory="1"
+        android:title="@string/logout"
         app:showAsAction="ifRoom" />
 </menu>

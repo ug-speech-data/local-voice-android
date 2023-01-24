@@ -6,6 +6,7 @@ import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.hrd.localvoice.AppRoomDatabase
 import com.hrd.localvoice.network.RestApiFactory
+import com.hrd.localvoice.network.response_models.AuthenticationResponse
 import com.hrd.localvoice.network.response_models.ConfigurationResponse
 import com.hrd.localvoice.utils.BinaryFileDownloader
 import retrofit2.Call
@@ -48,15 +49,7 @@ class UpdateConfigurationWorker(
                             val extension =
                                 destinationPath.split(".")[destinationPath.split(".").size - 1]
 
-//                            // Start download
-//                            val fileName = "videos${File.separator}$title"
-//                            Functions.downloadFile(context, destinationPath, fileName)
-
                             val title = "demo_video_${System.currentTimeMillis()}.$extension"
-
-//                            configuration.demoVideoLocalUrl = file.absolutePath
-//                            database?.ConfigurationDao()?.updateConfiguration(configuration)
-
                             Thread {
                                 val downloader = BinaryFileDownloader()
                                 val destinationName =
@@ -89,6 +82,26 @@ class UpdateConfigurationWorker(
             override fun onFailure(call: Call<ConfigurationResponse?>, t: Throwable) {
                 Toast.makeText(
                     context, "Couldn't update app configurations: ${t.message}", Toast.LENGTH_LONG
+                ).show()
+            }
+        })
+
+        // Update user's profile from server: e.g., get latest permissions changes.
+        apiService?.getProfile()?.enqueue(object : Callback<AuthenticationResponse?> {
+            override fun onResponse(
+                call: Call<AuthenticationResponse?>, response: Response<AuthenticationResponse?>
+            ) {
+                // Store user in the database
+                if (response.body()?.user != null) {
+                    AppRoomDatabase.databaseWriteExecutor.execute {
+                        database?.UserDao()?.deleteAll()
+                        database?.UserDao()?.insertUser(response.body()!!.user!!)
+                    }
+                }
+            }
+            override fun onFailure(call: Call<AuthenticationResponse?>, t: Throwable) {
+                Toast.makeText(
+                    context, "Couldn't update profile: ${t.message}", Toast.LENGTH_LONG
                 ).show()
             }
         })

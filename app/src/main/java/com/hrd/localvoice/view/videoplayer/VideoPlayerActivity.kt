@@ -200,8 +200,6 @@ class VideoPlayerActivity : AppCompatActivity() {
             player!!.setMediaItem(MediaItem.fromUri(file.absolutePath))
             player!!.prepare()
             binding.progressBar.visibility = View.GONE
-        } else {
-            Toast.makeText(this, "File not found: ${file?.absolutePath}", Toast.LENGTH_LONG).show()
         }
 
         player!!.addListener(object : Player.Listener {

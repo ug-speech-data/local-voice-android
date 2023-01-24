@@ -1,40 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:context=".view.authentication.RegistrationActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
+        android:layout_gravity="top"
         android:orientation="vertical"
-        android:padding="10dp"
-        tools:context=".view.authentication.RegistrationActivity">
+        android:padding="10dp">
 
-        <ImageView
-            android:id="@+id/image_view"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:contentDescription="@string/app_logo"
-            android:foregroundTint="@color/gray_600"
-            android:src="@mipmap/ic_launcher"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/logo_name_label"
+        <LinearLayout
+            android:id="@+id/intro_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/app_name"
-            android:textAlignment="center"
-            android:textAllCaps="true"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            app:layout_constraintTop_toBottomOf="@id/image_view" />
+            android:layout_marginVertical="20dp"
+            android:orientation="vertical"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/info_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/app_name"
+                android:textAlignment="textStart"
+                android:textAllCaps="true"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="10dp"
+                android:text="@string/welcome_note"
+                app:layout_constraintStart_toStartOf="parent" />
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -43,62 +47,19 @@
             android:layout_marginTop="20dp"
             android:orientation="vertical"
             android:padding="10dp"
-            app:layout_constraintTop_toBottomOf="@id/logo_name_label">
+            app:layout_constraintTop_toBottomOf="@id/intro_text">
 
             <EditText
                 android:id="@+id/email_address_input"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginVertical="5dp"
+                android:autofillHints="emailAddress"
                 android:drawableStart="@drawable/ic_baseline_alternate_email_24"
-                android:drawableLeft="@drawable/ic_baseline_alternate_email_24"
                 android:drawablePadding="10dp"
                 android:drawableTint="@color/gray_600"
                 android:hint="@string/email_address"
                 android:inputType="textEmailAddress"
-                android:padding="10dp" />
-
-            <EditText
-                android:id="@+id/phoneInput"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginVertical="5dp"
-                android:autofillHints="phone"
-                android:drawableStart="@drawable/ic_baseline_phone_24"
-                android:drawableLeft="@drawable/ic_baseline_phone_24"
-                android:drawablePadding="10dp"
-                android:drawableTint="@color/gray_600"
-                android:hint="@string/momo_number"
-                android:inputType="phone"
-                android:padding="10dp" />
-
-
-            <EditText
-                android:id="@+id/surnameInput"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginVertical="5dp"
-                android:autofillHints="name"
-                android:drawableStart="@drawable/ic_baseline_contacts_24"
-                android:drawableLeft="@drawable/ic_baseline_contacts_24"
-                android:drawablePadding="10dp"
-                android:drawableTint="@color/gray_600"
-                android:hint="@string/surname"
-                android:inputType="textPersonName"
-                android:padding="10dp" />
-
-            <EditText
-                android:id="@+id/other_names_input"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginVertical="5dp"
-                android:autofillHints="name"
-                android:drawableStart="@drawable/ic_baseline_contacts_24"
-                android:drawableLeft="@drawable/ic_baseline_contacts_24"
-                android:drawablePadding="10dp"
-                android:drawableTint="@color/gray_600"
-                android:hint="@string/other_names"
-                android:inputType="textPersonName"
                 android:padding="10dp" />
 
             <LinearLayout
@@ -132,7 +93,6 @@
                     android:foreground="?attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_baseline_remove_red_eye_24"
                     android:tint="@color/gray_600" />
-
             </LinearLayout>
 
             <TextView

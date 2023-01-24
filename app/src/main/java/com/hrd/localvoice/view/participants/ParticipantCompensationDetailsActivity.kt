@@ -12,7 +12,7 @@ import com.hrd.localvoice.AppRoomDatabase
 import com.hrd.localvoice.databinding.ActivityParticipantCompensationDetailsBinding
 import com.hrd.localvoice.models.Participant
 import com.hrd.localvoice.utils.Constants
-import com.hrd.localvoice.view.MainActivity
+import com.hrd.localvoice.view.DoneActivity
 
 class ParticipantCompensationDetailsActivity : AppCompatActivity() {
     private lateinit var binding: ActivityParticipantCompensationDetailsBinding
@@ -25,6 +25,10 @@ class ParticipantCompensationDetailsActivity : AppCompatActivity() {
         setContentView(binding.root)
         viewModel = ViewModelProvider(this)[ParticipantBioActivityViewModel::class.java]
 
+        // Show back button
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        title = "Momo Details"
+
         AppRoomDatabase.databaseWriteExecutor.execute {
             // Retrieve current participant
             val prefsEditor: SharedPreferences =
@@ -35,21 +39,13 @@ class ParticipantCompensationDetailsActivity : AppCompatActivity() {
             currentParticipant = viewModel.getParticipantById(participantId)
 
             if (currentParticipant == null) {
-                Toast.makeText(this, "No participant found", Toast.LENGTH_LONG)
-                    .show()
+                Toast.makeText(this, "No participant found", Toast.LENGTH_LONG).show()
             }
         }
 
-        binding.homeButton.setOnClickListener {
+        binding.saveButton.setOnClickListener {
             if (saveDetails()) {
-                startActivity(Intent(this, MainActivity::class.java))
-                finish()
-            }
-        }
-
-        binding.nextParticipant.setOnClickListener {
-            if (saveDetails()) {
-                startActivity(Intent(this, ParticipantBioActivity::class.java))
+                startActivity(Intent(this, DoneActivity::class.java))
                 finish()
             }
         }
@@ -92,8 +88,7 @@ class ParticipantCompensationDetailsActivity : AppCompatActivity() {
             currentParticipant!!.fullname = fullName
 
             AppRoomDatabase.databaseWriteExecutor.execute {
-                AppRoomDatabase.INSTANCE?.ParticipantDao()
-                    ?.updateParticipant(currentParticipant!!)
+                AppRoomDatabase.INSTANCE?.ParticipantDao()?.updateParticipant(currentParticipant!!)
             }
             return true
         } else {

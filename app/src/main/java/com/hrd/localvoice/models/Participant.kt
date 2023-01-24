@@ -7,6 +7,7 @@ import com.google.gson.annotations.SerializedName
 import com.hrd.localvoice.utils.Constants.PARTICIPANT_TABLE
 import com.hrd.localvoice.utils.Constants.UPLOAD_STATUS_PENDING
 import kotlinx.parcelize.Parcelize
+import java.io.Serializable
 
 @Entity(tableName = PARTICIPANT_TABLE)
 @Parcelize
@@ -18,11 +19,10 @@ data class Participant(
     var network: String? = null,
     var environment: String? = null,
     var locale: String? = null,
-    var deviceId: String? = null,
     var fullname: String? = null,
     var audioDurationInSeconds: Long? = 0,
-    var acceptedPrivacyPolicy : Boolean? = false,
+    var acceptedPrivacyPolicy: Boolean? = false,
     @PrimaryKey(autoGenerate = true)
     @SerializedName("local_id")
     var id: Long = 0,
-) : Parcelable
+) : Parcelable, Serializable

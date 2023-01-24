@@ -1,17 +1,13 @@
 package com.hrd.localvoice.workers
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.content.Context
-import android.graphics.Color
-import android.os.Build
 import android.util.Log
 import android.widget.Toast
-import androidx.core.app.NotificationCompat
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.google.gson.Gson
 import com.hrd.localvoice.AppRoomDatabase
+import com.hrd.localvoice.models.Participant
 import com.hrd.localvoice.network.RestApiFactory
 import com.hrd.localvoice.network.response_models.UploadResponse
 import com.hrd.localvoice.utils.Constants.AUDIO_STATUS_UPLOADED
@@ -27,7 +23,6 @@ import java.io.File
 class UploadWorker(
     private val context: Context, workerParams: WorkerParameters
 ) : Worker(context, workerParams) {
-    private val uploadNotificationChannel = "com.hrd.localvoice.upload-notification-channel"
     private val tag = "UploadWorker"
     private val apiService = RestApiFactory.create(context)
     val database: AppRoomDatabase? = AppRoomDatabase.INSTANCE
@@ -37,20 +32,23 @@ class UploadWorker(
         return Result.success()
     }
 
-    fun uploadPendingAudios() {
-        var uploadedAudioCount = 0
+    private fun uploadPendingAudios() {
         database?.AudioDao()?.getPendingAudios()?.forEach { audio ->
-            val participant =
-                AppRoomDatabase.INSTANCE?.ParticipantDao()
+            var participant: Participant? = null
+            if (audio.participantId != null) {
+                participant = AppRoomDatabase.INSTANCE?.ParticipantDao()
                     ?.getParticipantNow(audio.participantId!!)
+            }
 
             val gson = Gson()
             val audioString: String = gson.toJson(audio)
             val participantString = gson.toJson(participant)
 
-
             val file = File(audio.localFileURl)
-            if (file.exists() && participant?.momoNumber != null) {
+            if (file.exists() && (participant == null || participant.momoNumber != null)) {
+                // Ensure that participants compensation details are filled before uploading audio
+                // If audio is done by a participant
+                // If participant is null, then the recording was done by the user themselves.
                 val requestFile: RequestBody = RequestBody.create(MediaType.parse("audio/*"), file)
                 val audioFile =
                     MultipartBody.Part.createFormData("audio_file", file.name, requestFile)
@@ -80,10 +78,8 @@ class UploadWorker(
                                 AppRoomDatabase.databaseWriteExecutor.execute {
                                     database.AudioDao().updateAudio(audio)
                                 }
-                                uploadedAudioCount++
                             }
                         }
-
                         override fun onFailure(call: Call<UploadResponse?>, t: Throwable) {
                             Toast.makeText(
                                 context, "Error: ${t.message}", Toast.LENGTH_LONG
@@ -93,34 +89,5 @@ class UploadWorker(
                     })
             }
         }
-
-        if (uploadedAudioCount > 0) {
-            addNotification(uploadedAudioCount)
-        }
-    }
-
-    private fun addNotification(uploadedAudioCount: Int) {
-        // create android channel
-        val mBuilder = NotificationCompat.Builder(context, uploadNotificationChannel)
-            .setSmallIcon(com.hrd.localvoice.R.drawable.ic_logo_notification)
-            .setContentTitle("Upload Worker")
-            .setContentText("Done uploading $uploadedAudioCount audios.")
-
-        val mNotificationManager =
-            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager?
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val importance = NotificationManager.IMPORTANCE_HIGH
-            val notificationChannel = NotificationChannel(
-                uploadNotificationChannel, "Upload Audio", importance
-            )
-            notificationChannel.enableLights(true)
-            notificationChannel.lightColor = Color.RED
-            mBuilder.setChannelId(uploadNotificationChannel)
-            assert(mNotificationManager != null)
-            mNotificationManager!!.createNotificationChannel(notificationChannel)
-        }
-        assert(mNotificationManager != null)
-        mNotificationManager!!.notify(System.currentTimeMillis().toInt(), mBuilder.build())
     }
 }

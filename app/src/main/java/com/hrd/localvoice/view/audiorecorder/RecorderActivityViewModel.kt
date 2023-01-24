@@ -4,14 +4,14 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import com.hrd.localvoice.DataRepository
-import com.hrd.localvoice.models.Audio
-import com.hrd.localvoice.models.Configuration
-import com.hrd.localvoice.models.Image
-import com.hrd.localvoice.models.Participant
+import com.hrd.localvoice.models.*
 
 
 class RecorderActivityViewModel(application: Application) : AndroidViewModel(application) {
     private val repository: DataRepository = DataRepository(application)
+
+    val user: LiveData<User?>?
+        get() = repository.user
 
     fun insertAudio(audio: Audio) {
         repository.insertAudio(audio)

@@ -83,6 +83,19 @@
     <string name="full_name">Full Name</string>
     <string name="enter_your_full_name">Enter your full name</string>
     <string name="read_me">READ ME</string>
-    <string name="video_instructions">Here is a demo video of a sample description recording. A good description does not contain phrases like \"I can see\", \"the picture\" etc. \n\nClick on \"\<b>Continue</b>\" when done watching the demo video to continue or skip.</string>
+    <string name="video_instructions">Please find attached a demonstration video of a sample audio description recording. It is important to note that an effective audio description should not include phrases such as "I can see" or "the picture". \n\nOnce you have finished viewing the demonstration video, kindly click on "Continue" to proceed or "Skip" if desired.</string>
     <string name="click_to_view_images"><b>Click</b> view all the downloaded images and their number descriptions.</string>
+    <string name="network_selection_icon">Network Selection Icon</string>
+    <string name="update">Update</string>
+    <string name="welcome_note">Welcome to our data collection app! This app allows you to easily contribute audio data in your local language for further research. \n\n<b>Register today to start contributing.</b></string>
+    <string name="profile">Profile</string>
+    <string name="logout">Logout</string>
+    <string name="airteltigo">AirtelTigo</string>
+    <string name="vodafone">Vodafone</string>
+    <string name="mtn">MTN</string>
+    <string name="please_choose_the_network">Please choose the network</string>
+    <string name="other_names_error">Please enter your other names</string>
+    <string name="surname_error">Please enter surname</string>
+    <string name="thank_you_for_participating">Thank you for participating.</string>
+    <string name="saved_recording">Your will be automatically uploaded in the background. Thank you.</string>
 </resources>

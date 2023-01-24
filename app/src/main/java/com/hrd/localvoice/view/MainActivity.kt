@@ -2,10 +2,7 @@ package com.hrd.localvoice.view
 
 import android.Manifest
 import android.app.DownloadManager
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
+import android.content.*
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Build
@@ -15,25 +12,27 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.work.*
 import com.hrd.localvoice.AppRoomDatabase
 import com.hrd.localvoice.R
 import com.hrd.localvoice.databinding.ActivityMainBinding
-import com.hrd.localvoice.utils.BinaryFileDownloader
+import com.hrd.localvoice.models.User
 import com.hrd.localvoice.utils.Constants
 import com.hrd.localvoice.utils.Constants.SHARED_PREFS_FILE
 import com.hrd.localvoice.utils.Functions.Companion.getPathFromUri
 import com.hrd.localvoice.view.authentication.LoginActivity
+import com.hrd.localvoice.view.authentication.ProfileActivity
 import com.hrd.localvoice.view.local_files.MyAudiosActivity
 import com.hrd.localvoice.view.local_files.MyImagesActivity
 import com.hrd.localvoice.view.participants.ParticipantBioActivity
+import com.hrd.localvoice.view.videoplayer.VideoPlayerActivity
 import com.hrd.localvoice.workers.UpdateAssignedImagesWorker
 import com.hrd.localvoice.workers.UpdateConfigurationWorker
 import com.hrd.localvoice.workers.UploadWorker
 import java.io.File
-import java.io.FileOutputStream
 import java.util.concurrent.TimeUnit
 
 
@@ -45,6 +44,7 @@ class MainActivity : AppCompatActivity() {
     )
     private val tag = "TESTMAIN"
     private lateinit var viewModel: MainActivityViewModel
+    private var user: User? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,6 +61,16 @@ class MainActivity : AppCompatActivity() {
             finish()
         }
 
+        viewModel.user?.observe(this) {
+            user = it
+            if (it?.network == null || it.age == null || it.gender == null || it.environment == null) {
+                Toast.makeText(this, "Please update your profile", Toast.LENGTH_LONG).show()
+                val intent = Intent(this, ProfileActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+                startActivity(intent)
+            }
+        }
+
         // Initialise the database
         AppRoomDatabase.getDatabase(application)
 
@@ -71,13 +81,28 @@ class MainActivity : AppCompatActivity() {
 
         // Attach listener to download manager
         registerReceiver(
-            onDownloadComplete,
-            IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE)
+            onDownloadComplete, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE)
         );
 
         // Open Audio Recorder activity
         binding.recordingCard.setOnClickListener {
-            startActivity(Intent(this, ParticipantBioActivity::class.java))
+            if (user?.permissions?.contains("record_others") == true && user?.permissions?.contains(
+                    "record_self"
+                ) == true
+            ) {
+                showActionAlertDialogBox()
+            } else if (user?.permissions?.contains("record_others") == true) {
+                startActivity(Intent(this, ParticipantBioActivity::class.java))
+            } else if (user?.permissions?.contains("record_self") == true) {
+                // Remove previous participant cache.
+                val pref = getSharedPreferences(SHARED_PREFS_FILE, Context.MODE_PRIVATE).edit()
+                pref.remove(ParticipantBioActivity.currentParticipantData)
+                pref.apply()
+
+                val intent = Intent(this, VideoPlayerActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+                startActivity(intent)
+            }
         }
 
         // Open recorded audios activity
@@ -118,14 +143,16 @@ class MainActivity : AppCompatActivity() {
         }.build()
 
         val workManager = WorkManager.getInstance(application)
-        val updateConfigurationRequest = OneTimeWorkRequestBuilder<UpdateConfigurationWorker>()
-            .setConstraints(constraints).setInputData(createInputDataForUri()).build()
+        val updateConfigurationRequest =
+            OneTimeWorkRequestBuilder<UpdateConfigurationWorker>().setConstraints(constraints)
+                .setInputData(createInputDataForUri()).build()
         workManager.enqueue(updateConfigurationRequest)
 
         // Attach listener to update local images button
         binding.updateLocalImages.setOnClickListener {
-            val workRequest = OneTimeWorkRequestBuilder<UpdateAssignedImagesWorker>()
-                .setConstraints(constraints).setInputData(createInputDataForUri()).build()
+            val workRequest =
+                OneTimeWorkRequestBuilder<UpdateAssignedImagesWorker>().setConstraints(constraints)
+                    .setInputData(createInputDataForUri()).build()
             workManager.enqueue(workRequest)
             binding.updateLocalImages.isEnabled = false
 
@@ -139,13 +166,9 @@ class MainActivity : AppCompatActivity() {
         // Enqueue upload worker
         val uploadWorker =
             PeriodicWorkRequest.Builder(UploadWorker::class.java, 15, TimeUnit.MINUTES)
-                .setConstraints(constraints)
-                .setInputData(createInputDataForUri())
-                .build()
+                .setConstraints(constraints).setInputData(createInputDataForUri()).build()
         workManager.enqueueUniquePeriodicWork(
-            "AudioUploadWorker",
-            ExistingPeriodicWorkPolicy.REPLACE,
-            uploadWorker
+            "AudioUploadWorker", ExistingPeriodicWorkPolicy.REPLACE, uploadWorker
         )
     }
 
@@ -157,6 +180,29 @@ class MainActivity : AppCompatActivity() {
             }
         }
         return false
+    }
+
+    private fun showActionAlertDialogBox() {
+        val dialog = AlertDialog.Builder(this).setTitle("SPEAKER")
+            .setCancelable(true)
+            .setNegativeButton("MY SELF") { _, _ ->
+                // Remove previous participant cache.
+                val prefs = getSharedPreferences(SHARED_PREFS_FILE, Context.MODE_PRIVATE).edit()
+                prefs.remove(ParticipantBioActivity.currentParticipantData)
+                prefs.apply()
+
+                // Launch demo activity.
+                val intent = Intent(this, VideoPlayerActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+                startActivity(intent)
+                finish()
+            }
+            .setPositiveButton("OTHERS") { _, _ ->
+                startActivity(Intent(this, ParticipantBioActivity::class.java))
+            }.setMessage("Who is the speaker?")
+
+        dialog.create()
+        dialog.show()
     }
 
     private fun createInputDataForUri(): Data {
@@ -179,6 +225,9 @@ class MainActivity : AppCompatActivity() {
             prefs.apply()
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
+        }
+        if (item.itemId == R.id.action_profile) {
+            startActivity(Intent(this, ProfileActivity::class.java))
         }
         return super.onOptionsItemSelected(item)
     }

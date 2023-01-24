@@ -1,10 +1,12 @@
 package com.hrd.localvoice.utils
 
+import android.app.Activity
 import android.app.DownloadManager
 import android.content.Context
 import android.content.SharedPreferences
 import android.database.Cursor
 import android.net.Uri
+import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import com.google.gson.Gson
@@ -13,6 +15,7 @@ import com.hrd.localvoice.utils.Constants.SHARED_PREFS_FILE
 import com.hrd.localvoice.utils.Constants.USER_ID
 import com.hrd.localvoice.utils.Constants.USER_OBJECT
 import com.hrd.localvoice.utils.Constants.USER_TOKEN
+import java.io.Serializable
 
 class Functions {
     companion object {
@@ -78,6 +81,18 @@ class Functions {
             val s: String = cursor.getString(columnIndex)
             cursor.close()
             return s
+        }
+
+        @Suppress("DEPRECATION")
+        fun <T : Serializable?> getSerializable(
+            activity: Activity,
+            name: String,
+            clazz: Class<T>
+        ): T? {
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                activity.intent.getSerializableExtra(name, clazz)
+            else
+                activity.intent.getSerializableExtra(name) as T?
         }
     }
 

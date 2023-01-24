@@ -103,7 +103,7 @@ class BackgroundAudioCheckActivity : AppCompatActivity() {
             (this.getSystemService(ACTIVITY_SERVICE) as ActivityManager).clearApplicationUserData()
             finish()
         } else {
-            onResume()
+            recreate()
         }
     }
 

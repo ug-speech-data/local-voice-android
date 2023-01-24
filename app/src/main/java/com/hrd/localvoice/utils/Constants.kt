@@ -4,6 +4,7 @@ object Constants {
     const val AUDIOS_TABLE = "audios"
     const val IMAGES_TABLE = "images"
     const val CONFIGURATIONS_TABLE = "configurations"
+    const val USER_TABLE = "users"
     const val PARTICIPANT_TABLE = "participants"
     const val UPLOAD_STATUS_PENDING = "PENDING"
     const val AUDIO_STATUS_UPLOADED = "UPLOADED"
@@ -20,4 +21,7 @@ object Constants {
 
     const val TEST_BASE_API_URL: String = "http://192.168.8.100:8000/api/"
     const val LIVE_BASE_API_URL: String = "https://lvapi.dodziraynard.me/api/"
+
+    val ENVIRONMENTS = arrayOf("Outdoor", "Office", "In a car")
+
 }

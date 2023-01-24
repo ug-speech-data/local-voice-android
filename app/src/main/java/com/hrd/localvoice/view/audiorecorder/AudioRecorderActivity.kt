@@ -26,8 +26,10 @@ import com.hrd.localvoice.databinding.ActivityAudioRecorderBinding
 import com.hrd.localvoice.models.Audio
 import com.hrd.localvoice.models.Image
 import com.hrd.localvoice.models.Participant
+import com.hrd.localvoice.models.User
 import com.hrd.localvoice.utils.Constants
 import com.hrd.localvoice.utils.WaveRecorder
+import com.hrd.localvoice.view.MainActivity
 import com.hrd.localvoice.view.participants.ParticipantBioActivity.Companion.currentParticipantData
 import com.hrd.localvoice.view.participants.ParticipantCompensationDetailsActivity
 
@@ -39,11 +41,13 @@ class AudioRecorderActivity : AppCompatActivity() {
     private lateinit var recorder: WaveRecorder
     private var currentImageIndex = 0
     private val REQUEST_PERMISSIONS_CODE = 4
-    private var totalAudioDurationInSeconds = 0L
     private var currentParticipant: Participant? = null
+    private var currentUser: User? = null
+    private var environment: String? = null
 
     // List of images described by the current participant
     private var describedImages: MutableList<Image> = mutableListOf()
+    private val deviceId = Build.MANUFACTURER + " " + Build.MODEL
 
     private val PERMISSIONS = arrayOf(
         Manifest.permission.RECORD_AUDIO,
@@ -67,9 +71,8 @@ class AudioRecorderActivity : AppCompatActivity() {
 
             currentParticipant = viewModel.getParticipantById(participantId)
 
-            if (currentParticipant == null) {
-                Toast.makeText(this, "No participant found", Toast.LENGTH_LONG)
-                    .show()
+            if (currentParticipant != null) {
+                environment = currentParticipant!!.environment
             }
         }
 
@@ -118,6 +121,13 @@ class AudioRecorderActivity : AppCompatActivity() {
             showImageAtIndex(++currentImageIndex)
         }
 
+        viewModel.user?.observe(this) {
+            currentUser = it
+            if (environment == null && currentUser != null) {
+                environment = currentUser?.environment
+            }
+        }
+
         // Fetch maximum description count from db
         viewModel.getConfiguration()?.observe(this) { configuration ->
             val maxImageDescription =
@@ -141,27 +151,27 @@ class AudioRecorderActivity : AppCompatActivity() {
 
         binding.saveButton.setOnClickListener {
             val currentImage = availableImages[currentImageIndex.mod(availableImages.size)]
-            val fileName =
-                "image_" + currentImage.remoteId.toString()
-                    .padStart(
-                        6,
-                        '0'
-                    ) + "_description_${currentImage.descriptionCount + 1}_${System.currentTimeMillis()}.wav"
+            val fileName = "image_" + currentImage.remoteId.toString().padStart(
+                6, '0'
+            ) + "_description_${currentImage.descriptionCount + 1}_${System.currentTimeMillis()}.wav"
             val result = recorder.saveAudioIntoFile(fileName)
-            if (result != null && currentParticipant != null) {
+            if (result != null && currentUser != null) {
                 val description = currentImage.name
-                val audio =
-                    Audio(
-                        1,
-                        System.currentTimeMillis(),
-                        currentImage.remoteId,
-                        result,
-                        description,
-                        duration = recorder.audioDuration(),
-                        participantId = currentParticipant!!.id
-                    )
+                val audio = Audio(
+                    userId = currentUser!!.id,
+                    timestamp = System.currentTimeMillis(),
+                    remoteImageID = currentImage.remoteId,
+                    localFileURl = result,
+                    description = description,
+                    duration = recorder.audioDuration(),
+                    deviceId = deviceId,
+                    environment = environment!!
+                )
+                if (currentParticipant != null) {
+                    audio.participantId = currentParticipant!!.id
+                }
+
                 viewModel.insertAudio(audio)
-                totalAudioDurationInSeconds += recorder.audioDuration()
 
                 // Increase image description count
                 currentImage.descriptionCount += 1
@@ -232,7 +242,6 @@ class AudioRecorderActivity : AppCompatActivity() {
         }
     }
 
-
     private val monitorAudioAmplitude = Runnable {
         while (true) {
             runOnUiThread {
@@ -287,7 +296,7 @@ class AudioRecorderActivity : AppCompatActivity() {
             (this.getSystemService(ACTIVITY_SERVICE) as ActivityManager).clearApplicationUserData()
             finish()
         } else {
-            onResume()
+            recreate()
         }
     }
 
@@ -298,7 +307,17 @@ class AudioRecorderActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.action_next) {
-            startActivity(Intent(this, ParticipantCompensationDetailsActivity::class.java))
+            if (currentParticipant != null) {
+                startActivity(Intent(this, ParticipantCompensationDetailsActivity::class.java))
+            } else {
+                Toast.makeText(
+                    this,
+                    getString(R.string.saved_recording),
+                    Toast.LENGTH_LONG
+                ).show()
+                startActivity(Intent(this, MainActivity::class.java))
+                finish()
+            }
         }
         return super.onOptionsItemSelected(item)
     }

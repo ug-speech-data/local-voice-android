@@ -7,7 +7,6 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.hrd.localvoice.databinding.ActivityRegistrationBinding
-import com.hrd.localvoice.view.MainActivity
 
 class RegistrationActivity : AppCompatActivity() {
     private lateinit var binding: ActivityRegistrationBinding
@@ -24,6 +23,7 @@ class RegistrationActivity : AppCompatActivity() {
             val intent = Intent(this, LoginActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
             startActivity(intent)
+            finish()
         }
 
         viewModel.isLoading.observe(this) { value ->
@@ -47,7 +47,8 @@ class RegistrationActivity : AppCompatActivity() {
 
         viewModel.isLoggedIn.observe(this) { value ->
             if (value) {
-                startActivity(Intent(this, MainActivity::class.java))
+                // Navigate to update profile
+                startActivity(Intent(this, ProfileActivity::class.java))
                 finish()
             }
         }
@@ -63,14 +64,10 @@ class RegistrationActivity : AppCompatActivity() {
             binding.errorMessageLabel.visibility = View.GONE
             val password = binding.passwordInput.text.toString()
             val emailAddress = binding.emailAddressInput.text.toString()
-            val surname = binding.surnameInput.text.toString()
-            val otherNamespace = binding.otherNamesInput.text.toString()
-            val phone = binding.phoneInput.text.toString()
-
-            if (password.isEmpty() || emailAddress.isEmpty() || surname.isEmpty() || otherNamespace.isEmpty() || phone.isEmpty()) {
+            if (password.isEmpty() || emailAddress.isEmpty()) {
                 viewModel.errorMessage.value = "All fields are required."
             } else {
-                viewModel.register(emailAddress, surname, otherNamespace, phone, password)
+                viewModel.register(emailAddress, password)
             }
         }
     }

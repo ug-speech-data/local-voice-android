@@ -25,6 +25,7 @@ class LoginActivity : AppCompatActivity() {
             val intent = Intent(this, RegistrationActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
             startActivity(intent)
+            finish()
         }
 
         viewModel.isLoading.observe(this) { value ->

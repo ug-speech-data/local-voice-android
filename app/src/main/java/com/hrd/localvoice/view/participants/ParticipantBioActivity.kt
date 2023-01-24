@@ -2,7 +2,6 @@ package com.hrd.localvoice.view.participants
 
 import android.content.Intent
 import android.content.SharedPreferences
-import android.os.Build
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
@@ -42,7 +41,6 @@ class ParticipantBioActivity : AppCompatActivity() {
         }
 
         var environment = ""
-        val deviceId = Build.MANUFACTURER + " " + Build.MODEL
 
         // Privacy policy
         binding.privacyPolicyLabel.setOnClickListener {
@@ -89,7 +87,6 @@ class ParticipantBioActivity : AppCompatActivity() {
             if (ageIsValid && gender.isNotEmpty() && environment.isNotEmpty() && checkedPrivacyPolicy) {
                 val participant = Participant(
                     age!!, gender, null, null, environment = environment,
-                    deviceId = deviceId,
                     acceptedPrivacyPolicy = checkedPrivacyPolicy
                 )
                 viewModel.createParticipant(participant)
@@ -149,7 +146,6 @@ class ParticipantBioActivity : AppCompatActivity() {
             prefsEditor.edit().putLong(currentParticipantData, participant.id).apply()
         }
     }
-
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {

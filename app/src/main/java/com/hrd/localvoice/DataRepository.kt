@@ -2,14 +2,8 @@ package com.hrd.localvoice
 
 import android.app.Application
 import androidx.lifecycle.LiveData
-import com.hrd.localvoice.dao.AudioDao
-import com.hrd.localvoice.dao.ConfigurationDao
-import com.hrd.localvoice.dao.ImageDao
-import com.hrd.localvoice.dao.ParticipantDao
-import com.hrd.localvoice.models.Audio
-import com.hrd.localvoice.models.Configuration
-import com.hrd.localvoice.models.Image
-import com.hrd.localvoice.models.Participant
+import com.hrd.localvoice.dao.*
+import com.hrd.localvoice.models.*
 
 class DataRepository(application: Application) {
     private var application: Application
@@ -19,11 +13,13 @@ class DataRepository(application: Application) {
     val configuration: LiveData<Configuration?>?
 
     val participants: LiveData<List<Participant>>?
+    val user: LiveData<User?>?
 
     private val audioDao: AudioDao?
     private val participantDao: ParticipantDao?
     private val configurationDao: ConfigurationDao?
     private val imageDao: ImageDao?
+    private val userDao: UserDao?
 
     fun getAssignedImages(maxDescriptionCount: Int): LiveData<List<Image>>? {
         return imageDao?.getImages(maxDescriptionCount)
@@ -68,9 +64,8 @@ class DataRepository(application: Application) {
     }
 
     fun getParticipantById(id: Long): Participant? {
-        return participantDao?.getLastParticipant()
+        return participantDao?.getParticipantSync(id)
     }
-
 
     init {
         db = AppRoomDatabase.getDatabase(application)
@@ -79,9 +74,11 @@ class DataRepository(application: Application) {
         participantDao = db?.ParticipantDao()
         imageDao = db?.ImageDao()
         configurationDao = db?.ConfigurationDao()
+        userDao = db?.UserDao()
 
         audios = audioDao?.getAudios()
         participants = participantDao?.getParticipants()
+        user = userDao?.getUserAsync()
 
         configuration = configurationDao?.getConfigurationAsync()
     }

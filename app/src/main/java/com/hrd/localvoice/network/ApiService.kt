@@ -1,10 +1,8 @@
 package com.hrd.localvoice.network
 
-import com.hrd.localvoice.network.response_models.AuthenticationResponse
-import com.hrd.localvoice.network.response_models.ConfigurationResponse
-import com.hrd.localvoice.network.response_models.ImagesResponse
-import com.hrd.localvoice.network.response_models.UploadResponse
+import com.hrd.localvoice.network.response_models.*
 import okhttp3.MultipartBody
+import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.http.*
 
@@ -19,8 +17,7 @@ interface ApiService {
     @FormUrlEncoded
     @POST("auth/register/")
     fun register(
-        @Field("email_address") emailAddress: String?,
-        @Field("password") password: String?
+        @Field("email_address") emailAddress: String?, @Field("password") password: String?
     ): Call<AuthenticationResponse?>?
 
     @FormUrlEncoded
@@ -33,6 +30,7 @@ interface ApiService {
         @Field("phone") phone: String,
         @Field("accepted_privacy_policy") checkedPrivacyPolicy: Boolean,
         @Field("recording_environment") environment: String,
+        @Field("locale") locale: String,
         @Field("age") age: Int?
     ): Call<AuthenticationResponse?>?
 
@@ -55,4 +53,16 @@ interface ApiService {
 
     @GET("get-assigned-images/")
     fun getAssignedImages(): Call<ImagesResponse?>?
+
+    @GET("get-audio-to-validate")
+    fun getAssignedAudios(
+        @Query("offset") offset: Long
+    ): Call<UploadedAudioResponse?>?
+
+    @FormUrlEncoded
+    @POST("validate-audio/")
+    fun validateAudio(
+        @Field("id") id: Long, @Field("status") status: String
+    ): Call<ResponseBody>?
+
 }

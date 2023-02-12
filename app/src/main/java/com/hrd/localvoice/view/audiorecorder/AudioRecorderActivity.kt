@@ -51,8 +51,6 @@ class AudioRecorderActivity : AppCompatActivity() {
 
     private val PERMISSIONS = arrayOf(
         Manifest.permission.RECORD_AUDIO,
-        Manifest.permission.READ_EXTERNAL_STORAGE,
-        Manifest.permission.WRITE_EXTERNAL_STORAGE,
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -137,6 +135,10 @@ class AudioRecorderActivity : AppCompatActivity() {
             viewModel.getImages(maxImageDescription!!)?.observe(this) { images ->
                 availableImages = images as MutableList<Image>
 
+                if (availableImages.isEmpty()) {
+                    showNoImagesDialog()
+                }
+
                 // Remove already described images
                 availableImages.removeAll(describedImages)
 
@@ -151,9 +153,10 @@ class AudioRecorderActivity : AppCompatActivity() {
 
         binding.saveButton.setOnClickListener {
             val currentImage = availableImages[currentImageIndex.mod(availableImages.size)]
-            val fileName = "image_" + currentImage.remoteId.toString().padStart(
-                6, '0'
-            ) + "_description_${currentImage.descriptionCount + 1}_${System.currentTimeMillis()}.wav"
+            val fileName = currentUser?.locale + "_image_" + currentImage.remoteId.toString().padStart(
+                4, '0'
+            ) + "_u${currentImage.remoteId}_${currentImage.descriptionCount + 1}_${System.currentTimeMillis()}.wav"
+
             val result = recorder.saveAudioIntoFile(fileName)
             if (result != null && currentUser != null) {
                 val description = currentImage.name
@@ -170,7 +173,6 @@ class AudioRecorderActivity : AppCompatActivity() {
                 if (currentParticipant != null) {
                     audio.participantId = currentParticipant!!.id
                 }
-
                 viewModel.insertAudio(audio)
 
                 // Increase image description count
@@ -187,6 +189,21 @@ class AudioRecorderActivity : AppCompatActivity() {
                 Toast.makeText(this, "Audio save failed", Toast.LENGTH_LONG).show()
             }
         }
+    }
+
+    private fun showNoImagesDialog() {
+        val dialog = AlertDialog.Builder(this)
+            .setTitle("No images found")
+            .setCancelable(false)
+            .setPositiveButton("GO HOME") { _, _ ->
+                val intent = Intent(this, MainActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+                startActivity(intent)
+                finish()
+            }
+        dialog.setMessage("Please download the images by tapping on \"Update Local Images\" on the home screen.")
+        dialog.create()
+        dialog.show()
     }
 
     private fun setup() {
@@ -307,17 +324,17 @@ class AudioRecorderActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.action_next) {
-            if (currentParticipant != null) {
+            if (currentParticipant != null && describedImages.isNotEmpty()) {
                 startActivity(Intent(this, ParticipantCompensationDetailsActivity::class.java))
-            } else {
+            } else if (describedImages.isNotEmpty()) {
                 Toast.makeText(
                     this,
                     getString(R.string.saved_recording),
                     Toast.LENGTH_LONG
                 ).show()
-                startActivity(Intent(this, MainActivity::class.java))
-                finish()
             }
+            startActivity(Intent(this, MainActivity::class.java))
+            finish()
         }
         return super.onOptionsItemSelected(item)
     }

@@ -19,9 +19,15 @@ object Constants {
 //    const val TEST_BASE_API_URL: String = "https://745a-197-255-119-9.ngrok.io/api/"
 //    const val TEST_BASE_API_URL: String = "https://localvoice.pythonanywhere.com/api/"
 
-    const val TEST_BASE_API_URL: String = "http://192.168.8.100:8000/api/"
+//    const val TEST_BASE_API_URL: String = "http://192.168.8.100:8000/api/"
+    const val TEST_BASE_API_URL: String = "https://lvapi.dodziraynard.me/api/"
     const val LIVE_BASE_API_URL: String = "https://lvapi.dodziraynard.me/api/"
 
     val ENVIRONMENTS = arrayOf("Outdoor", "Office", "In a car")
 
+}
+
+object AudioStatus {
+    const val ACCEPTED = "accepted"
+    const val REJECTED = "reject"
 }

@@ -1,17 +1,16 @@
 package com.hrd.localvoice.view
 
-import android.Manifest
 import android.app.DownloadManager
-import android.content.*
-import android.content.pm.PackageManager
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.graphics.Color
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
@@ -28,6 +27,7 @@ import com.hrd.localvoice.view.authentication.ProfileActivity
 import com.hrd.localvoice.view.local_files.MyAudiosActivity
 import com.hrd.localvoice.view.local_files.MyImagesActivity
 import com.hrd.localvoice.view.participants.ParticipantBioActivity
+import com.hrd.localvoice.view.validations.AudioValidationActivity
 import com.hrd.localvoice.view.videoplayer.VideoPlayerActivity
 import com.hrd.localvoice.workers.UpdateAssignedImagesWorker
 import com.hrd.localvoice.workers.UpdateConfigurationWorker
@@ -37,11 +37,6 @@ import java.util.concurrent.TimeUnit
 
 
 class MainActivity : AppCompatActivity() {
-    private val REQUEST_PERMISSIONS_CODE = 4
-    private val PERMISSIONS = arrayOf(
-        Manifest.permission.READ_EXTERNAL_STORAGE,
-        Manifest.permission.WRITE_EXTERNAL_STORAGE,
-    )
     private val tag = "TESTMAIN"
     private lateinit var viewModel: MainActivityViewModel
     private var user: User? = null
@@ -52,6 +47,13 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         viewModel = ViewModelProvider(this)[MainActivityViewModel::class.java]
 
+        // Background work manager
+        val constraints = Constraints.Builder().apply {
+            setRequiredNetworkType(NetworkType.CONNECTED)
+        }.build()
+        val workManager = WorkManager.getInstance(application)
+
+
         // If new user, redirect to login
         val prefs = getSharedPreferences(SHARED_PREFS_FILE, Context.MODE_PRIVATE)
         val isNew = prefs.getBoolean(Constants.IS_NEW_USER, true)
@@ -59,30 +61,41 @@ class MainActivity : AppCompatActivity() {
         if (isNew || token == null || token.isEmpty()) {
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
-        }
-
-        viewModel.user?.observe(this) {
-            user = it
-            if (it?.network == null || it.age == null || it.gender == null || it.environment == null) {
-                Toast.makeText(this, "Please update your profile", Toast.LENGTH_LONG).show()
-                val intent = Intent(this, ProfileActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
-                startActivity(intent)
+        } else {
+            viewModel.user?.observe(this) {
+                user = it
+                if (user != null) {
+                    if ((it?.network == null || it.age == null || it.gender == null || it.environment == null)) {
+                        Toast.makeText(this, "Please update your profile", Toast.LENGTH_LONG).show()
+                        val intent = Intent(this, ProfileActivity::class.java)
+                        intent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+                        startActivity(intent)
+                    } else {
+                        binding.balanceView.text = getString(R.string.balance, user?.balance);
+                        binding.audiosSubmittedView.text =
+                            getString(R.string.audios_submitted, user?.audiosSubmitted);
+                        binding.audiosValidatedView.text =
+                            getString(R.string.audios_validated, user?.audiosValidated);
+                    }
+                }
             }
         }
 
         // Initialise the database
         AppRoomDatabase.getDatabase(application)
 
-        // Request storage permission
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && permissionsDenied()) {
-            requestPermissions(PERMISSIONS, REQUEST_PERMISSIONS_CODE)
-        }
+        // Schedule configuration update
+        scheduleConfigurationUpdate(constraints, workManager)
 
         // Attach listener to download manager
         registerReceiver(
             onDownloadComplete, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE)
         );
+
+        // Attach listener to update configurations
+        binding.appStatusInfo.setOnClickListener {
+            scheduleConfigurationUpdate(constraints, workManager)
+        }
 
         // Open Audio Recorder activity
         binding.recordingCard.setOnClickListener {
@@ -115,6 +128,11 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, MyImagesActivity::class.java))
         }
 
+        // Open audio validation activity
+        binding.audioValidationCard.setOnClickListener {
+            startActivity(Intent(this, AudioValidationActivity::class.java))
+        }
+
         // Fetch maximum description count from db
         viewModel.getConfiguration()?.observe(this) { configuration ->
             if (configuration == null || !File(configuration.demoVideoLocalUrl).exists()) {
@@ -135,18 +153,6 @@ class MainActivity : AppCompatActivity() {
                     "About ${images.size * maxImageDescription} Descriptions"
             }
         }
-
-        // Schedule audio upload.
-        val constraints = Constraints.Builder().apply {
-            setRequiredNetworkType(NetworkType.CONNECTED)
-            setRequiresBatteryNotLow(true)
-        }.build()
-
-        val workManager = WorkManager.getInstance(application)
-        val updateConfigurationRequest =
-            OneTimeWorkRequestBuilder<UpdateConfigurationWorker>().setConstraints(constraints)
-                .setInputData(createInputDataForUri()).build()
-        workManager.enqueue(updateConfigurationRequest)
 
         // Attach listener to update local images button
         binding.updateLocalImages.setOnClickListener {
@@ -172,19 +178,18 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    @RequiresApi(Build.VERSION_CODES.M)
-    private fun permissionsDenied(): Boolean {
-        for (permission in PERMISSIONS) {
-            if (checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
-                return true
-            }
-        }
-        return false
+    private fun scheduleConfigurationUpdate(
+        constraints: Constraints, workManager: WorkManager
+    ) {
+        // Update configurations and user profile
+        val updateConfigurationRequest =
+            OneTimeWorkRequestBuilder<UpdateConfigurationWorker>().setConstraints(constraints)
+                .setInputData(createInputDataForUri()).build()
+        workManager.enqueue(updateConfigurationRequest)
     }
 
     private fun showActionAlertDialogBox() {
-        val dialog = AlertDialog.Builder(this).setTitle("SPEAKER")
-            .setCancelable(true)
+        val dialog = AlertDialog.Builder(this).setTitle("SPEAKER").setCancelable(true)
             .setNegativeButton("MY SELF") { _, _ ->
                 // Remove previous participant cache.
                 val prefs = getSharedPreferences(SHARED_PREFS_FILE, Context.MODE_PRIVATE).edit()
@@ -196,8 +201,7 @@ class MainActivity : AppCompatActivity() {
                 intent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
                 startActivity(intent)
                 finish()
-            }
-            .setPositiveButton("OTHERS") { _, _ ->
+            }.setPositiveButton("OTHERS") { _, _ ->
                 startActivity(Intent(this, ParticipantBioActivity::class.java))
             }.setMessage("Who is the speaker?")
 

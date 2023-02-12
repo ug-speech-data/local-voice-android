@@ -23,10 +23,13 @@ data class User(
     @SerializedName("recording_environment")
     val environment: String?,
     val age: Int?,
+    val locale: String?,
     @SerializedName("last_login_date") val lastLoginDate: String,
     @SerializedName("accepted_privacy_policy") val acceptedPrivacyPolicy: Boolean,
     @SerializedName("created_at") val createdAt: String,
-
+    @SerializedName("balance") val balance: String = "0.00",
+    @SerializedName("audios_submitted") val audiosSubmitted: Int = 0,
+    @SerializedName("audios_validated") val audiosValidated: Int = 0,
     @TypeConverters(StringListConvector::class) val permissions: List<String>?
 
 ) : Parcelable

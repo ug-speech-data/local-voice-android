@@ -147,6 +147,7 @@ class AuthenticationActivityViewModel(application: Application) : AndroidViewMod
         phone: String,
         checkedPrivacyPolicy: Boolean,
         environment: String,
+        locale: String,
         age: Int?
     ) {
         isLoading.value = true
@@ -158,6 +159,7 @@ class AuthenticationActivityViewModel(application: Application) : AndroidViewMod
             phone,
             checkedPrivacyPolicy,
             environment,
+            locale,
             age
         )
             ?.enqueue(object : Callback<AuthenticationResponse?> {

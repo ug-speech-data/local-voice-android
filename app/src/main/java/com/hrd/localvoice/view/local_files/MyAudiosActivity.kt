@@ -108,7 +108,6 @@ class MyAudiosActivity : AppCompatActivity() {
                         }
                     }
                 }.setMessage(getString(R.string.audio_deletion_info))
-
         dialog.create()
         dialog.show()
     }

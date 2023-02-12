@@ -36,6 +36,13 @@ class ProfileActivity : AppCompatActivity() {
             showPrivacyPolicyBottomSheetDialog()
         }
 
+        viewModel.user?.observe(this) {
+            if (it == null) {
+                startActivity(Intent(this, LoginActivity::class.java))
+                finish()
+            }
+        }
+
         // Configuration
         viewModel.configuration?.observe(this) {
             configuration = it
@@ -75,8 +82,9 @@ class ProfileActivity : AppCompatActivity() {
             if (value) {
                 val intent = Intent(this, MainActivity::class.java)
                 intent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
-                startActivity(intent)
                 Toast.makeText(this, "Profile updated successfully.", Toast.LENGTH_LONG).show()
+                startActivity(intent)
+                finish()
             }
         }
 
@@ -114,11 +122,20 @@ class ProfileActivity : AppCompatActivity() {
             "AIRTELTIGO" -> binding.networkGroup.check(R.id.network_airteltigo)
         }
 
-        // Network
+        // Gender
         when (user.gender?.uppercase()) {
             "MALE" -> binding.genderGroup.check(R.id.gender_male)
             "FEMALE" -> binding.genderGroup.check(R.id.gender_female)
             "OTHER" -> binding.genderGroup.check(R.id.gender_other)
+        }
+
+        // Locale
+        when (user.locale?.lowercase()) {
+            "ak_gh" -> binding.localeGroup.check(R.id.locale_twi)
+            "ee_gh" -> binding.localeGroup.check(R.id.locale_ewe)
+            "dag_gh" -> binding.localeGroup.check(R.id.locale_dagaaree)
+            "dga_gh" -> binding.localeGroup.check(R.id.locale_dagbani)
+            "kpo_gh" -> binding.localeGroup.check(R.id.locale_ikposo)
         }
 
         binding.privacyPolicyCheckBox.isChecked = user.acceptedPrivacyPolicy
@@ -164,9 +181,33 @@ class ProfileActivity : AppCompatActivity() {
             binding.genderErrorLabel.visibility = View.VISIBLE
             allFieldsValid = false
         } else {
-            val radioButton: RadioButton = binding.genderGroup.findViewById(genderSelectedId)
-            gender = radioButton.text.toString()
-            binding.genderErrorLabel.visibility = View.GONE
+            val radioButton: RadioButton? = binding.genderGroup.findViewById(genderSelectedId)
+            if (radioButton == null) {
+                allFieldsValid = false
+            } else {
+                gender = radioButton?.text.toString()
+                binding.genderErrorLabel.visibility = View.GONE
+            }
+        }
+
+        // Locale
+        var locale = ""
+        val localeSelectedId: Int = binding.localeGroup.checkedRadioButtonId
+        if (localeSelectedId == -1) {
+            binding.localeErrorLabel.visibility = View.VISIBLE
+            allFieldsValid = false
+        } else {
+            val radioButton: RadioButton = binding.localeGroup.findViewById(localeSelectedId)
+            val lo = radioButton.text.toString()
+            binding.localeErrorLabel.visibility = View.GONE
+
+            when (lo.lowercase()) {
+                "twi" -> locale = "ak_gh"
+                "ewe" -> locale = "ee_gh"
+                "dagbani" -> locale = "dag_gh"
+                "dagaare" -> locale = "dga_gh"
+                "ikposo" -> locale = "kpo_gh"
+            }
         }
 
         // Environment
@@ -216,6 +257,7 @@ class ProfileActivity : AppCompatActivity() {
                 phone,
                 checkedPrivacyPolicy,
                 environment,
+                locale,
                 age
             )
         } else {

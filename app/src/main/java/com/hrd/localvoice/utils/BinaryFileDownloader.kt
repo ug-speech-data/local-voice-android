@@ -1,6 +1,7 @@
 package com.hrd.localvoice.utils
 
 import android.content.Context
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -8,19 +9,22 @@ import okhttp3.Response
 import okhttp3.ResponseBody
 import java.io.File
 import java.io.FileOutputStream
-import java.io.IOException
-import java.util.*
+import java.net.SocketTimeoutException
 
 
 class BinaryFileDownloader() {
     private val client: OkHttpClient = OkHttpClient().newBuilder().build()
 
-    @Throws(IOException::class)
     fun download(context: Context, url: String, fileName: String): String? {
+        var response: Response? = null
         val request: Request = Request.Builder().url(url).build()
-        val response: Response = client.newCall(request).execute()
-
-        val responseBody: ResponseBody? = response.body()
+        try {
+            response = client.newCall(request).execute()
+        } catch (e: SocketTimeoutException) {
+            Log.e("BinaryFileDownloader", "download: $e")
+            return null
+        }
+        val responseBody: ResponseBody? = response?.body()
         val responseData = responseBody?.bytes()
         if (responseData != null) {
             val fOut: FileOutputStream =

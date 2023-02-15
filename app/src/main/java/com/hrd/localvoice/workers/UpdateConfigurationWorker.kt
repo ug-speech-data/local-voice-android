@@ -94,7 +94,6 @@ class UpdateConfigurationWorker(
                 // Store user in the database
                 if (response.body()?.user != null) {
                     AppRoomDatabase.databaseWriteExecutor.execute {
-                        database?.UserDao()?.deleteAll()
                         database?.UserDao()?.insertUser(response.body()!!.user!!)
                     }
                 }

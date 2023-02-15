@@ -53,7 +53,6 @@ class MainActivity : AppCompatActivity() {
         }.build()
         val workManager = WorkManager.getInstance(application)
 
-
         // If new user, redirect to login
         val prefs = getSharedPreferences(SHARED_PREFS_FILE, Context.MODE_PRIVATE)
         val isNew = prefs.getBoolean(Constants.IS_NEW_USER, true)
@@ -148,9 +147,9 @@ class MainActivity : AppCompatActivity() {
 
             // Get images without required number of descriptions
             viewModel.getImages(maxImageDescription!!)?.observe(this) { images ->
-                binding.assignedImagesInfo.text = "${images.size} Pending Images"
+                binding.assignedImagesInfo.text = "${images.size} Assigned Images"
                 binding.expectedDescriptionCount.text =
-                    "About ${images.size * maxImageDescription} Descriptions"
+                    "${images.size * maxImageDescription} Descriptions"
             }
         }
 

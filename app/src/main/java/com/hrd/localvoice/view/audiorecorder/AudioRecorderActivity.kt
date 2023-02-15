@@ -153,9 +153,10 @@ class AudioRecorderActivity : AppCompatActivity() {
 
         binding.saveButton.setOnClickListener {
             val currentImage = availableImages[currentImageIndex.mod(availableImages.size)]
-            val fileName = currentUser?.locale + "_image_" + currentImage.remoteId.toString().padStart(
-                4, '0'
-            ) + "_u${currentImage.remoteId}_${currentImage.descriptionCount + 1}_${System.currentTimeMillis()}.wav"
+            val fileName =
+                currentUser?.locale + "_image_" + currentImage.remoteId.toString().padStart(
+                    4, '0'
+                ) + "_u${currentImage.remoteId}_${currentImage.descriptionCount + 1}_${System.currentTimeMillis()}.wav"
 
             val result = recorder.saveAudioIntoFile(fileName)
             if (result != null && currentUser != null) {
@@ -292,7 +293,6 @@ class AudioRecorderActivity : AppCompatActivity() {
         binding.imageCategory.text = currentImage.category
     }
 
-
     @RequiresApi(Build.VERSION_CODES.M)
     private fun permissionsDenied(): Boolean {
         for (permission in PERMISSIONS) {
@@ -332,9 +332,12 @@ class AudioRecorderActivity : AppCompatActivity() {
                     getString(R.string.saved_recording),
                     Toast.LENGTH_LONG
                 ).show()
+                startActivity(Intent(this, MainActivity::class.java))
+                finish()
+            } else {
+                startActivity(Intent(this, MainActivity::class.java))
+                finish()
             }
-            startActivity(Intent(this, MainActivity::class.java))
-            finish()
         }
         return super.onOptionsItemSelected(item)
     }

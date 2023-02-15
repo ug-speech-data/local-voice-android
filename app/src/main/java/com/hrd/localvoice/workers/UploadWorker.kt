@@ -61,13 +61,12 @@ class UploadWorker(
                 val audioDataBody =
                     MultipartBody.Part.createFormData("audio_data", null, audioDataRequest)
 
-                val participantDataBody =
-                    MultipartBody.Part.createFormData(
-                        "participant_data",
-                        null,
-                        participantDataRequest
+                var participantDataBody: MultipartBody.Part? = null
+                if (participant != null) {
+                    participantDataBody = MultipartBody.Part.createFormData(
+                        "participant_data", null, participantDataRequest
                     )
-
+                }
                 apiService?.uploadAudioFile(audioFile, audioDataBody, participantDataBody)
                     ?.enqueue(object : Callback<UploadResponse?> {
                         override fun onResponse(

@@ -52,7 +52,6 @@ class UpdateAssignedImagesWorker(
                                         ).exists()
                                     ) {
                                         // Local file does not exist
-
                                         val title =
                                             "${image.remoteId}_${System.currentTimeMillis()}.$extension"
 

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Local Voice</string>
+    <string name="app_name">UGSpeechData</string>
     <string name="search">Search</string>
     <string name="next">Next</string>
     <string name="image_to_describe">Image to describe</string>
@@ -57,8 +57,8 @@
     <string name="record_participants">Record Audio</string>
     <string name="starting_recording_message">Start recording in a quiet environment here. \nWatch the demo video and rehearse before starting the recording.</string>
     <string name="previous_audios_message"><b>Click</b> here to view all your previous recordings and their upload status. All audios will be uploaded automatically when there\'s internet and the battery is not low.</string>
-    <string name="previous_audios">Previous Audios</string>
-    <string name="background_noise_check_message">Checking background noise level. \nPlease be silent 5 seconds.</string>
+    <string name="previous_audios">Recorded Audios</string>
+    <string name="background_noise_check_message">Checking background noise level. \nPlease be silent 3 seconds.</string>
     <string name="no_data_found">No data found.</string>
     <string name="update_local_images">Update Local Images</string>
     <string name="participant_bio">Participant\'s Bio</string>
@@ -97,7 +97,7 @@
     <string name="other_names_error">Please enter your other names</string>
     <string name="surname_error">Please enter surname</string>
     <string name="thank_you_for_participating">Thank you for participating.</string>
-    <string name="saved_recording">Your will be automatically uploaded in the background. Thank you.</string>
+    <string name="saved_recording">Your recording will be automatically uploaded in the background. Thank you.</string>
     <string name="reject">Reject</string>
     <string name="accept">Accept</string>
     <string name="play_button">Play Button</string>

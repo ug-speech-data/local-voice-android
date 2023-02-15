@@ -38,7 +38,7 @@
                     android:drawablePadding="5dp"
                     android:drawableTint="@color/gray_600"
                     android:hint="@string/momo_number"
-                    android:inputType="text" />
+                    android:inputType="number" />
 
                 <TextView
                     android:id="@+id/phone_error_label"

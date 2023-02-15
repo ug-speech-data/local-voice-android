@@ -10,13 +10,16 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.work.*
 import com.hrd.localvoice.R
 import com.hrd.localvoice.adapters.AudioAdapter
 import com.hrd.localvoice.databinding.ActivityMyAudiosBinding
 import com.hrd.localvoice.models.Audio
 import com.hrd.localvoice.utils.Constants.AUDIO_STATUS_UPLOADED
+import com.hrd.localvoice.workers.UploadWorker
 import java.io.File
 import java.io.IOException
+import java.util.concurrent.TimeUnit
 
 class MyAudiosActivity : AppCompatActivity() {
     private lateinit var adapter: AudioAdapter
@@ -120,8 +123,20 @@ class MyAudiosActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.action_delete_uploaded ->
-                showAlertDialogBox()
+            R.id.action_delete_uploaded -> showAlertDialogBox()
+            R.id.action_upload_audios -> {
+                // Schedule on-time work
+                val constraints = Constraints.Builder().apply {
+                    setRequiredNetworkType(NetworkType.CONNECTED)
+                }.build()
+                val workManager = WorkManager.getInstance(application)
+                val uploadWorker =
+                    PeriodicWorkRequest.Builder(UploadWorker::class.java, 15, TimeUnit.MINUTES)
+                        .setConstraints(constraints).build()
+                workManager.enqueueUniquePeriodicWork(
+                    "AudioUploadWorker", ExistingPeriodicWorkPolicy.REPLACE, uploadWorker
+                )
+            }
             android.R.id.home -> finish()
         }
         return super.onOptionsItemSelected(item)

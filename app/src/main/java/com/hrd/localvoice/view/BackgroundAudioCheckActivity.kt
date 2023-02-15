@@ -22,7 +22,7 @@ class BackgroundAudioCheckActivity : AppCompatActivity() {
         Manifest.permission.RECORD_AUDIO,
     )
     private lateinit var recorder: WaveRecorder
-    private var backgroundNoiseCheckDurationInSec = 5
+    private var backgroundNoiseCheckDurationInSec = 3
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

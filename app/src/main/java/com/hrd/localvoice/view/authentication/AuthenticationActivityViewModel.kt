@@ -167,17 +167,17 @@ class AuthenticationActivityViewModel(application: Application) : AndroidViewMod
                     call: Call<AuthenticationResponse?>,
                     response: Response<AuthenticationResponse?>
                 ) {
-                    if (response.body()!!.user != null) {
+                    if (response.body()?.user != null) {
                         // Store user in the database
                         if (response.body()?.user != null) {
                             AppRoomDatabase.databaseWriteExecutor.execute {
-                                AppRoomDatabase.getDatabase(context)
-                                    ?.UserDao()?.deleteAll()
                                 AppRoomDatabase.getDatabase(context)
                                     ?.UserDao()?.insertUser(response.body()!!.user!!)
                             }
                             profileUpdate.value = true
                         }
+                    } else if (response.code() == 401) {
+                        removeUserToken(context)
                     }
                     isLoading.value = false
                 }

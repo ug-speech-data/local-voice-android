@@ -5,15 +5,18 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import android.widget.*
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.hrd.localvoice.AppRoomDatabase
 import com.hrd.localvoice.R
 import com.hrd.localvoice.databinding.ActivityProfileBinding
 import com.hrd.localvoice.models.Configuration
 import com.hrd.localvoice.models.User
 import com.hrd.localvoice.utils.Constants
 import com.hrd.localvoice.view.MainActivity
+import java.io.File
 
 class ProfileActivity : AppCompatActivity() {
     private lateinit var binding: ActivityProfileBinding
@@ -30,6 +33,11 @@ class ProfileActivity : AppCompatActivity() {
         // Show back button
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         title = "Update Profile"
+
+        // Reset button
+        binding.clearAppData.setOnClickListener {
+            showClearAppDataDialog()
+        }
 
         // Privacy policy
         binding.privacyPolicyLabel.setOnClickListener {
@@ -59,10 +67,7 @@ class ProfileActivity : AppCompatActivity() {
                 }
 
                 override fun onItemSelected(
-                    parent: AdapterView<*>?,
-                    view: View?,
-                    position: Int,
-                    id: Long
+                    parent: AdapterView<*>?, view: View?, position: Int, id: Long
                 ) {
                     environment = environments[position]
                 }
@@ -131,7 +136,7 @@ class ProfileActivity : AppCompatActivity() {
 
         // Locale
         when (user.locale?.lowercase()) {
-            "ak_gh" -> binding.localeGroup.check(R.id.locale_twi)
+            "ak_gh" -> binding.localeGroup.check(R.id.locale_akan)
             "ee_gh" -> binding.localeGroup.check(R.id.locale_ewe)
             "dag_gh" -> binding.localeGroup.check(R.id.locale_dagaaree)
             "dga_gh" -> binding.localeGroup.check(R.id.locale_dagbani)
@@ -280,6 +285,52 @@ class ProfileActivity : AppCompatActivity() {
             textView.text = configuration?.privacyPolicyStatement
         }
         bottomSheetDialog.show()
+    }
+
+    private fun showClearAppDataDialog() {
+        val dialog = AlertDialog.Builder(this).setTitle("Clear App Data")
+            .setNegativeButton("CANCEL") { _, _ ->
+            }.setPositiveButton(getString(R.string.yes)) { _, _ ->
+                val database: AppRoomDatabase? = AppRoomDatabase.getDatabase(application)
+
+                AppRoomDatabase.databaseWriteExecutor.execute {
+                    database?.ConfigurationDao()?.deleteAll()
+                }
+
+                // Delete all images
+                database?.ImageDao()?.getImages()?.observe(this) {
+                    it.forEach { image ->
+                        val file = image.localURl?.let { it1 -> File(it1) }
+                        if (file?.exists() == true) {
+                            file.delete()
+                        }
+                    }
+
+                    AppRoomDatabase.databaseWriteExecutor.execute {
+                        // Delete record in db
+                        database.ImageDao().deleteAll()
+                    }
+                }
+
+                // Delete all audios
+                database?.AudioDao()?.getAudios()?.observe(this) {
+                    it.forEach { audio ->
+                        val file = File(audio.localFileURl)
+                        if (file.exists()) {
+                            file.delete()
+                        }
+                    }
+
+                    AppRoomDatabase.databaseWriteExecutor.execute {
+                        // Delete record in db
+                        database.AudioDao().deleteAll()
+                    }
+                }
+                Toast.makeText(this, "All app data cleared", Toast.LENGTH_SHORT).show()
+            }
+        dialog.setMessage("Are you sure you want to delete app data i.e., images, audios, and configurations?")
+        dialog.create()
+        dialog.show()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

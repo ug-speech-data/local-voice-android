@@ -1,15 +1,12 @@
 package com.hrd.localvoice.view
 
-import android.app.DownloadManager
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -21,7 +18,6 @@ import com.hrd.localvoice.databinding.ActivityMainBinding
 import com.hrd.localvoice.models.User
 import com.hrd.localvoice.utils.Constants
 import com.hrd.localvoice.utils.Constants.SHARED_PREFS_FILE
-import com.hrd.localvoice.utils.Functions.Companion.getPathFromUri
 import com.hrd.localvoice.view.authentication.LoginActivity
 import com.hrd.localvoice.view.authentication.ProfileActivity
 import com.hrd.localvoice.view.local_files.MyAudiosActivity
@@ -76,6 +72,13 @@ class MainActivity : AppCompatActivity() {
                         binding.audiosValidatedView.text =
                             getString(R.string.audios_validated, user?.audiosValidated);
                     }
+
+                    // Hide/Show Audio validation button
+                    if (user?.permissions?.contains("validate_audio") != true) {
+                        binding.audioValidationCard.visibility = View.GONE
+                    } else {
+                        binding.audioValidationCard.visibility = View.VISIBLE
+                    }
                 }
             }
         }
@@ -85,11 +88,6 @@ class MainActivity : AppCompatActivity() {
 
         // Schedule configuration update
         scheduleConfigurationUpdate(constraints, workManager)
-
-        // Attach listener to download manager
-        registerReceiver(
-            onDownloadComplete, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE)
-        );
 
         // Attach listener to update configurations
         binding.appStatusInfo.setOnClickListener {
@@ -148,16 +146,20 @@ class MainActivity : AppCompatActivity() {
             // Get images without required number of descriptions
             viewModel.getImages(maxImageDescription!!)?.observe(this) { images ->
                 binding.assignedImagesInfo.text = "${images.size} Assigned Images"
-                binding.expectedDescriptionCount.text =
-                    "${images.size * maxImageDescription} Descriptions"
+            }
+
+            // Update recorded descriptions
+            viewModel.getAudios()?.observe(this) { audios ->
+                binding.recordedAudioLabel.text = getString(R.string.recorded_audios, audios.size)
             }
         }
 
         // Attach listener to update local images button
         binding.updateLocalImages.setOnClickListener {
             val workRequest =
-                OneTimeWorkRequestBuilder<UpdateAssignedImagesWorker>().setConstraints(constraints)
-                    .setInputData(createInputDataForUri()).build()
+                OneTimeWorkRequestBuilder<UpdateAssignedImagesWorker>().setConstraints(
+                    constraints
+                ).setInputData(createInputDataForUri()).build()
             workManager.enqueue(workRequest)
             binding.updateLocalImages.isEnabled = false
 
@@ -233,41 +235,5 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, ProfileActivity::class.java))
         }
         return super.onOptionsItemSelected(item)
-    }
-
-    private val onDownloadComplete: BroadcastReceiver = object : BroadcastReceiver() {
-
-        override fun onReceive(context: Context?, intent: Intent) {
-            //Fetching the download id received with the broadcast
-            val id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
-
-            val downloadManager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager?
-            val downloadedUri = downloadManager?.getUriForDownloadedFile(id)
-
-            if (context != null && downloadedUri != null) {
-                val downloadedFilePath = getPathFromUri(context, downloadedUri)
-                if (downloadedFilePath != null) {
-                    var fileNumber =
-                        downloadedFilePath.split("-")[downloadedFilePath.split("-").size - 1]
-                    fileNumber = fileNumber.split(".")[0]
-                    if (fileNumber.toIntOrNull() != null) {
-                        // Duplicate file name, delete old file.
-                        val newFileName = downloadedFilePath.replace("-$fileNumber", "")
-                        val newFile = File(newFileName)
-                        if (newFile.exists()) {
-                            newFile.delete()
-                        }
-                        val file = File(downloadedFilePath)
-                        file.renameTo(newFile)
-                        Log.d(tag, "Renamed ${file.absolutePath} to $newFile")
-                    }
-                }
-            }
-        }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        unregisterReceiver(onDownloadComplete)
     }
 }

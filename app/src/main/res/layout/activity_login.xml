@@ -92,12 +92,12 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
                         android:layout_weight="9"
-                        android:tint="@color/gray_600"
                         android:clickable="true"
                         android:contentDescription="@string/toggle_password_visibility"
                         android:focusable="true"
                         android:foreground="?attr/selectableItemBackgroundBorderless"
-                        android:src="@drawable/ic_baseline_remove_red_eye_24" />
+                        android:src="@drawable/ic_baseline_remove_red_eye_24"
+                        android:tint="@color/gray_600" />
                 </LinearLayout>
 
 
@@ -149,7 +149,8 @@
                     android:layout_marginVertical="20dp"
                     android:text="@string/create_new_account"
                     android:textAlignment="center"
-                    android:textColor="@color/purple_700" />
+                    android:textColor="@color/purple_700"
+                    android:textStyle="bold" />
             </LinearLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>

@@ -16,22 +16,24 @@ class BinaryFileDownloader() {
     private val client: OkHttpClient = OkHttpClient().newBuilder().build()
 
     fun download(context: Context, url: String, fileName: String): String? {
-        var response: Response? = null
+        val response: Response?
         val request: Request = Request.Builder().url(url).build()
         try {
             response = client.newCall(request).execute()
+            if (response.code() == 200) {
+                val responseBody: ResponseBody? = response?.body()
+                val responseData = responseBody?.bytes()
+                if (responseData != null) {
+                    val fOut: FileOutputStream =
+                        context.openFileOutput(fileName, AppCompatActivity.MODE_PRIVATE)
+                    fOut.write(responseData)
+                    fOut.close()
+                    return File(context.filesDir, fileName).absolutePath
+                }
+            }
         } catch (e: SocketTimeoutException) {
             Log.e("BinaryFileDownloader", "download: $e")
             return null
-        }
-        val responseBody: ResponseBody? = response?.body()
-        val responseData = responseBody?.bytes()
-        if (responseData != null) {
-            val fOut: FileOutputStream =
-                context.openFileOutput(fileName, AppCompatActivity.MODE_PRIVATE)
-            fOut.write(responseData)
-            fOut.close()
-            return File(context.filesDir, fileName).absolutePath
         }
         return null
     }

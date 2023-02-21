@@ -178,10 +178,10 @@
                     android:scrollbars="horizontal">
 
                     <RadioButton
-                        android:id="@+id/locale_twi"
+                        android:id="@+id/locale_akan"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Twi" />
+                        android:text="Akan" />
 
                     <RadioButton
                         android:id="@+id/locale_ewe"
@@ -398,6 +398,16 @@
                     app:layout_constraintTop_toTopOf="parent"
                     tools:visibility="visible" />
             </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <TextView
+                android:id="@+id/clear_app_data"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="20dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:text="@string/clear_app_data" />
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

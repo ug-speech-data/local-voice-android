@@ -56,8 +56,8 @@
     <string name="noisy_environment_message">This environment is too noisy.</string>
     <string name="record_participants">Record Audio</string>
     <string name="starting_recording_message">Start recording in a quiet environment here. \nWatch the demo video and rehearse before starting the recording.</string>
-    <string name="previous_audios_message"><b>Click</b> here to view all your previous recordings and their upload status. All audios will be uploaded automatically when there\'s internet and the battery is not low.</string>
-    <string name="previous_audios">Recorded Audios</string>
+    <string name="previous_audios_message">All audios will be uploaded automatically when there\'s internet and the battery is not low.</string>
+    <string name="recorded_audios">%1$d Recorded Audios</string>
     <string name="background_noise_check_message">Checking background noise level. \nPlease be silent 3 seconds.</string>
     <string name="no_data_found">No data found.</string>
     <string name="update_local_images">Update Local Images</string>
@@ -84,7 +84,7 @@
     <string name="enter_your_full_name">Enter your full name</string>
     <string name="read_me">READ ME</string>
     <string name="video_instructions">Please find attached a demonstration video of a sample audio description recording. It is important to note that an effective audio description should not include phrases such as "I can see" or "the picture". \n\nOnce you have finished viewing the demonstration video, kindly click on "Continue" to proceed or "Skip" if desired.</string>
-    <string name="click_to_view_images">View all the downloaded images and their number descriptions.</string>
+    <string name="click_to_view_images">View all the downloaded images and their number of descriptions.</string>
     <string name="network_selection_icon">Network Selection Icon</string>
     <string name="update">Update</string>
     <string name="welcome_note">Welcome to our data collection app! This app allows you to easily contribute audio data in your local language for further research. \n\n<b>Register today to start contributing.</b></string>
@@ -114,4 +114,5 @@
     <string name="balance">Balance:<b>GHC %1$s</b></string>
     <string name="audios_validated">Audios Validated: <b>%1$d</b></string>
     <string name="audios_submitted">Audios Submitted: <b>%1$d</b></string>
+    <string name="clear_app_data">Clear app data.</string>
 </resources>

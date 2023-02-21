@@ -44,6 +44,15 @@ class AudioValidationActivity : AppCompatActivity() {
                 binding.skipButton.isEnabled = true
             }
         }
+
+        // If user does not have permission, close the activity.
+        viewModel.user?.observe(this) { user ->
+            if (user?.permissions?.contains("validate_audio") != true) {
+                Toast.makeText(this, "Unauthorised", Toast.LENGTH_SHORT).show()
+                finish()
+            }
+        }
+
         // Get first audio
         viewModel.getAssignedAudios(-1)
 
@@ -62,8 +71,7 @@ class AudioValidationActivity : AppCompatActivity() {
         }
         binding.rejectButton.setOnClickListener {
             if (currentAudio != null) viewModel.validateDate(
-                currentAudio!!.id,
-                AudioStatus.REJECTED
+                currentAudio!!.id, AudioStatus.REJECTED
             )
         }
 
@@ -185,8 +193,7 @@ class AudioValidationActivity : AppCompatActivity() {
                 binding.playerProgressBar.progress = progress.toInt()
                 isAudioPlaying = player?.isPlaying == true
 
-                if (isAudioPlaying)
-                    binding.playPauseButton.setImageResource(R.drawable.ic_baseline_pause_circle_outline_24)
+                if (isAudioPlaying) binding.playPauseButton.setImageResource(R.drawable.ic_baseline_pause_circle_outline_24)
             }
             Thread.sleep(1000)
             if (!isAudioPlaying) {

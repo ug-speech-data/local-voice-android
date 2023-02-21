@@ -2,9 +2,12 @@ package com.hrd.localvoice.view.validations
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.hrd.localvoice.DataRepository
 import com.hrd.localvoice.R
 import com.hrd.localvoice.models.UploadedAudio
+import com.hrd.localvoice.models.User
 import com.hrd.localvoice.network.RestApiFactory
 import com.hrd.localvoice.network.response_models.UploadedAudioResponse
 import okhttp3.ResponseBody
@@ -13,6 +16,7 @@ import retrofit2.Callback
 import retrofit2.Response
 
 class ValidationActivityViewModel(application: Application) : AndroidViewModel(application) {
+    private val repository: DataRepository = DataRepository(application)
     private val apiService = RestApiFactory.create(application);
     val errorMessage = MutableLiveData<String>()
     val isLoading: MutableLiveData<Boolean> = MutableLiveData(false)
@@ -20,6 +24,9 @@ class ValidationActivityViewModel(application: Application) : AndroidViewModel(a
     private val context: Application = application
     val validationSuccess: MutableLiveData<Boolean> = MutableLiveData(false)
     val noMoreImages: MutableLiveData<Boolean> = MutableLiveData(false)
+
+    val user: LiveData<User?>?
+        get() = repository.user
 
     fun getAssignedAudios(offset: Long) {
         isLoading.value = true
@@ -37,6 +44,7 @@ class ValidationActivityViewModel(application: Application) : AndroidViewModel(a
                 }
                 isLoading.value = false
             }
+
             override fun onFailure(call: Call<UploadedAudioResponse?>, t: Throwable) {
                 errorMessage.value = t.message
                 isLoading.value = false

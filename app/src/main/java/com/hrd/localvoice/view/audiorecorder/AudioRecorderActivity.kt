@@ -9,8 +9,6 @@ import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.view.Menu
-import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.annotation.RequiresApi
@@ -44,6 +42,7 @@ class AudioRecorderActivity : AppCompatActivity() {
     private var currentParticipant: Participant? = null
     private var currentUser: User? = null
     private var environment: String? = null
+    private val totalExpectedDescription = 120
 
     // List of images described by the current participant
     private var describedImages: MutableList<Image> = mutableListOf()
@@ -57,9 +56,13 @@ class AudioRecorderActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityAudioRecorderBinding.inflate(layoutInflater);
         setContentView(binding.root)
-        title = "Recorder"
         setup()
         recorder = WaveRecorder(this)
+
+        // App bar actions
+        binding.buttonDone.setOnClickListener {
+            done()
+        }
 
         AppRoomDatabase.databaseWriteExecutor.execute {
             // Retrieve current participant
@@ -131,8 +134,13 @@ class AudioRecorderActivity : AppCompatActivity() {
             val maxImageDescription =
                 if (configuration?.maxImageDescriptionCount != null) configuration.maxImageDescriptionCount else 5
 
+            val descriptionCount: Int = if (currentParticipant == null) 1
+            else {
+                maxImageDescription!!
+            }
+
             // Get images without required number of descriptions
-            viewModel.getImages(maxImageDescription!!)?.observe(this) { images ->
+            viewModel.getImages(descriptionCount)?.observe(this) { images ->
                 availableImages = images as MutableList<Image>
 
                 if (availableImages.isEmpty()) {
@@ -192,6 +200,23 @@ class AudioRecorderActivity : AppCompatActivity() {
         }
     }
 
+    private fun done() {
+        if (currentParticipant != null && describedImages.isNotEmpty()) {
+            startActivity(Intent(this, ParticipantCompensationDetailsActivity::class.java))
+        } else if (describedImages.isNotEmpty()) {
+            Toast.makeText(
+                this,
+                getString(R.string.saved_recording),
+                Toast.LENGTH_LONG
+            ).show()
+            startActivity(Intent(this, MainActivity::class.java))
+            finish()
+        } else {
+            startActivity(Intent(this, MainActivity::class.java))
+            finish()
+        }
+    }
+
     private fun showNoImagesDialog() {
         val dialog = AlertDialog.Builder(this)
             .setTitle("No images found")
@@ -212,8 +237,12 @@ class AudioRecorderActivity : AppCompatActivity() {
     }
 
     private fun showRecordingCompletedDialog() {
-        val dialog = AlertDialog.Builder(this).setTitle("Recording completed").setCancelable(false)
-            .setPositiveButton(getString(R.string.ok)) { _, _ -> }
+        val dialog = AlertDialog.Builder(this)
+            .setTitle("Recording completed")
+            .setCancelable(false)
+            .setPositiveButton(getString(R.string.ok)) { _, _ ->
+                binding.timerLabel.text = "00:00"
+            }
 
         var message = ""
         if (recorder.silentDuration() >= 3) {
@@ -233,6 +262,22 @@ class AudioRecorderActivity : AppCompatActivity() {
             dialog.create()
             dialog.show()
         }
+    }
+
+    private fun showMaximumImageCountReachedDialog() {
+        val dialog = AlertDialog.Builder(this)
+            .setTitle("Maximum reached")
+            .setCancelable(false)
+            .setNegativeButton(getString(R.string.no)) { _, _ ->
+                done()
+            }
+            .setPositiveButton(getString(R.string.yes)) { _, _ -> }
+
+        val message =
+            "You have recorded ${describedImages.size} descriptions. Would you like to continue?"
+        dialog.setMessage(message)
+        dialog.create()
+        dialog.show()
     }
 
     private val updateProgressRunnable = Runnable {
@@ -291,6 +336,16 @@ class AudioRecorderActivity : AppCompatActivity() {
         // Update image details
         binding.imageName.text = currentImage.name
         binding.imageCategory.text = currentImage.category
+
+        binding.imageCountLabel.text =
+            "${
+                describedImages.size.toString()
+                    .padStart(totalExpectedDescription.toString().length, '0')
+            }/$totalExpectedDescription"
+
+        if (describedImages.size >= totalExpectedDescription) {
+            showMaximumImageCountReachedDialog()
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
@@ -315,31 +370,6 @@ class AudioRecorderActivity : AppCompatActivity() {
         } else {
             recreate()
         }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.recorder_view_menu, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.action_next) {
-            if (currentParticipant != null && describedImages.isNotEmpty()) {
-                startActivity(Intent(this, ParticipantCompensationDetailsActivity::class.java))
-            } else if (describedImages.isNotEmpty()) {
-                Toast.makeText(
-                    this,
-                    getString(R.string.saved_recording),
-                    Toast.LENGTH_LONG
-                ).show()
-                startActivity(Intent(this, MainActivity::class.java))
-                finish()
-            } else {
-                startActivity(Intent(this, MainActivity::class.java))
-                finish()
-            }
-        }
-        return super.onOptionsItemSelected(item)
     }
 
     override fun onStop() {

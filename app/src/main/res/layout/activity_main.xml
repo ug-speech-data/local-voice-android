@@ -208,12 +208,6 @@
                             tools:text="12 Assigned Images" />
 
                         <TextView
-                            android:id="@+id/expected_description_count"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            tools:text="25 Descriptions" />
-
-                        <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="5dp"
@@ -241,9 +235,10 @@
                         android:padding="10dp">
 
                         <TextView
+                            android:id="@+id/recorded_audio_label"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/previous_audios"
+                            android:text="@string/recorded_audios"
                             android:textSize="20sp"
                             android:textStyle="bold" />
 

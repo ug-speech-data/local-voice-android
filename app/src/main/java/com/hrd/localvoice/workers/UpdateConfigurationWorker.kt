@@ -9,6 +9,7 @@ import com.hrd.localvoice.network.RestApiFactory
 import com.hrd.localvoice.network.response_models.AuthenticationResponse
 import com.hrd.localvoice.network.response_models.ConfigurationResponse
 import com.hrd.localvoice.utils.BinaryFileDownloader
+import com.hrd.localvoice.utils.Functions
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -78,7 +79,6 @@ class UpdateConfigurationWorker(
                     ).show()
                 }
             }
-
             override fun onFailure(call: Call<ConfigurationResponse?>, t: Throwable) {
                 Toast.makeText(
                     context, "Couldn't update app configurations: ${t.message}", Toast.LENGTH_LONG
@@ -96,8 +96,11 @@ class UpdateConfigurationWorker(
                     AppRoomDatabase.databaseWriteExecutor.execute {
                         database?.UserDao()?.insertUser(response.body()!!.user!!)
                     }
+                } else if (response.code() == 401) {
+                    Functions.removeUserToken(context)
                 }
             }
+
             override fun onFailure(call: Call<AuthenticationResponse?>, t: Throwable) {
                 Toast.makeText(
                     context, "Couldn't update profile: ${t.message}", Toast.LENGTH_LONG

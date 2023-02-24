@@ -33,7 +33,9 @@ class UploadWorker(
     }
 
     private fun uploadPendingAudios() {
-        database?.AudioDao()?.getPendingAudios()?.forEach { audio ->
+        val audios = database?.AudioDao()?.getPendingAudios()
+
+        audios?.forEach { audio ->
             var participant: Participant? = null
             if (audio.participantId != null) {
                 participant = AppRoomDatabase.INSTANCE?.ParticipantDao()
@@ -75,10 +77,11 @@ class UploadWorker(
                             if (response.body()?.success == true) {
                                 audio.status = AUDIO_STATUS_UPLOADED
                                 AppRoomDatabase.databaseWriteExecutor.execute {
-                                    database.AudioDao().updateAudio(audio)
+                                    database?.AudioDao()?.updateAudio(audio)
                                 }
                             }
                         }
+
                         override fun onFailure(call: Call<UploadResponse?>, t: Throwable) {
                             Toast.makeText(
                                 context, "Error: ${t.message}", Toast.LENGTH_LONG

@@ -11,7 +11,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.hrd.localvoice.databinding.ItemAudioBinding
 import com.hrd.localvoice.models.Audio
 import com.hrd.localvoice.utils.Constants.UPLOAD_STATUS_PENDING
+import java.io.File
 import java.util.*
+import kotlin.Int
+import kotlin.with
 
 
 class AudioAdapter(private val context: Context) :
@@ -29,6 +32,7 @@ class AudioAdapter(private val context: Context) :
 
     inner class AudioViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val binding = ItemAudioBinding.bind(view)
+
         fun bind(audio: Audio) {
             with(binding) {
                 description.text = audio.description
@@ -50,6 +54,10 @@ class AudioAdapter(private val context: Context) :
                 playPauseButton.setOnClickListener {
                     listener?.playStopAudioListener(audio)
                 }
+
+                val file = File(audio.localFileURl)
+                val fileSize = "%.2f".format(file.length() / (1024 * 1024).toFloat())
+                sizeText.text = "${audio.duration} seconds  $fileSize MB"
             }
         }
     }

@@ -1,6 +1,7 @@
 package com.hrd.localvoice.models
 
 import android.os.Parcelable
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
@@ -16,4 +17,7 @@ data class Configuration(
     @SerializedName("max_image_description_count") var maxImageDescriptionCount: Int? = 3,
     @SerializedName("participant_privacy_statement") var privacyPolicyStatement: String? = "",
     @PrimaryKey(autoGenerate = true) var id: Long = 0,
+
+    @SerializedName("participant_privacy_statement_audio") @ColumnInfo(defaultValue = "") var privacyPolicyStatementAudioRemoteUrl: String = "",
+    @ColumnInfo(defaultValue = "") var privacyPolicyStatementAudioLocalUrl: String = "",
 ) : Parcelable

@@ -115,4 +115,5 @@
     <string name="audios_validated">Audios Validated: <b>%1$d</b></string>
     <string name="audios_submitted">Audios Submitted: <b>%1$d</b></string>
     <string name="clear_app_data">Clear app data.</string>
+    <string name="play_privacy_policy">Play privacy policy</string>
 </resources>

@@ -17,8 +17,8 @@ class BinaryFileDownloader() {
 
     fun download(context: Context, url: String, fileName: String): String? {
         val response: Response?
-        val request: Request = Request.Builder().url(url).build()
         try {
+            val request: Request = Request.Builder().url(url).build()
             response = client.newCall(request).execute()
             if (response.code() == 200) {
                 val responseBody: ResponseBody? = response?.body()
@@ -32,7 +32,10 @@ class BinaryFileDownloader() {
                 }
             }
         } catch (e: SocketTimeoutException) {
-            Log.e("BinaryFileDownloader", "download: $e")
+            Log.e("BinaryFileDownloader", "BinaryFileDownloader: $e")
+            return null
+        } catch (e: IllegalArgumentException) {
+            Log.e("BinaryFileDownloader", "BinaryFileDownloader: $e")
             return null
         }
         return null

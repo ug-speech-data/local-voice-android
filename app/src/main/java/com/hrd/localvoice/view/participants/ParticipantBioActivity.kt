@@ -12,6 +12,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.hrd.localvoice.AppRoomDatabase
 import com.hrd.localvoice.R
 import com.hrd.localvoice.databinding.ActivityParticipantBioBinding
+import com.hrd.localvoice.fragments.PrivacyPolicyBottomSheet
 import com.hrd.localvoice.models.Configuration
 import com.hrd.localvoice.models.Participant
 import com.hrd.localvoice.utils.Constants
@@ -121,20 +122,8 @@ class ParticipantBioActivity : AppCompatActivity() {
     }
 
     private fun showPrivacyPolicyBottomSheetDialog() {
-        val bottomSheetDialog = BottomSheetDialog(this)
-        bottomSheetDialog.setContentView(R.layout.privacy_policy_bottom_sheet_dialog_layout)
-
-        val textView = bottomSheetDialog.findViewById<TextView>(R.id.privacy_policy_text)
-        val actionButton = bottomSheetDialog.findViewById<Button>(R.id.action_button)
-
-        actionButton?.setOnClickListener {
-            bottomSheetDialog.dismiss();
-        }
-
-        if (configuration != null && textView != null) {
-            textView.text = configuration?.privacyPolicyStatement
-        }
-        bottomSheetDialog.show()
+        val modalBottomSheet = PrivacyPolicyBottomSheet()
+        modalBottomSheet.show(supportFragmentManager, PrivacyPolicyBottomSheet.TAG)
     }
 
     private val saveLastParticipantInSharedPreferences = Runnable {

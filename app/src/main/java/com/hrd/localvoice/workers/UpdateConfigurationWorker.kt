@@ -35,11 +35,9 @@ class UpdateConfigurationWorker(
                     AppRoomDatabase.databaseWriteExecutor.execute {
                         var configuration = database?.ConfigurationDao()?.getConfiguration()
 
-                        if (configuration == null) {
-                            // Put new configuration into database
-                            database?.ConfigurationDao()?.insertConfiguration(remoteConfiguration)
-                            configuration = remoteConfiguration
-                        }
+                        // Put new configuration into database / Update
+                        database?.ConfigurationDao()?.insertConfiguration(remoteConfiguration)
+                        configuration = remoteConfiguration
 
                         if ((configuration.demoVideoRemoteUrl != remoteConfiguration.demoVideoRemoteUrl) || !File(
                                 configuration.demoVideoLocalUrl
@@ -69,6 +67,31 @@ class UpdateConfigurationWorker(
                                     database?.ConfigurationDao()?.updateConfiguration(configuration)
                                 }
                             }.start()
+
+                            // Downloading privacy statement audio
+                            val audioDestination =
+                                remoteConfiguration.privacyPolicyStatementAudioRemoteUrl
+                            val audioExtension =
+                                audioDestination.split(".")[audioDestination.split(".").size - 1]
+
+                            val audioTitle =
+                                "privacy_statement_audio_${System.currentTimeMillis()}.$audioExtension"
+                            Thread {
+                                val downloader = BinaryFileDownloader()
+                                val destinationName =
+                                    downloader.download(context, audioDestination, audioTitle)
+
+                                if (destinationName != null) {
+                                    // Delete old audio file
+                                    if (File(configuration.privacyPolicyStatementAudioLocalUrl).exists()) {
+                                        File(configuration.privacyPolicyStatementAudioLocalUrl).delete()
+                                    }
+
+                                    // Update configuration
+                                    configuration.privacyPolicyStatementAudioLocalUrl =
+                                        destinationName
+                                }
+                            }.start()
                         }
                     }
                 } else {
@@ -79,6 +102,7 @@ class UpdateConfigurationWorker(
                     ).show()
                 }
             }
+
             override fun onFailure(call: Call<ConfigurationResponse?>, t: Throwable) {
                 Toast.makeText(
                     context, "Couldn't update app configurations: ${t.message}", Toast.LENGTH_LONG

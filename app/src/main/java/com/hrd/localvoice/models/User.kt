@@ -30,6 +30,5 @@ data class User(
     @SerializedName("balance") val balance: String = "0.00",
     @SerializedName("audios_submitted") val audiosSubmitted: Int = 0,
     @SerializedName("audios_validated") val audiosValidated: Int = 0,
-    @TypeConverters(StringListConvector::class) val permissions: List<String>?
-
+    @TypeConverters(StringListConvector::class) @SerializedName("user_permissions") val permissions: List<String>?
 ) : Parcelable

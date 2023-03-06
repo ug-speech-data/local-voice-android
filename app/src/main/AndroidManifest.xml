@@ -20,6 +20,9 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".view.configurations.ConfigurationActivity"
+            android:exported="false" />
+        <activity
             android:name=".view.validations.AudioValidationActivity"
             android:exported="false">
             <meta-data

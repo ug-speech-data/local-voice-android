@@ -20,6 +20,7 @@ import com.hrd.localvoice.utils.Constants
 import com.hrd.localvoice.utils.Constants.SHARED_PREFS_FILE
 import com.hrd.localvoice.view.authentication.LoginActivity
 import com.hrd.localvoice.view.authentication.ProfileActivity
+import com.hrd.localvoice.view.configurations.ConfigurationActivity
 import com.hrd.localvoice.view.local_files.MyAudiosActivity
 import com.hrd.localvoice.view.local_files.MyImagesActivity
 import com.hrd.localvoice.view.participants.ParticipantBioActivity
@@ -94,7 +95,7 @@ class MainActivity : AppCompatActivity() {
 
         // Attach listener to update configurations
         binding.appStatusInfo.setOnClickListener {
-            scheduleConfigurationUpdate(constraints, workManager)
+            startActivity(Intent(this, ConfigurationActivity::class.java))
         }
 
         // Open Audio Recorder activity

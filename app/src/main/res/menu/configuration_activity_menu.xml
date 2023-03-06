@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_update_configuration"
+        android:icon="@drawable/baseline_refresh_24"
+        android:iconTint="@color/white"
+        android:orderInCategory="1"
+        android:title="Update configuration"
+        app:showAsAction="ifRoom" />
+</menu>

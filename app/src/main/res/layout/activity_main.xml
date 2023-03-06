@@ -115,17 +115,19 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="10dp"
-                    android:layout_marginVertical="20dp"
+                    android:layout_marginVertical="10dp"
                     android:backgroundTint="@color/purple_500"
                     android:clickable="true"
                     android:focusable="true"
                     android:foreground="?attr/selectableItemBackgroundBorderless"
-                    android:padding="10dp">
+                    android:paddingHorizontal="10dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginVertical="20dp"
                         android:layout_marginBottom="10dp"
+
                         android:orientation="vertical"
                         android:padding="10dp">
 
@@ -147,21 +149,21 @@
 
                 </androidx.cardview.widget.CardView>
 
-
                 <androidx.cardview.widget.CardView
                     android:id="@+id/audio_validation_card"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="10dp"
-                    android:layout_marginVertical="20dp"
+                    android:layout_marginVertical="10dp"
                     android:clickable="true"
                     android:focusable="true"
                     android:foreground="?attr/selectableItemBackgroundBorderless"
-                    android:padding="10dp">
+                    android:paddingHorizontal="10dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginVertical="20dp"
                         android:orientation="vertical"
                         android:padding="10dp">
 
@@ -186,15 +188,17 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="10dp"
-                    android:layout_marginVertical="30dp"
+                    android:layout_marginVertical="10dp"
                     android:clickable="true"
                     android:focusable="true"
                     android:foreground="?attr/selectableItemBackgroundBorderless"
-                    android:padding="20dp">
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="30dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginVertical="20dp"
                         android:layout_marginBottom="10dp"
                         android:orientation="vertical"
                         android:paddingHorizontal="10dp">
@@ -222,15 +226,17 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="10dp"
-                    android:layout_marginVertical="20dp"
+                    android:layout_marginVertical="10dp"
                     android:clickable="true"
                     android:focusable="true"
                     android:foreground="?attr/selectableItemBackgroundBorderless"
-                    android:padding="10dp">
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="30dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginVertical="20dp"
                         android:orientation="vertical"
                         android:padding="10dp">
 

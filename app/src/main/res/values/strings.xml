@@ -121,4 +121,7 @@
     <string name="pause">Pause</string>
     <string name="participant_momo">Participant Momo</string>
     <string name="numbers_do_not_match">Numbers do not match.</string>
+    <string name="privacy_statement_audio">Privacy Statement Audio</string>
+    <string name="maximum_noise_level">Maximum Noise Level</string>
+    <string name="demo_video">Demo Video</string>
 </resources>

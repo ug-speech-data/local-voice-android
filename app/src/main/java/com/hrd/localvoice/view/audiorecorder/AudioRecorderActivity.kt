@@ -10,9 +10,7 @@ import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.widget.Button
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -30,14 +28,16 @@ import com.hrd.localvoice.models.Participant
 import com.hrd.localvoice.models.User
 import com.hrd.localvoice.utils.Constants
 import com.hrd.localvoice.utils.WaveRecorder
+import com.hrd.localvoice.view.ImageViewActivity
 import com.hrd.localvoice.view.MainActivity
 import com.hrd.localvoice.view.participants.ParticipantBioActivity.Companion.currentParticipantData
 import com.hrd.localvoice.view.participants.ParticipantCompensationDetailsActivity
 
+
 class AudioRecorderActivity : AppCompatActivity() {
     private val tag = "AudioRecorderActivity"
     private lateinit var viewModel: RecorderActivityViewModel
-    private var availableImages: MutableList<Image> = mutableListOf()
+    private lateinit var availableImages: MutableList<Image>
     private lateinit var binding: ActivityAudioRecorderBinding
     private lateinit var recorder: WaveRecorder
     private var currentImageIndex = 0
@@ -80,8 +80,6 @@ class AudioRecorderActivity : AppCompatActivity() {
                 getSharedPreferences(Constants.SHARED_PREFS_FILE, MODE_PRIVATE)
             val participantId = prefsEditor.getLong(currentParticipantData, -1)
 
-            Log.d("TEST", "participantId: $participantId")
-
             currentParticipant = viewModel.getParticipantById(participantId)
             runOnUiThread { loadImages() }
 
@@ -91,10 +89,8 @@ class AudioRecorderActivity : AppCompatActivity() {
         }
 
         viewModel.descriptionCount.observe(this) {
-            totalDescriptionCount = it
             binding.imageCountLabel.text = "${
-                totalDescriptionCount.toString()
-                    .padStart(totalExpectedDescription.toString().length, '0')
+                it.toString().padStart(totalExpectedDescription.toString().length, '0')
             }/$totalExpectedDescription"
         }
 
@@ -117,7 +113,11 @@ class AudioRecorderActivity : AppCompatActivity() {
         }
 
         binding.imageView.setOnClickListener {
-            Log.d(tag, "imageView clicked: ")
+            val intent = Intent(this, ImageViewActivity::class.java)
+            intent.putExtra(
+                "IMAGE_PATH", availableImages[currentImageIndex.mod(availableImages.size)].localURl
+            )
+            startActivity(intent)
         }
 
         binding.previousImageButton.setOnClickListener {
@@ -138,32 +138,44 @@ class AudioRecorderActivity : AppCompatActivity() {
 
     private fun loadImages() {
         val currentParticipantId = currentParticipant?.id ?: -1 // If recording oneself.
-        viewModel.getAudiosByParticipant(currentParticipantId)?.observe(this) { audios ->
+
+        AppRoomDatabase.databaseWriteExecutor.execute {
+            val audios =
+                AppRoomDatabase.INSTANCE?.AudioDao()?.getAudiosByParticipant(currentParticipantId)
             // Prevent double description of same image
             val excludedImageIds = mutableListOf<Long>()
-            viewModel.descriptionCount.value = audios.size
 
-            audios.forEach { audio ->
+            runOnUiThread {
+                viewModel.descriptionCount.value = audios?.size
+                audios?.size.also {
+                    if (it != null) {
+                        totalDescriptionCount = it
+                    }
+                }
+            }
+
+            audios?.forEach { audio ->
                 excludedImageIds.add(audio.remoteImageID)
             }
 
             // Get images, excluding already described by current participant
-            viewModel.getImages(excludedImageIds)?.observe(this) { images ->
-                availableImages = images as MutableList<Image>
+            val images = AppRoomDatabase.INSTANCE?.ImageDao()?.getImages(excludedImageIds)
+            Log.d("TEST", "images: ${images?.size}")
 
-                currentImageIndex = 0
-                showImageAtIndex(currentImageIndex)
-
-                if (availableImages.isEmpty()) {
+            availableImages = images as MutableList<Image>
+            currentImageIndex = 0
+            if (availableImages.isEmpty()) {
+                runOnUiThread {
                     showNoImagesDialog()
                 }
-
-                if (availableImages.isNotEmpty()) showImageAtIndex(0)
-
-                binding.previousImageButton.isEnabled = availableImages.isNotEmpty()
-                binding.nextImageButton.isEnabled = availableImages.isNotEmpty()
-                binding.startStopButton.isEnabled = availableImages.isNotEmpty()
+            } else {
+                runOnUiThread {
+                    showImageAtIndex(currentImageIndex)
+                }
             }
+            binding.previousImageButton.isEnabled = availableImages.isNotEmpty()
+            binding.nextImageButton.isEnabled = availableImages.isNotEmpty()
+            binding.startStopButton.isEnabled = availableImages.isNotEmpty()
         }
     }
 
@@ -196,10 +208,14 @@ class AudioRecorderActivity : AppCompatActivity() {
             // Increase image description count
             currentImage.descriptionCount += 1
             viewModel.updateImage(currentImage)
+
+            totalDescriptionCount += 1
             viewModel.descriptionCount.value = totalDescriptionCount
 
             // Reset Recording box control
             binding.timerLabel.text = "00:00"
+
+            showImageAtIndex(++currentImageIndex)
 
             Toast.makeText(this, "Audio saved.", Toast.LENGTH_SHORT).show()
         } else {

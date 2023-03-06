@@ -22,7 +22,7 @@ class DataRepository(application: Application) {
     private val userDao: UserDao?
 
     fun getAssignedImages(excludes: List<Long>): LiveData<List<Image>>? {
-        return imageDao?.getImages(excludes)
+        return imageDao?.getImagesLive(excludes)
     }
 
     fun getImages(): LiveData<List<Image>>? {
@@ -76,7 +76,7 @@ class DataRepository(application: Application) {
     }
 
     fun getAudiosByParticipant(participantId: Long): LiveData<List<Audio>>? {
-        return audioDao?.getAudiosByParticipant(participantId)
+        return audioDao?.getAudiosByParticipantLive(participantId)
     }
 
     init {

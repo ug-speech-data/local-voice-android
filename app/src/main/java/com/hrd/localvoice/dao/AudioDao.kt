@@ -36,5 +36,8 @@ interface AudioDao {
     fun getAudio(id: Long): LiveData<Audio>
 
     @Query("SELECT * FROM $AUDIOS_TABLE WHERE participantId = :participantId")
-    fun getAudiosByParticipant(participantId: Long): LiveData<List<Audio>>
+    fun getAudiosByParticipant(participantId: Long): List<Audio>
+
+    @Query("SELECT * FROM $AUDIOS_TABLE WHERE participantId = :participantId")
+    fun getAudiosByParticipantLive(participantId: Long): LiveData<List<Audio>>
 }

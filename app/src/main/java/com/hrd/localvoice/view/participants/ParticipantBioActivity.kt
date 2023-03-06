@@ -198,6 +198,8 @@ class ParticipantBioActivity : AppCompatActivity() {
                                 ?.deleteParticipant(previousParticipant!!)
                         }
                     }
+                } else{
+                    recreate()
                 }
             }
         })

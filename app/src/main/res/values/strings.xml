@@ -124,4 +124,8 @@
     <string name="privacy_statement_audio">Privacy Statement Audio</string>
     <string name="maximum_noise_level">Maximum Noise Level</string>
     <string name="demo_video">Demo Video</string>
+    <string name="configurations">Configurations</string>
+    <string name="title_activity_image_view">ImageViewActivity</string>
+    <string name="exit">Exit</string>
+    <string name="image">Image</string>
 </resources>

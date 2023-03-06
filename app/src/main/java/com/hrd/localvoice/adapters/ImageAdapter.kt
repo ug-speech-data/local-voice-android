@@ -1,6 +1,7 @@
 package com.hrd.localvoice.adapters
 
 import android.content.Context
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,6 +12,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.hrd.localvoice.R
 import com.hrd.localvoice.databinding.ItemImageBinding
 import com.hrd.localvoice.models.Image
+import com.hrd.localvoice.view.ImageViewActivity
 
 
 class ImageAdapter(private val context: Context) :
@@ -22,8 +24,13 @@ class ImageAdapter(private val context: Context) :
         private val binding = ItemImageBinding.bind(view)
         fun bind(image: Image) {
             with(binding) {
-                description.text = image.name
+                binding.cardView.setOnClickListener {
+                    val intent = Intent(context, ImageViewActivity::class.java)
+                    intent.putExtra("IMAGE_PATH", image.localURl)
+                    context.startActivity(intent)
+                }
 
+                description.text = image.name
                 val imageUrl =
                     if (image.localURl != null) image.localURl else image.remoteURL
                 val options: RequestOptions =

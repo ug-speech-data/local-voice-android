@@ -24,6 +24,7 @@ class ConfigurationActivity : AppCompatActivity() {
 
         // Show back button
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        title = getString(R.string.configurations)
 
         viewModel = ViewModelProvider(this)[ConfigurationActivityViewModel::class.java]
 

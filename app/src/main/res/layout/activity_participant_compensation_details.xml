@@ -21,24 +21,19 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:paddingTop="20dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
-                    android:text="@string/momo_number" />
-
-                <EditText
-                    android:id="@+id/phone_input"
+                <androidx.compose.ui.platform.ComposeView
+                    android:id="@+id/phone_digit_input"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:autofillHints="age"
-                    android:drawableStart="@drawable/ic_baseline_phone_24"
-                    android:drawablePadding="5dp"
-                    android:drawableTint="@color/gray_600"
-                    android:hint="@string/momo_number"
-                    android:inputType="number" />
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="10dp" />
+
+                <androidx.compose.ui.platform.ComposeView
+                    android:id="@+id/phone_digit_input2"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
 
                 <TextView
                     android:id="@+id/phone_error_label"

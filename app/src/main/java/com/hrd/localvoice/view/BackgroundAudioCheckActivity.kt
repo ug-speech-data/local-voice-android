@@ -10,6 +10,7 @@ import android.view.MenuItem
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import com.hrd.localvoice.AppRoomDatabase
 import com.hrd.localvoice.R
 import com.hrd.localvoice.databinding.ActivityBackgroundAudioCheckBinding
 import com.hrd.localvoice.utils.WaveRecorder
@@ -17,12 +18,14 @@ import com.hrd.localvoice.view.audiorecorder.AudioRecorderActivity
 
 class BackgroundAudioCheckActivity : AppCompatActivity() {
     private lateinit var binding: ActivityBackgroundAudioCheckBinding
-    private val permission_request_code = 4
+    private val permissionRequestCode = 4
     private val permissions = arrayOf(
         Manifest.permission.RECORD_AUDIO,
     )
     private lateinit var recorder: WaveRecorder
     private var backgroundNoiseCheckDurationInSec = 3
+    private var maxBackgroundNoiseLevel = 350
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,17 +38,24 @@ class BackgroundAudioCheckActivity : AppCompatActivity() {
         title = getString(R.string.background_check)
 
         // Check for audio recording permission
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && permissionsDenied()) {
-            requestPermissions(permissions, permission_request_code)
+        if (permissionsDenied()) {
+            requestPermissions(permissions, permissionRequestCode)
         }
 
         recorder = WaveRecorder(this, false)
         recorder.startRecording()
-        Thread(monitorBackgroundNoise).start()
+
+        AppRoomDatabase.databaseWriteExecutor.execute {
+            val value = AppRoomDatabase.INSTANCE?.ConfigurationDao()
+                ?.getConfiguration()?.maximumBackgroundNoiseLevel
+            if (value != null) {
+                maxBackgroundNoiseLevel = value
+            }
+            Thread(monitorBackgroundNoise).start()
+        }
 
         binding.continueButton.setOnClickListener {
             val intent = Intent(this, AudioRecorderActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
             startActivity(intent)
             finish()
         }
@@ -64,7 +74,7 @@ class BackgroundAudioCheckActivity : AppCompatActivity() {
                 binding.progressBar.progress = percentage
             }
 
-            if (recorder.averageAmplitude < 350) {
+            if (recorder.averageAmplitude < maxBackgroundNoiseLevel) {
                 duration++
             } else {
                 duration = 0

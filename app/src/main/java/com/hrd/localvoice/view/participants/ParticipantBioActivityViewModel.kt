@@ -23,4 +23,8 @@ class ParticipantBioActivityViewModel(application: Application) : AndroidViewMod
     fun getParticipantById(id: Long): Participant? {
         return repository.getParticipantById(id)
     }
+
+    fun getPendingParticipant(): LiveData<Participant>? {
+        return repository.getPendingParticipant()
+    }
 }

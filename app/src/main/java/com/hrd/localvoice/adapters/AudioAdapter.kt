@@ -51,7 +51,7 @@ class AudioAdapter(private val context: Context) :
                     statusText.setTextColor(Color.rgb(50, 200, 50))
                 }
 
-                playPauseButton.setOnClickListener {
+                cardView.setOnClickListener {
                     listener?.playStopAudioListener(audio)
                 }
 

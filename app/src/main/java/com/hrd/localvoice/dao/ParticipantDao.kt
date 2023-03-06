@@ -36,4 +36,7 @@ interface ParticipantDao {
 
     @Query("SELECT * FROM $PARTICIPANT_TABLE WHERE id = :id")
     fun getParticipantNow(id: Long): Participant
+
+    @Query("SELECT * FROM $PARTICIPANT_TABLE WHERE momoNumber is NULL LIMIT 1")
+    fun getPendingParticipant(): LiveData<Participant>
 }

@@ -84,7 +84,7 @@ class UploadWorker(
 
                         override fun onFailure(call: Call<UploadResponse?>, t: Throwable) {
                             Toast.makeText(
-                                context, "Error: ${t.message}", Toast.LENGTH_LONG
+                                context, "Error: ${t.message}", Toast.LENGTH_SHORT
                             ).show()
                             Log.d(tag, "Error: ${t.message}")
                         }

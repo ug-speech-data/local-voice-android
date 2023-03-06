@@ -1,6 +1,8 @@
 package com.hrd.localvoice.workers
 
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import android.widget.Toast
 import androidx.work.Worker
 import androidx.work.WorkerParameters
@@ -28,10 +30,12 @@ class UpdateAssignedImagesWorker(
                 call: Call<ImagesResponse?>, response: Response<ImagesResponse?>
             ) {
                 val images = response.body()?.images
-                if (images != null && images.isNotEmpty()) {
-                    images.forEach { image ->
-                        if (image.remoteURL != null || image.localURl == null) {
-                            AppRoomDatabase.databaseWriteExecutor.execute {
+                AppRoomDatabase.databaseWriteExecutor.execute {
+                    var failedDownloads = 0
+
+                    if (images != null && images.isNotEmpty()) {
+                        images.forEach { image ->
+                            if (image.remoteURL != null || image.localURl == null) {
                                 val sourceUrl = image.remoteURL
                                 val extension =
                                     sourceUrl!!.split(".")[sourceUrl.split(".").size - 1]
@@ -56,32 +60,40 @@ class UpdateAssignedImagesWorker(
                                             "${image.remoteId}_${System.currentTimeMillis()}.$extension"
 
                                         // Start download
-                                        Thread {
-                                            val downloader = BinaryFileDownloader()
-                                            val destinationName =
-                                                downloader.download(context, sourceUrl, title)
-                                            if (destinationName != null) {
-                                                // Update configuration
-                                                image.localURl = destinationName
-                                                database?.ImageDao()?.insertImage(image)
-                                            }
-                                        }.start()
+                                        val downloader = BinaryFileDownloader()
+                                        val destinationName =
+                                            downloader.download(context, sourceUrl, title)
+                                        if (destinationName != null) {
+                                            // Update configuration
+                                            image.localURl = destinationName
+                                            database?.ImageDao()?.insertImage(image)
+                                        } else {
+                                            failedDownloads++
+                                        }
                                     }
+                                } else {
+                                    failedDownloads++
                                 }
                             }
                         }
-                    }
-                } else {
-                    Toast.makeText(
-                        context, "No images found: ${response.message()}", Toast.LENGTH_LONG
-                    ).show()
-                    if (response.code() == 401) {
-                        // Remove token
-                        Functions.removeUserToken(context)
+                        Handler(Looper.getMainLooper()).post {
+                            Toast.makeText(
+                                context,
+                                "Finished downloading. Downloaded ${images.size - failedDownloads}/${images.size} images",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    } else {
+                        Toast.makeText(
+                            context, "No images found: ${response.message()}", Toast.LENGTH_LONG
+                        ).show()
+                        if (response.code() == 401) {
+                            // Remove token
+                            Functions.removeUserToken(context)
+                        }
                     }
                 }
             }
-
             override fun onFailure(call: Call<ImagesResponse?>, t: Throwable) {
                 Toast.makeText(
                     context, "Couldn't connect to server to download images.", Toast.LENGTH_LONG

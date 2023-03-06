@@ -5,10 +5,15 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
-import android.widget.*
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.RadioButton
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
-import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.snackbar.BaseTransientBottomBar
+import com.google.android.material.snackbar.Snackbar
 import com.hrd.localvoice.AppRoomDatabase
 import com.hrd.localvoice.R
 import com.hrd.localvoice.databinding.ActivityParticipantBioBinding
@@ -16,12 +21,16 @@ import com.hrd.localvoice.fragments.PrivacyPolicyBottomSheet
 import com.hrd.localvoice.models.Configuration
 import com.hrd.localvoice.models.Participant
 import com.hrd.localvoice.utils.Constants
+import com.hrd.localvoice.view.BackgroundAudioCheckActivity
 import com.hrd.localvoice.view.videoplayer.VideoPlayerActivity
 
 
 class ParticipantBioActivity : AppCompatActivity() {
     private lateinit var viewModel: ParticipantBioActivityViewModel
     private var configuration: Configuration? = null
+    private lateinit var binding: ActivityParticipantBioBinding
+    private var previousParticipant: Participant? = null
+    private var createdNewParticipant = false
 
     companion object {
         const val currentParticipantData = "com.hrd.localvoice.currentParticipant"
@@ -29,7 +38,7 @@ class ParticipantBioActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val binding = ActivityParticipantBioBinding.inflate(layoutInflater)
+        binding = ActivityParticipantBioBinding.inflate(layoutInflater)
         setContentView(binding.root)
         viewModel = ViewModelProvider(this)[ParticipantBioActivityViewModel::class.java]
 
@@ -39,6 +48,13 @@ class ParticipantBioActivity : AppCompatActivity() {
 
         viewModel.configuration?.observe(this) {
             configuration = it
+        }
+
+        viewModel.getPendingParticipant()?.observe(this) { participant ->
+            if (participant != null && !createdNewParticipant) {
+                previousParticipant = participant
+                showPendingParticipantDialog()
+            }
         }
 
         var environment = ""
@@ -87,21 +103,36 @@ class ParticipantBioActivity : AppCompatActivity() {
 
             if (ageIsValid && gender.isNotEmpty() && environment.isNotEmpty() && checkedPrivacyPolicy) {
                 val participant = Participant(
-                    age!!, gender, null, null, environment = environment,
-                    acceptedPrivacyPolicy = checkedPrivacyPolicy
+                    age!!,
+                    gender,
+                    null,
+                    null,
+                    environment = environment,
+                    acceptedPrivacyPolicy = true
                 )
-                viewModel.createParticipant(participant)
-                Thread(saveLastParticipantInSharedPreferences).start()
+                AppRoomDatabase.databaseWriteExecutor.execute {
+                    createdNewParticipant = true
 
-                val intent = Intent(this, VideoPlayerActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
-                startActivity(intent)
-                finish()
+                    val id =
+                        AppRoomDatabase.INSTANCE?.ParticipantDao()?.insertParticipant(participant)
+                    if (id != null) {
+                        val prefsEditor: SharedPreferences =
+                            getSharedPreferences(Constants.SHARED_PREFS_FILE, MODE_PRIVATE)
+                        prefsEditor.edit().putLong(currentParticipantData, id).apply()
+                        val intent = Intent(this, VideoPlayerActivity::class.java)
+                        intent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+                        startActivity(intent)
+                        finish()
+                    } else {
+                        Toast.makeText(this, "Can't save participant's bio", Toast.LENGTH_SHORT)
+                            .show()
+                    }
+                }
             }
         }
 
         // Populate the environment spinner
-        val environments = arrayOf("Outdoor", "Office", "In a car")
+        val environments = Constants.ENVIRONMENTS
         val adapter: ArrayAdapter<*> =
             ArrayAdapter<Any?>(this, android.R.layout.simple_spinner_item, environments)
         binding.environmentSpinner.adapter = adapter
@@ -111,29 +142,71 @@ class ParticipantBioActivity : AppCompatActivity() {
                 }
 
                 override fun onItemSelected(
-                    parent: AdapterView<*>?,
-                    view: View?,
-                    position: Int,
-                    id: Long
+                    parent: AdapterView<*>?, view: View?, position: Int, id: Long
                 ) {
                     environment = environments[position]
                 }
             }
     }
 
+    private fun showPendingParticipantDialog() {
+        val message =
+            "You did not finish the session with the previous participant." + " \nWould you like to continue or delete the previous participant's audios?"
+        val dialog =
+            AlertDialog.Builder(this).setTitle("Continue?").setMessage(message).setCancelable(false)
+                .setNegativeButton(getString(R.string.delete)) { _, _ ->
+                    showDeletionSnackBar()
+                }.setPositiveButton(getString(R.string.string_continue)) { _, _ ->
+
+                    // Store this id store shared preference in retrieval in recording activity
+                    val prefsEditor: SharedPreferences =
+                        getSharedPreferences(Constants.SHARED_PREFS_FILE, MODE_PRIVATE)
+                    prefsEditor.edit().putLong(currentParticipantData, previousParticipant!!.id)
+                        .apply()
+
+                    // Launch background check
+                    val intent = Intent(this, BackgroundAudioCheckActivity::class.java)
+                    startActivity(intent)
+                    finish()
+                }
+        dialog.create()
+        dialog.show()
+    }
+
+    private fun showDeletionSnackBar() {
+        val snack = Snackbar.make(
+            binding.root, "Previous participant's audios deleted.", Snackbar.LENGTH_LONG
+        )
+        snack.setAction("UNDO", {})
+        snack.addCallback(object : BaseTransientBottomBar.BaseCallback<Snackbar>() {
+            override fun onShown(transientBottomBar: Snackbar?) {
+                super.onShown(transientBottomBar)
+            }
+
+            override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
+                super.onDismissed(transientBottomBar, event)
+                if (event == Snackbar.Callback.DISMISS_EVENT_TIMEOUT) {
+                    // Perform actual deletion
+                    if (previousParticipant != null) {
+                        AppRoomDatabase.databaseWriteExecutor.execute {
+                            // Delete audios
+                            AppRoomDatabase.INSTANCE?.AudioDao()
+                                ?.deleteAudiosFromParticipantId(previousParticipant!!.id)
+
+                            // Delete participant
+                            AppRoomDatabase.INSTANCE?.ParticipantDao()
+                                ?.deleteParticipant(previousParticipant!!)
+                        }
+                    }
+                }
+            }
+        })
+        snack.show()
+    }
+
     private fun showPrivacyPolicyBottomSheetDialog() {
         val modalBottomSheet = PrivacyPolicyBottomSheet()
         modalBottomSheet.show(supportFragmentManager, PrivacyPolicyBottomSheet.TAG)
-    }
-
-    private val saveLastParticipantInSharedPreferences = Runnable {
-        val participant = AppRoomDatabase.INSTANCE?.ParticipantDao()?.getLastParticipant()
-        if (participant != null) {
-            // Store this id store shared preference in retrieval in recording activity
-            val prefsEditor: SharedPreferences =
-                getSharedPreferences(Constants.SHARED_PREFS_FILE, MODE_PRIVATE)
-            prefsEditor.edit().putLong(currentParticipantData, participant.id).apply()
-        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

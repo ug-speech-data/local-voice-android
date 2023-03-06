@@ -15,8 +15,8 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     val user: LiveData<User?>?
         get() = repository.user
 
-    fun getImages(maxDescriptionCount: Int): LiveData<List<Image>>? {
-        return repository.getAssignedImages(maxDescriptionCount)
+    fun getImages(): LiveData<List<Image>>? {
+        return repository.getAssignedImages(listOf())
     }
 
     fun getAudios(): LiveData<List<Audio>>? {

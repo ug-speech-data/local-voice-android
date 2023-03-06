@@ -22,7 +22,7 @@ data class User(
     val gender: String?,
     @SerializedName("recording_environment")
     val environment: String?,
-    val age: Int?,
+    val age: Int?=null,
     val locale: String?,
     @SerializedName("last_login_date") val lastLoginDate: String,
     @SerializedName("accepted_privacy_policy") val acceptedPrivacyPolicy: Boolean,

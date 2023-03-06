@@ -1,14 +1,17 @@
 package com.hrd.localvoice.view.authentication
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
-import android.widget.*
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.RadioButton
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
-import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.hrd.localvoice.AppRoomDatabase
 import com.hrd.localvoice.BuildConfig
 import com.hrd.localvoice.R
@@ -26,6 +29,7 @@ class ProfileActivity : AppCompatActivity() {
     private var configuration: Configuration? = null
     var environment = ""
 
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityProfileBinding.inflate(layoutInflater)
@@ -37,7 +41,7 @@ class ProfileActivity : AppCompatActivity() {
         title = "Update Profile"
 
         // Show version name
-        binding.appVersionText.text = BuildConfig.VERSION_NAME
+        binding.appVersionText.text = "v${BuildConfig.VERSION_NAME}"
 
         // Reset button
         binding.clearAppData.setOnClickListener {

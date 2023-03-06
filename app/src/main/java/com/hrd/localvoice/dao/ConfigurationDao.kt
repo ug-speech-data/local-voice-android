@@ -21,5 +21,5 @@ interface ConfigurationDao {
 
 
     @Query("SELECT * from $CONFIGURATIONS_TABLE ORDER BY id ASC LIMIT 1")
-    fun getConfiguration(): Configuration
+    fun getConfiguration(): Configuration?
 }

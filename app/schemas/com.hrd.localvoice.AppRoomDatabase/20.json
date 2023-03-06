@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 20,
-    "identityHash": "f731b2f45c46b1145f7cac0af1da17fc",
+    "identityHash": "7be1ca4fd7fffe50e066249d5a3d799f",
     "entities": [
       {
         "tableName": "audios",
@@ -256,7 +256,7 @@
       },
       {
         "tableName": "configurations",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`demoVideoLocalUrl` TEXT NOT NULL, `demoVideoRemoteUrl` TEXT NOT NULL, `maxImageDescriptionCount` INTEGER, `privacyPolicyStatement` TEXT, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `privacyPolicyStatementAudioRemoteUrl` TEXT NOT NULL DEFAULT '', `privacyPolicyStatementAudioLocalUrl` TEXT NOT NULL DEFAULT '')",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`demoVideoLocalUrl` TEXT NOT NULL, `demoVideoRemoteUrl` TEXT NOT NULL, `maxImageDescriptionCount` INTEGER, `privacyPolicyStatement` TEXT, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `privacyPolicyStatementAudioRemoteUrl` TEXT DEFAULT '', `privacyPolicyStatementAudioLocalUrl` TEXT NOT NULL DEFAULT '')",
         "fields": [
           {
             "fieldPath": "demoVideoLocalUrl",
@@ -292,7 +292,7 @@
             "fieldPath": "privacyPolicyStatementAudioRemoteUrl",
             "columnName": "privacyPolicyStatementAudioRemoteUrl",
             "affinity": "TEXT",
-            "notNull": true,
+            "notNull": false,
             "defaultValue": "''"
           },
           {
@@ -458,7 +458,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f731b2f45c46b1145f7cac0af1da17fc')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '7be1ca4fd7fffe50e066249d5a3d799f')"
     ]
   }
 }

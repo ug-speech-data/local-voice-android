@@ -1,16 +1,22 @@
 package com.hrd.localvoice.view.local_files
 
+import android.graphics.Color
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.Button
+import android.widget.ProgressBar
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.work.*
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.hrd.localvoice.AppRoomDatabase
 import com.hrd.localvoice.R
 import com.hrd.localvoice.adapters.AudioAdapter
 import com.hrd.localvoice.databinding.ActivityMyAudiosBinding
@@ -29,6 +35,7 @@ class MyAudiosActivity : AppCompatActivity() {
     private val tag = "MyAudiosActivity"
     private var currentAudio: Audio? = null
     private var audios: List<Audio>? = null
+    private lateinit var playerDialog: BottomSheetDialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,14 +56,79 @@ class MyAudiosActivity : AppCompatActivity() {
 
         adapter.setOnPlayStopAudioListener(object : AudioAdapter.OnPlayStopButtonClickListener {
             override fun playStopAudioListener(audio: Audio) {
-                if (mediaPlayer?.isPlaying == true && currentAudio?.localFileURl == audio.localFileURl) {
-                    mediaPlayer?.stop()
-                } else {
-                    playFile(File(audio.localFileURl))
+                playerDialog = BottomSheetDialog(this@MyAudiosActivity)
+                playerDialog.setContentView(R.layout.play_back_bottom_sheet_dialog_layout)
+                val playStopButton = playerDialog.findViewById<Button>(R.id.play_stop_button)
+                val audioEnvironmentLabel =
+                    playerDialog.findViewById<TextView>(R.id.audio_environment_label)
+                val audioNameLabel = playerDialog.findViewById<TextView>(R.id.audio_name_label)
+
+                val participantLabelText =
+                    playerDialog.findViewById<TextView>(R.id.audio_participant_momo_label_text)
+                val participantLabel =
+                    playerDialog.findViewById<TextView>(R.id.audio_participant_momo_label)
+                val progressBar = playerDialog.findViewById<ProgressBar>(R.id.progress_bar)
+
+                audioEnvironmentLabel?.text = audio.environment
+                audioNameLabel?.text = audio.description
+
+                if (audio.participantId != null) {
+                    viewModel.getParticipant(audio.participantId!!)
+                        ?.observe(this@MyAudiosActivity) { participant ->
+                            if (participant != null) {
+                                participantLabelText?.visibility = View.VISIBLE
+                                participantLabel?.visibility = View.VISIBLE
+                                participantLabel?.text = participant.momoNumber
+                                participantLabel?.text =
+                                    if (participant.momoNumber?.isNotEmpty() == true) participant.momoNumber else "null"
+                            } else {
+                                participantLabelText?.visibility = View.VISIBLE
+                            }
+                        }
                 }
-                currentAudio = audio
+
+                playStopButton?.setOnClickListener {
+                    if (mediaPlayer?.isPlaying == true && currentAudio?.localFileURl == audio.localFileURl) {
+                        mediaPlayer?.stop()
+                        playStopButton.text = getString(R.string.play)
+                        progressBar?.progress = 0
+                    } else {
+                        playFile(File(audio.localFileURl))
+                        playStopButton.text = getString(R.string.stop)
+
+                        // Trigger progress bar update
+                        Thread(updateProgressRunnable).start()
+                    }
+                    currentAudio = audio
+                }
+
+                playerDialog.setOnCancelListener {
+                    mediaPlayer?.stop()
+                }
+
+                playerDialog.show()
             }
         })
+    }
+
+    private val updateProgressRunnable = Runnable {
+        while (true) {
+            if (mediaPlayer != null) {
+                // Update timer text
+                val totalDuration = mediaPlayer!!.duration
+                val duration = mediaPlayer!!.currentPosition
+
+                val progressBar = playerDialog.findViewById<ProgressBar>(R.id.progress_bar)
+                if (progressBar != null && totalDuration > 0)
+                    runOnUiThread {
+                        progressBar.progress = ((duration.toFloat() / totalDuration.toFloat()) * 100).toInt()
+                    }
+            }
+            Thread.sleep(1000)
+            if (mediaPlayer?.isPlaying != true) {
+                break
+            }
+        }
     }
 
     private fun setup() {

@@ -3,6 +3,7 @@ package com.hrd.localvoice.view.authentication
 import android.app.Application
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -167,15 +168,15 @@ class AuthenticationActivityViewModel(application: Application) : AndroidViewMod
                     call: Call<AuthenticationResponse?>,
                     response: Response<AuthenticationResponse?>
                 ) {
+                    Log.d("TEST", "onResponse: "+response.raw().toString())
+
+                    // Store user in the database
                     if (response.body()?.user != null) {
-                        // Store user in the database
-                        if (response.body()?.user != null) {
-                            AppRoomDatabase.databaseWriteExecutor.execute {
-                                AppRoomDatabase.getDatabase(context)
-                                    ?.UserDao()?.insertUser(response.body()!!.user!!)
-                            }
-                            profileUpdate.value = true
+                        AppRoomDatabase.databaseWriteExecutor.execute {
+                            AppRoomDatabase.getDatabase(context)
+                                ?.UserDao()?.insertUser(response.body()!!.user!!)
                         }
+                        profileUpdate.value = true
                     } else if (response.code() == 401) {
                         removeUserToken(context)
                     }

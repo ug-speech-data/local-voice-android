@@ -33,7 +33,6 @@ import java.util.concurrent.TimeUnit
 
 
 class MainActivity : AppCompatActivity() {
-    private val tag = "TESTMAIN"
     private lateinit var viewModel: MainActivityViewModel
     private var user: User? = null
 
@@ -78,6 +77,10 @@ class MainActivity : AppCompatActivity() {
                         binding.audioValidationCard.visibility = View.GONE
                     } else {
                         binding.audioValidationCard.visibility = View.VISIBLE
+                    }
+
+                    if (user?.permissions?.contains("record_self") != true) {
+                        binding.balanceView.visibility = View.GONE
                     }
                 }
             }
@@ -132,7 +135,10 @@ class MainActivity : AppCompatActivity() {
 
         // Fetch maximum description count from db
         viewModel.getConfiguration()?.observe(this) { configuration ->
-            if (configuration == null || !File(configuration.demoVideoLocalUrl).exists()) {
+            if (configuration == null || !File(configuration.demoVideoLocalUrl).exists() || !File(
+                    configuration.privacyPolicyStatementAudioLocalUrl
+                ).exists()
+            ) {
                 binding.appStatusInfo.text = getString(R.string.outdated_config_info)
                 binding.appStatusInfo.setTextColor(Color.rgb(200, 50, 50))
             } else {
@@ -140,11 +146,8 @@ class MainActivity : AppCompatActivity() {
                 binding.appStatusInfo.text = getString(R.string.configurations_set)
             }
 
-            val maxImageDescription =
-                if (configuration?.maxImageDescriptionCount != null) configuration.maxImageDescriptionCount else 3
-
             // Get images without required number of descriptions
-            viewModel.getImages(maxImageDescription!!)?.observe(this) { images ->
+            viewModel.getImages()?.observe(this) { images ->
                 binding.assignedImagesInfo.text = "${images.size} Assigned Images"
             }
 
@@ -161,7 +164,6 @@ class MainActivity : AppCompatActivity() {
                     constraints
                 ).setInputData(createInputDataForUri()).build()
             workManager.enqueue(workRequest)
-            binding.updateLocalImages.isEnabled = false
 
             Toast.makeText(
                 this@MainActivity,

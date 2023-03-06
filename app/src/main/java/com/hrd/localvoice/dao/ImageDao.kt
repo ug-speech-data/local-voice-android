@@ -22,8 +22,8 @@ interface ImageDao {
     @Delete
     fun deleteImage(image: Image)
 
-    @Query("SELECT * from $IMAGES_TABLE WHERE descriptionCount <:maxDescriptionCount AND localURl IS NOT NULL ORDER BY remoteId ASC")
-    fun getImages(maxDescriptionCount: Int): LiveData<List<Image>>
+    @Query("SELECT * from $IMAGES_TABLE WHERE remoteId NOT IN (:excludes) AND localURl IS NOT NULL ORDER BY remoteId ASC")
+    fun getImages(excludes: List<Long>): LiveData<List<Image>>
 
 
     @Query("SELECT * from $IMAGES_TABLE ORDER BY remoteId ASC")

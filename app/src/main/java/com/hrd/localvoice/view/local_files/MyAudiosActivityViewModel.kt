@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData
 import com.hrd.localvoice.DataRepository
 import com.hrd.localvoice.models.Audio
 import com.hrd.localvoice.models.Image
+import com.hrd.localvoice.models.Participant
 
 class MyAudiosActivityViewModel(application: Application) : AndroidViewModel(application) {
     private val repository: DataRepository = DataRepository(application)
@@ -22,9 +23,8 @@ class MyAudiosActivityViewModel(application: Application) : AndroidViewModel(app
         repository.deleteAudio(audio)
     }
 
-
-    fun deleteImage(image: Image) {
-        return repository.deleteImage(image)
+    fun getParticipant(id: Long): LiveData<Participant>? {
+        return repository.getParticipantByIdAsync(id)
     }
 
 }

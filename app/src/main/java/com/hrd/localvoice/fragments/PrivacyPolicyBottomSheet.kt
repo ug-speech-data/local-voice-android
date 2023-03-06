@@ -22,7 +22,7 @@ class PrivacyPolicyBottomSheet : BottomSheetDialogFragment() {
     ): View? {
         binding =
             PrivacyPolicyBottomSheetDialogLayoutBinding.inflate(layoutInflater, container, false)
-        binding.actionButton?.setOnClickListener {
+        binding.actionButton.setOnClickListener {
             dismiss();
         }
 
@@ -42,10 +42,12 @@ class PrivacyPolicyBottomSheet : BottomSheetDialogFragment() {
         return binding.root
     }
 
-
     private fun playFile(audioFilePath: String?) {
         val file: File? = audioFilePath?.let { File(it) }
-        if (file?.exists() != true) return
+        if (file?.exists() != true) {
+            Log.w(TAG, "playFile: Warning not found", )
+            return
+        }
 
         if (mediaPlayer?.isPlaying == true) {
             mediaPlayer?.stop()
@@ -63,6 +65,7 @@ class PrivacyPolicyBottomSheet : BottomSheetDialogFragment() {
             mediaPlayer?.setDataSource(fileName)
             mediaPlayer?.setOnPreparedListener { mp ->
                 mp.start()
+                Log.d(TAG, "setOnPreparedListener: ")
                 binding.playPrivacyPolicy.setBackgroundResource(R.drawable.ic_baseline_pause_circle_outline_24)
             }
             mediaPlayer?.prepareAsync()

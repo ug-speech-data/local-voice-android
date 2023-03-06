@@ -20,6 +20,9 @@ interface AudioDao {
     @Query("DELETE FROM $AUDIOS_TABLE")
     fun deleteAll()
 
+    @Query("DELETE FROM $AUDIOS_TABLE WHERE participantId = :id")
+    fun deleteAudiosFromParticipantId(id: Long)
+
     @Delete
     fun deleteAudio(audio: Audio)
 
@@ -31,4 +34,7 @@ interface AudioDao {
 
     @Query("SELECT * FROM $AUDIOS_TABLE WHERE id = :id")
     fun getAudio(id: Long): LiveData<Audio>
+
+    @Query("SELECT * FROM $AUDIOS_TABLE WHERE participantId = :participantId")
+    fun getAudiosByParticipant(participantId: Long): LiveData<List<Audio>>
 }

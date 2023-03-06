@@ -116,4 +116,9 @@
     <string name="audios_submitted">Audios Submitted: <b>%1$d</b></string>
     <string name="clear_app_data">Clear app data.</string>
     <string name="play_privacy_policy">Play privacy policy</string>
+    <string name="recorder">RECORDER</string>
+    <string name="delete">Delete</string>
+    <string name="pause">Pause</string>
+    <string name="participant_momo">Participant Momo</string>
+    <string name="numbers_do_not_match">Numbers do not match.</string>
 </resources>

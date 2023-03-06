@@ -21,8 +21,8 @@ class DataRepository(application: Application) {
     private val imageDao: ImageDao?
     private val userDao: UserDao?
 
-    fun getAssignedImages(maxDescriptionCount: Int): LiveData<List<Image>>? {
-        return imageDao?.getImages(maxDescriptionCount)
+    fun getAssignedImages(excludes: List<Long>): LiveData<List<Image>>? {
+        return imageDao?.getImages(excludes)
     }
 
     fun getImages(): LiveData<List<Image>>? {
@@ -65,6 +65,18 @@ class DataRepository(application: Application) {
 
     fun getParticipantById(id: Long): Participant? {
         return participantDao?.getParticipantSync(id)
+    }
+
+    fun getParticipantByIdAsync(id: Long): LiveData<Participant>? {
+        return participantDao?.getParticipant(id)
+    }
+
+    fun getPendingParticipant(): LiveData<Participant>? {
+        return participantDao?.getPendingParticipant()
+    }
+
+    fun getAudiosByParticipant(participantId: Long): LiveData<List<Audio>>? {
+        return audioDao?.getAudiosByParticipant(participantId)
     }
 
     init {

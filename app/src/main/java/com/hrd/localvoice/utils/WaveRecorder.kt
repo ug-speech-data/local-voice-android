@@ -70,6 +70,11 @@ class WaveRecorder(private var context: Context) {
         continueRecording = false
     }
 
+    fun reset() {
+        audioDurationInSeconds = 0.0f
+        maxContinuousSilentDurationInSeconds = 0.0f
+    }
+
     fun isRecording(): Boolean {
         return isRecording
     }

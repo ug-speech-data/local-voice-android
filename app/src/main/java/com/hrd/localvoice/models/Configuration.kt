@@ -18,6 +18,8 @@ data class Configuration(
     @SerializedName("participant_privacy_statement") var privacyPolicyStatement: String? = "",
     @PrimaryKey(autoGenerate = true) var id: Long = 0,
 
-    @SerializedName("participant_privacy_statement_audio") @ColumnInfo(defaultValue = "") var privacyPolicyStatementAudioRemoteUrl: String = "",
-    @ColumnInfo(defaultValue = "") var privacyPolicyStatementAudioLocalUrl: String = "",
+    @SerializedName("participant_privacy_statement_audio") @ColumnInfo(defaultValue = "") var privacyPolicyStatementAudioRemoteUrl: String? = "",
+    @ColumnInfo(defaultValue = "") var privacyPolicyStatementAudioLocalUrl: String? = "",
+
+    @SerializedName("max_background_noise_level") @ColumnInfo(defaultValue = "350") var maximumBackgroundNoiseLevel: Int? = 350,
 ) : Parcelable

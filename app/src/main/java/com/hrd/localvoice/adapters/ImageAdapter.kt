@@ -19,7 +19,6 @@ class ImageAdapter(private val context: Context) :
     RecyclerView.Adapter<ImageAdapter.ImageViewHolder>() {
     private var dataset = listOf<Image>()
 
-
     inner class ImageViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val binding = ItemImageBinding.bind(view)
         fun bind(image: Image) {

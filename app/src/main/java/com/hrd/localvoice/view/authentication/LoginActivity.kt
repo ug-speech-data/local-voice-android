@@ -6,6 +6,7 @@ import android.text.method.PasswordTransformationMethod
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import com.hrd.localvoice.R
 import com.hrd.localvoice.databinding.ActivityLoginBinding
 import com.hrd.localvoice.view.MainActivity
 
@@ -26,6 +27,11 @@ class LoginActivity : AppCompatActivity() {
             intent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
             startActivity(intent)
             finish()
+        }
+
+        binding.forgotPassword.setOnClickListener {
+            val intent = Intent(this, ForgotPasswordActivity::class.java)
+            startActivity(intent)
         }
 
         viewModel.isLoading.observe(this) { value ->
@@ -59,7 +65,13 @@ class LoginActivity : AppCompatActivity() {
                 if (showPassword) PasswordTransformationMethod() else null
             binding.passwordInput.setSelection(binding.passwordInput.length());
             showPassword = !showPassword
+
+            if (showPassword) it.setBackgroundResource(R.drawable.baseline_visibility_off_24)
+            else {
+                it.setBackgroundResource(R.drawable.baseline_visibility_24)
+            }
         }
+
 
         binding.loginButton.setOnClickListener {
             binding.errorMessageLabel.visibility = View.GONE

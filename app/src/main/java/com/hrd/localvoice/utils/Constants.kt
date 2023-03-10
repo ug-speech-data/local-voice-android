@@ -9,7 +9,6 @@ object Constants {
     const val PARTICIPANT_TABLE = "participants"
     const val UPLOAD_STATUS_PENDING = "PENDING"
     const val AUDIO_STATUS_UPLOADED = "UPLOADED"
-    const val AUDIO_STATUS_UPLOAD_FAILED = "FAILED"
 
     const val USER_TOKEN = "com.hrd.localvoice.USER_TOKEN"
     const val SHARED_PREFS_FILE = "localvoice-pf"

@@ -90,20 +90,20 @@
                         android:inputType="textPassword"
                         android:padding="10dp" />
 
-                    <androidx.constraintlayout.utils.widget.ImageFilterView
+                    <ImageButton
                         android:id="@+id/toggle_password_visibility_button"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
                         android:layout_weight="9"
+                        android:background="@drawable/ic_baseline_remove_red_eye_24"
+                        android:backgroundTint="@color/gray_600"
                         android:clickable="true"
                         android:contentDescription="@string/toggle_password_visibility"
                         android:focusable="true"
                         android:foreground="?attr/selectableItemBackgroundBorderless"
-                        android:src="@drawable/ic_baseline_remove_red_eye_24"
-                        android:tint="@color/gray_600" />
+                        android:padding="4dp" />
                 </LinearLayout>
-
 
                 <TextView
                     android:id="@+id/error_message_label"
@@ -115,6 +115,17 @@
                     android:visibility="gone"
                     tools:text="Error message"
                     tools:visibility="visible" />
+
+                <TextView
+                    android:id="@+id/forgot_password"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:text="@string/forgot_password"
+                    android:textAlignment="textEnd"
+                    android:textColor="@color/purple_700"
+                    android:textStyle="bold" />
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"

@@ -128,4 +128,13 @@
     <string name="title_activity_image_view">ImageViewActivity</string>
     <string name="exit">Exit</string>
     <string name="image">Image</string>
+    <string name="change_password">Change Password</string>
+    <string name="forgot_password_intro">Kindly contact support via email to reset your password. \n\n<b>drhelegah@st.ug.edu.gh</b></string>
+    <string name="send_email">Send Email</string>
+    <string name="close_activity">Close activity</string>
+    <string name="forgot_password">Forgot Password</string>
+    <string name="new_password">New Password</string>
+    <string name="old_password">Old Password</string>
+    <string name="password_change_prompt">Please enter your new password to reset your account credentials.</string>
+    <string name="submit">Submit</string>
 </resources>

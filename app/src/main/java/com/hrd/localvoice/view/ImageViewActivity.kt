@@ -79,6 +79,7 @@ class ImageViewActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        title = "Image Viewer"
 
         isFullscreen = true
 

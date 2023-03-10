@@ -15,6 +15,12 @@ interface ApiService {
     ): Call<AuthenticationResponse?>?
 
     @FormUrlEncoded
+    @POST("auth/change_password/")
+    fun changePassword(
+        @Field("old_password") oldPassword: String?, @Field("new_password") newPassword: String?
+    ): Call<AuthenticationResponse?>?
+
+    @FormUrlEncoded
     @POST("auth/register/")
     fun register(
         @Field("email_address") emailAddress: String?, @Field("password") password: String?

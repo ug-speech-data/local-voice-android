@@ -3,7 +3,6 @@ package com.hrd.localvoice.view.authentication
 import android.app.Application
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -168,8 +167,6 @@ class AuthenticationActivityViewModel(application: Application) : AndroidViewMod
                     call: Call<AuthenticationResponse?>,
                     response: Response<AuthenticationResponse?>
                 ) {
-                    Log.d("TEST", "onResponse: "+response.raw().toString())
-
                     // Store user in the database
                     if (response.body()?.user != null) {
                         AppRoomDatabase.databaseWriteExecutor.execute {
@@ -187,6 +184,54 @@ class AuthenticationActivityViewModel(application: Application) : AndroidViewMod
                     errorMessage.value = t.message
                     isLoading.value = false
                     profileUpdate.value = false
+                }
+            })
+    }
+
+    fun changePassword(oldPassword: String, newPassword: String) {
+        isLoading.value = true
+        apiService?.changePassword(oldPassword, newPassword)
+            ?.enqueue(object : Callback<AuthenticationResponse?> {
+                override fun onResponse(
+                    call: Call<AuthenticationResponse?>,
+                    response: Response<AuthenticationResponse?>
+                ) {
+                    val prefsEditor: SharedPreferences.Editor =
+                        context.getSharedPreferences(SHARED_PREFS_FILE, MODE_PRIVATE).edit()
+
+                    if (response.body() != null) {
+                        if (response.body()!!.errorMessage != null) {
+                            errorMessage.value = response.body()!!.errorMessage
+                        }
+                        if (response.body()!!.token != null) {
+                            prefsEditor.putString(USER_TOKEN, response.body()!!.token)
+                            prefsEditor.apply()
+                        }
+                        if (response.body()!!.user != null) {
+                            isLoggedIn.value = true
+                            // Store user in the database
+                            if (response.body()?.user != null) {
+                                AppRoomDatabase.databaseWriteExecutor.execute {
+                                    AppRoomDatabase.getDatabase(context)
+                                        ?.UserDao()?.deleteAll()
+                                    AppRoomDatabase.getDatabase(context)
+                                        ?.UserDao()?.insertUser(response.body()!!.user!!)
+                                }
+                            }
+                        }
+                    } else {
+                        errorMessage.value =
+                            response.code().toString() + ": " + response.message()
+                        if (response.code() == 401) {
+                            removeUserToken(context)
+                        }
+                    }
+                    isLoading.value = false
+                }
+
+                override fun onFailure(call: Call<AuthenticationResponse?>, t: Throwable) {
+                    errorMessage.value = t.message
+                    isLoading.value = false
                 }
             })
     }

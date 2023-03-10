@@ -113,11 +113,14 @@ class AudioRecorderActivity : AppCompatActivity() {
         }
 
         binding.imageView.setOnClickListener {
-            val intent = Intent(this, ImageViewActivity::class.java)
-            intent.putExtra(
-                "IMAGE_PATH", availableImages[currentImageIndex.mod(availableImages.size)].localURl
-            )
-            startActivity(intent)
+            if (!recorder.isRecording()) {
+                val intent = Intent(this, ImageViewActivity::class.java)
+                intent.putExtra(
+                    "IMAGE_PATH",
+                    availableImages[currentImageIndex.mod(availableImages.size)].localURl
+                )
+                startActivity(intent)
+            }
         }
 
         binding.previousImageButton.setOnClickListener {

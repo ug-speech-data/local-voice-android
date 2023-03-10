@@ -53,6 +53,11 @@ class ProfileActivity : AppCompatActivity() {
             showPrivacyPolicyBottomSheetDialog()
         }
 
+        // Password Change
+        binding.changePassword.setOnClickListener {
+            startActivity(Intent(this, ChangePasswordActivity::class.java))
+        }
+
         viewModel.user?.observe(this) {
             if (it == null) {
                 startActivity(Intent(this, LoginActivity::class.java))

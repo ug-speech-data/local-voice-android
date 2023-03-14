@@ -223,8 +223,8 @@ class ProfileActivity : AppCompatActivity() {
             when (lo.lowercase()) {
                 "twi" -> locale = "ak_gh"
                 "ewe" -> locale = "ee_gh"
-                "dagbani" -> locale = "dag_gh"
-                "dagaare" -> locale = "dga_gh"
+                "dagbani" -> locale = "dga_gh"
+                "dagaare" -> locale = "dag_gh"
                 "ikposo" -> locale = "kpo_gh"
             }
         }

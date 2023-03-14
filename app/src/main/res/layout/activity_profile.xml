@@ -427,9 +427,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginTop="20dp"
-            android:clickable="true"
-            android:focusable="true"
-            android:text="@string/clear_app_data" />
+            android:text="@string/clear_app_data"
+            android:visibility="gone" />
 
         <TextView
             android:id="@+id/app_version_text"

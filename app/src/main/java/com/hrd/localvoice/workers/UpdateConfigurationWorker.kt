@@ -1,6 +1,7 @@
 package com.hrd.localvoice.workers
 
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.work.Worker
 import androidx.work.WorkerParameters
@@ -24,7 +25,6 @@ class UpdateConfigurationWorker(
         val tag = "TESTCONF"
         val database: AppRoomDatabase? = AppRoomDatabase.INSTANCE
         val apiService = RestApiFactory.create(context)
-
         apiService?.getConfigurations()?.enqueue(object : Callback<ConfigurationResponse?> {
             override fun onResponse(
                 call: Call<ConfigurationResponse?>, response: Response<ConfigurationResponse?>

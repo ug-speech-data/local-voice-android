@@ -22,10 +22,10 @@ interface ImageDao {
     @Delete
     fun deleteImage(image: Image)
 
-    @Query("SELECT * from $IMAGES_TABLE WHERE remoteId NOT IN (:excludes) AND localURl IS NOT NULL ORDER BY remoteId ASC")
+    @Query("SELECT * from $IMAGES_TABLE WHERE remoteId NOT IN (:excludes) AND localURl IS NOT NULL ORDER BY descriptionCount ASC, remoteId ASC")
     fun getImages(excludes: List<Long>): List<Image>
 
-    @Query("SELECT * from $IMAGES_TABLE WHERE remoteId NOT IN (:excludes) AND localURl IS NOT NULL ORDER BY remoteId ASC")
+    @Query("SELECT * from $IMAGES_TABLE WHERE remoteId NOT IN (:excludes) AND localURl IS NOT NULL ORDER BY  descriptionCount ASC, remoteId ASC")
     fun getImagesLive(excludes: List<Long>): LiveData<List<Image>>
 
 

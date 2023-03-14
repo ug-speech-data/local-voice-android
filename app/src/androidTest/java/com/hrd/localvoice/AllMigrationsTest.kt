@@ -1,13 +1,13 @@
 package com.hrd.localvoice
 
 import androidx.room.Room
+import androidx.room.testing.MigrationTestHelper
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import androidx.room.testing.MigrationTestHelper
 
 private const val DB_NAME = "test"
 
@@ -30,8 +30,9 @@ class AllMigrationsTest {
             InstrumentationRegistry.getInstrumentation().targetContext,
             AppRoomDatabase::class.java,
             DB_NAME
-        ).addMigrations(AppRoomDatabase.migration18To19).build().apply {
-            openHelper.writableDatabase.close()
-        }
+        ).addMigrations(AppRoomDatabase.migration18To19, AppRoomDatabase.migration24To25)
+            .build().apply {
+                openHelper.writableDatabase.close()
+            }
     }
 }

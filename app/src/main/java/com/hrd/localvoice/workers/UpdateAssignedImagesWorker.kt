@@ -84,9 +84,11 @@ class UpdateAssignedImagesWorker(
                             ).show()
                         }
                     } else {
-                        Toast.makeText(
-                            context, "No images found: ${response.message()}", Toast.LENGTH_LONG
-                        ).show()
+                        Handler(Looper.getMainLooper()).post {
+                            Toast.makeText(
+                                context, "No images found: ${response.message()}", Toast.LENGTH_LONG
+                            ).show()
+                        }
                         if (response.code() == 401) {
                             // Remove token
                             Functions.removeUserToken(context)
@@ -94,6 +96,7 @@ class UpdateAssignedImagesWorker(
                     }
                 }
             }
+
             override fun onFailure(call: Call<ImagesResponse?>, t: Throwable) {
                 Toast.makeText(
                     context, "Couldn't connect to server to download images.", Toast.LENGTH_LONG

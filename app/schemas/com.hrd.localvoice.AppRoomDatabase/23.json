@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 23,
-    "identityHash": "745847030f4a9704003acf121016bbd6",
+    "identityHash": "0fd190d093b5029c1552cc45ea591638",
     "entities": [
       {
         "tableName": "audios",
@@ -94,10 +94,10 @@
           }
         ],
         "primaryKey": {
+          "autoGenerate": true,
           "columnNames": [
             "id"
-          ],
-          "autoGenerate": true
+          ]
         },
         "indices": [
           {
@@ -196,10 +196,10 @@
           }
         ],
         "primaryKey": {
+          "autoGenerate": true,
           "columnNames": [
             "id"
-          ],
-          "autoGenerate": true
+          ]
         },
         "indices": [],
         "foreignKeys": []
@@ -246,17 +246,17 @@
           }
         ],
         "primaryKey": {
+          "autoGenerate": false,
           "columnNames": [
             "remoteId"
-          ],
-          "autoGenerate": false
+          ]
         },
         "indices": [],
         "foreignKeys": []
       },
       {
         "tableName": "configurations",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`demoVideoLocalUrl` TEXT NOT NULL, `demoVideoRemoteUrl` TEXT NOT NULL, `maxImageDescriptionCount` INTEGER, `privacyPolicyStatement` TEXT, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `privacyPolicyStatementAudioRemoteUrl` TEXT DEFAULT '', `privacyPolicyStatementAudioLocalUrl` TEXT DEFAULT '', `maximumBackgroundNoiseLevel` INTEGER DEFAULT 350)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`demoVideoLocalUrl` TEXT NOT NULL, `demoVideoRemoteUrl` TEXT NOT NULL, `maxImageDescriptionCount` INTEGER, `privacyPolicyStatement` TEXT, `id` INTEGER NOT NULL, `privacyPolicyStatementAudioRemoteUrl` TEXT DEFAULT '', `privacyPolicyStatementAudioLocalUrl` TEXT DEFAULT '', `maximumBackgroundNoiseLevel` INTEGER DEFAULT 350, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "demoVideoLocalUrl",
@@ -311,10 +311,10 @@
           }
         ],
         "primaryKey": {
+          "autoGenerate": false,
           "columnNames": [
             "id"
-          ],
-          "autoGenerate": true
+          ]
         },
         "indices": [],
         "foreignKeys": []
@@ -433,10 +433,10 @@
           }
         ],
         "primaryKey": {
+          "autoGenerate": false,
           "columnNames": [
             "id"
-          ],
-          "autoGenerate": false
+          ]
         },
         "indices": [],
         "foreignKeys": []
@@ -453,10 +453,10 @@
           }
         ],
         "primaryKey": {
+          "autoGenerate": true,
           "columnNames": [
             "id"
-          ],
-          "autoGenerate": true
+          ]
         },
         "indices": [],
         "foreignKeys": []
@@ -465,7 +465,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '745847030f4a9704003acf121016bbd6')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '0fd190d093b5029c1552cc45ea591638')"
     ]
   }
 }

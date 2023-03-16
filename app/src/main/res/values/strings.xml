@@ -137,4 +137,5 @@
     <string name="old_password">Old Password</string>
     <string name="password_change_prompt">Please enter your new password to reset your account credentials.</string>
     <string name="submit">Submit</string>
+    <string name="upload_audios">Upload Audios</string>
 </resources>

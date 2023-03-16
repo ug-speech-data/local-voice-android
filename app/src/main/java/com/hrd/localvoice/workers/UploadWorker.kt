@@ -9,14 +9,10 @@ import com.google.gson.Gson
 import com.hrd.localvoice.AppRoomDatabase
 import com.hrd.localvoice.models.Participant
 import com.hrd.localvoice.network.RestApiFactory
-import com.hrd.localvoice.network.response_models.UploadResponse
 import com.hrd.localvoice.utils.Constants.AUDIO_STATUS_UPLOADED
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import java.io.File
 
 
@@ -44,6 +40,10 @@ class UploadWorker(
 
             val gson = Gson()
             val audioString: String = gson.toJson(audio)
+
+            if (participant != null) {
+                participant.network = participant.network?.uppercase()
+            }
             val participantString = gson.toJson(participant)
 
             val file = File(audio.localFileURl)
@@ -69,26 +69,23 @@ class UploadWorker(
                         "participant_data", null, participantDataRequest
                     )
                 }
-                apiService?.uploadAudioFile(audioFile, audioDataBody, participantDataBody)
-                    ?.enqueue(object : Callback<UploadResponse?> {
-                        override fun onResponse(
-                            call: Call<UploadResponse?>, response: Response<UploadResponse?>
-                        ) {
-                            if (response.body()?.success == true) {
-                                audio.status = AUDIO_STATUS_UPLOADED
-                                AppRoomDatabase.databaseWriteExecutor.execute {
-                                    database?.AudioDao()?.updateAudio(audio)
-                                }
-                            }
-                        }
 
-                        override fun onFailure(call: Call<UploadResponse?>, t: Throwable) {
-                            Toast.makeText(
-                                context, "Error: ${t.message}", Toast.LENGTH_SHORT
-                            ).show()
-                            Log.d(tag, "Error: ${t.message}")
+                try {
+                    val response =
+                        apiService?.uploadAudioFile(audioFile, audioDataBody, participantDataBody)
+                            ?.execute()
+                    if (response?.body()?.success == true) {
+                        audio.status = AUDIO_STATUS_UPLOADED
+                        AppRoomDatabase.databaseWriteExecutor.execute {
+                            database?.AudioDao()?.updateAudio(audio)
                         }
-                    })
+                    }
+                } catch (e: Exception) {
+                    Toast.makeText(
+                        context, "Error: ${e.message}", Toast.LENGTH_SHORT
+                    ).show()
+                    Log.d(tag, "Error: ${e.message}")
+                }
             }
         }
     }

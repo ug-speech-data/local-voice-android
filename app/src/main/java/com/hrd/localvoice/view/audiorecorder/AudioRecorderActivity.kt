@@ -163,7 +163,6 @@ class AudioRecorderActivity : AppCompatActivity() {
 
             // Get images, excluding already described by current participant
             val images = AppRoomDatabase.INSTANCE?.ImageDao()?.getImages(excludedImageIds)
-            Log.d("TEST", "images: ${images?.size}")
 
             availableImages = images as MutableList<Image>
             currentImageIndex = 0
@@ -176,9 +175,12 @@ class AudioRecorderActivity : AppCompatActivity() {
                     showImageAtIndex(currentImageIndex)
                 }
             }
-            binding.previousImageButton.isEnabled = availableImages.isNotEmpty()
-            binding.nextImageButton.isEnabled = availableImages.isNotEmpty()
-            binding.startStopButton.isEnabled = availableImages.isNotEmpty()
+
+            runOnUiThread {
+                binding.previousImageButton.isEnabled = availableImages.isNotEmpty()
+                binding.nextImageButton.isEnabled = availableImages.isNotEmpty()
+                binding.startStopButton.isEnabled = availableImages.isNotEmpty()
+            }
         }
     }
 
@@ -207,6 +209,9 @@ class AudioRecorderActivity : AppCompatActivity() {
             viewModel.insertAudio(audio)
 
             availableImages.remove(currentImage)
+            if (availableImages.isEmpty()) {
+                done()
+            }
 
             // Increase image description count
             currentImage.descriptionCount += 1

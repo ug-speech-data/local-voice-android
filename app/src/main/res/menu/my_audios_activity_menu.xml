@@ -4,15 +4,8 @@
     <item
         android:id="@+id/action_upload_audios"
         android:icon="@drawable/ic_outline_cloud_upload_24"
-        android:iconTint="@color/white"
         android:orderInCategory="1"
-        android:title="Upload Audios"
-        app:showAsAction="ifRoom" />
-    <item
-        android:id="@+id/action_delete_uploaded"
-        android:icon="@drawable/ic_outline_delete_24"
-        android:iconTint="@color/white"
-        android:orderInCategory="1"
-        android:title="@string/delete_uploaded"
+        android:title="@string/upload_audios"
+        app:iconTint="@color/white"
         app:showAsAction="ifRoom" />
 </menu>

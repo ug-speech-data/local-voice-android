@@ -22,7 +22,7 @@ class UpdateConfigurationWorker(
 ) : Worker(context, workerParams) {
 
     override fun doWork(): Result {
-        val tag = "TESTCONF"
+        val tag = "UpdateConfigurationWorker"
         val database: AppRoomDatabase? = AppRoomDatabase.INSTANCE
         val apiService = RestApiFactory.create(context)
         apiService?.getConfigurations()?.enqueue(object : Callback<ConfigurationResponse?> {
@@ -37,10 +37,10 @@ class UpdateConfigurationWorker(
                             remoteConfiguration.demoVideoLocalUrl = configuration.demoVideoLocalUrl
                             remoteConfiguration.privacyPolicyStatementAudioLocalUrl =
                                 configuration.privacyPolicyStatementAudioLocalUrl
+                        } else {
+                            // Put new configuration into database / Update
+                            database.ConfigurationDao().insertConfiguration(remoteConfiguration)
                         }
-
-                        // Put new configuration into database / Update
-                        database.ConfigurationDao().insertConfiguration(remoteConfiguration)
                         configuration = database.ConfigurationDao().getConfiguration()!!
 
                         if ((configuration.demoVideoRemoteUrl != remoteConfiguration.demoVideoRemoteUrl) || !File(
@@ -68,35 +68,47 @@ class UpdateConfigurationWorker(
                                     configuration.demoVideoLocalUrl = destinationName
                                     configuration.demoVideoRemoteUrl =
                                         remoteConfiguration.demoVideoRemoteUrl
-                                    database?.ConfigurationDao()?.updateConfiguration(configuration)
+                                    database.ConfigurationDao().updateConfiguration(configuration)
                                 }
                             }.start()
+                        }
 
-                            // Downloading privacy statement audio
-                            val audioDestination =
-                                remoteConfiguration.privacyPolicyStatementAudioRemoteUrl
-
-                            if (audioDestination != null) {
+                        // Downloading privacy statement audio
+                        val audioDestination =
+                            remoteConfiguration.privacyPolicyStatementAudioRemoteUrl
+                        if (audioDestination != null) {
+                            if ((configuration.privacyPolicyStatementAudioRemoteUrl != remoteConfiguration.privacyPolicyStatementAudioRemoteUrl) || configuration.privacyPolicyStatementAudioLocalUrl?.let {
+                                    File(
+                                        it
+                                    ).exists()
+                                } != true) {
                                 val audioExtension =
                                     audioDestination.split(".")[audioDestination.split(".").size - 1]
                                 val audioTitle =
                                     "privacy_statement_audio_${System.currentTimeMillis()}.$audioExtension"
                                 Thread {
                                     val downloader = BinaryFileDownloader()
-                                    val destinationName =
-                                        downloader.download(context, audioDestination, audioTitle)
+                                    val destinationName = downloader.download(
+                                        context, audioDestination, audioTitle
+                                    )
 
                                     if (destinationName != null) {
                                         // Delete old audio file
-                                        if (File(configuration.privacyPolicyStatementAudioLocalUrl).exists()) {
-                                            File(configuration.privacyPolicyStatementAudioLocalUrl).delete()
+                                        if (configuration.privacyPolicyStatementAudioLocalUrl?.let {
+                                                File(
+                                                    it
+                                                ).exists()
+                                            } == true) {
+                                            File(configuration.privacyPolicyStatementAudioLocalUrl!!).delete()
                                         }
 
                                         // Update configuration
                                         configuration.privacyPolicyStatementAudioLocalUrl =
                                             destinationName
-                                        database?.ConfigurationDao()
-                                            ?.updateConfiguration(configuration)
+                                        database.ConfigurationDao()
+                                            .insertConfiguration(configuration)
+                                    } else {
+                                        Log.d(tag, "download fail: ")
                                     }
                                 }.start()
                             }

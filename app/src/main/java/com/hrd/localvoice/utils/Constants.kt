@@ -16,11 +16,10 @@ object Constants {
     const val IS_NEW_USER = "com.hrd.localvoice.IS_NEW_USER"
     const val USER_OBJECT = "com.hrd.localvoice.USER_OBJECT"
 
-//    const val TEST_BASE_API_URL: String = "http://192.168.137.151:8000/api/"
-//    const val TEST_BASE_API_URL: String = "http://10.0.2.2:8000/api/"
+    const val TEST_BASE_API_URL: String = "http://10.0.2.2:8000/api/"
 
-    const val TEST_BASE_API_URL: String = "https://sdapi.dodziraynard.me/api/"
-    const val LIVE_BASE_API_URL: String = "https://sdapi.dodziraynard.me/api/"
+//    const val TEST_BASE_API_URL: String = "https://sdapi.ugspeechdata.com/api/"
+    const val LIVE_BASE_API_URL: String = "https://sdapi.ugspeechdata.com/api/"
 
     val ENVIRONMENTS = arrayOf(
         "Outdoor",

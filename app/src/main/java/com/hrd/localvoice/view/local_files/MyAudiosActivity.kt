@@ -1,6 +1,5 @@
 package com.hrd.localvoice.view.local_files
 
-import android.graphics.Color
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.util.Log
@@ -10,18 +9,15 @@ import android.view.View
 import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.work.*
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.hrd.localvoice.AppRoomDatabase
 import com.hrd.localvoice.R
 import com.hrd.localvoice.adapters.AudioAdapter
 import com.hrd.localvoice.databinding.ActivityMyAudiosBinding
 import com.hrd.localvoice.models.Audio
-import com.hrd.localvoice.utils.Constants.AUDIO_STATUS_UPLOADED
 import com.hrd.localvoice.workers.UploadWorker
 import java.io.File
 import java.io.IOException
@@ -121,7 +117,8 @@ class MyAudiosActivity : AppCompatActivity() {
                 val progressBar = playerDialog.findViewById<ProgressBar>(R.id.progress_bar)
                 if (progressBar != null && totalDuration > 0)
                     runOnUiThread {
-                        progressBar.progress = ((duration.toFloat() / totalDuration.toFloat()) * 100).toInt()
+                        progressBar.progress =
+                            ((duration.toFloat() / totalDuration.toFloat()) * 100).toInt()
                     }
             }
             Thread.sleep(1000)
@@ -171,22 +168,6 @@ class MyAudiosActivity : AppCompatActivity() {
         }
     }
 
-    private fun showAlertDialogBox() {
-        val dialog =
-            AlertDialog.Builder(this).setTitle("DELETE UPLOADED AUDIOS").setCancelable(false)
-                .setNegativeButton("Cancel") { _, _ -> }.setPositiveButton("Delete") { _, _ ->
-                    audios?.forEach { audio ->
-                        if (audio.status == AUDIO_STATUS_UPLOADED) {
-                            val file = File(audio.localFileURl)
-                            file.delete()
-                            viewModel.deleteAudio(audio)
-                        }
-                    }
-                }.setMessage(getString(R.string.audio_deletion_info))
-        dialog.create()
-        dialog.show()
-    }
-
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.my_audios_activity_menu, menu)
@@ -195,7 +176,6 @@ class MyAudiosActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.action_delete_uploaded -> showAlertDialogBox()
             R.id.action_upload_audios -> {
                 // Schedule on-time work
                 val constraints = Constraints.Builder().apply {

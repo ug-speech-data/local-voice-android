@@ -11,9 +11,9 @@
       "type": "SINGLE",
       "filters": [],
       "attributes": [],
-      "versionCode": 10,
-      "versionName": "1.3.0",
-      "outputFile": "localvoice-v10-release.apk"
+      "versionCode": 11,
+      "versionName": "2.3.0",
+      "outputFile": "localvoice-v11-release.apk"
     }
   ],
   "elementType": "File"

@@ -34,6 +34,15 @@ class ConfigurationActivity : AppCompatActivity() {
             binding.demoVideo.text = configuration.demoVideoRemoteUrl
             binding.privacyStatementAudio.text = configuration.privacyPolicyStatementAudioRemoteUrl
             binding.maximumNoiseLevel.text = configuration.maximumBackgroundNoiseLevel.toString()
+            binding.numberOfAudiosPerParticipant.text =
+                configuration.numberOfAudiosPerParticipant.toString()
+            binding.expectedNumberOfValidations.text =
+                configuration.maxAudioValidationPerUser.toString()
+
+            binding.recordMoreThan120.text =
+                configuration.allowToRecordMoreThanRequiredPerParticipant.let { if (it == true) "YES" else "NO" }
+            binding.saveLessThanRequired.text =
+                configuration.allowSavingLessThanRequiredPerParticipant.let { if (it == true) "YES" else "NO" }
 
             if (configuration.demoVideoLocalUrl.isEmpty()) {
                 binding.demoVideo.setTextColor(getColor(android.R.color.holo_red_light))

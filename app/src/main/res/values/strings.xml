@@ -114,6 +114,10 @@
     <string name="balance">Balance:<b>GHC %1$s</b></string>
     <string name="audios_validated">Audios Validated: <b>%1$d</b></string>
     <string name="audios_submitted">Audios Submitted: <b>%1$d</b></string>
+    <string name="audios_accepted">Audios Accepted: <b>%1$d</b></string>
+    <string name="audios_pending">Audios Pending: <b>%1$d</b></string>
+    <string name="audios_rejected">Audios Rejected: <b>%1$d</b></string>
+    <string name="balance_deduction">Est. Deduction: GHC <b>%1$s</b></string>
     <string name="clear_app_data">Clear app data.</string>
     <string name="play_privacy_policy">Play privacy policy</string>
     <string name="recorder">RECORDER</string>
@@ -138,4 +142,8 @@
     <string name="password_change_prompt">Please enter your new password to reset your account credentials.</string>
     <string name="submit">Submit</string>
     <string name="upload_audios">Upload Audios</string>
+    <string name="can_record_less_than_120_per_participant">Can save less than 120 per participant</string>
+    <string name="record_more_than_120">Record more than 120</string>
+    <string name="number_of_recordings_per_participant">Number of recordings per participant</string>
+    <string name="expected_number_of_validations">Expected Number of Validations</string>
 </resources>

@@ -13,8 +13,8 @@ android {
         applicationId "com.hrd.localvoice"
         minSdk 24
         targetSdk 33
-        versionCode 11
-        versionName "2.3.0"
+        versionCode 13
+        versionName "2.5.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         archivesBaseName = "localvoice-v$versionCode"
 

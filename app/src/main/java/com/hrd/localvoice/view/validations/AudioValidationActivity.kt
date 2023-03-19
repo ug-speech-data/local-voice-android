@@ -108,6 +108,7 @@ class AudioValidationActivity : AppCompatActivity() {
             binding.audioLocale.text = audio.locale
             binding.audioEnvironment.text = audio.environment
             binding.audioDuration.text = audio.duration.toString()
+            binding.audioName.text = audio.id.toString()
 
             // Load images
             val imageUrl = audio.imageURL

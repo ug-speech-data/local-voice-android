@@ -9,7 +9,6 @@ import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
@@ -22,10 +21,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.hrd.localvoice.AppRoomDatabase
 import com.hrd.localvoice.R
 import com.hrd.localvoice.databinding.ActivityAudioRecorderBinding
-import com.hrd.localvoice.models.Audio
-import com.hrd.localvoice.models.Image
-import com.hrd.localvoice.models.Participant
-import com.hrd.localvoice.models.User
+import com.hrd.localvoice.models.*
 import com.hrd.localvoice.utils.Constants
 import com.hrd.localvoice.utils.WaveRecorder
 import com.hrd.localvoice.view.ImageViewActivity
@@ -45,11 +41,12 @@ class AudioRecorderActivity : AppCompatActivity() {
     private var currentParticipant: Participant? = null
     private var currentUser: User? = null
     private var environment: String? = null
-    private val totalExpectedDescription = 120
+    private var totalExpectedDescription = 120
     private val maxAudioDuration = 29
     private var totalDescriptionCount = 0
     private var requiredAudioDuration = 15
     private var allowedPauseDuration = 3
+    private var configuration: Configuration? = null
 
     // List of images described by the current participant
     private val deviceId = Build.MANUFACTURER + " " + Build.MODEL
@@ -64,6 +61,13 @@ class AudioRecorderActivity : AppCompatActivity() {
         setContentView(binding.root)
         viewModel = ViewModelProvider(this)[RecorderActivityViewModel::class.java]
         recorder = WaveRecorder(this)
+
+        viewModel.getConfiguration()?.observe(this) {
+            configuration = it
+            if (configuration?.numberOfAudiosPerParticipant != null) {
+                totalExpectedDescription = configuration!!.numberOfAudiosPerParticipant!!
+            }
+        }
 
         // App bar actions
         binding.buttonDone.setOnClickListener {
@@ -95,7 +99,7 @@ class AudioRecorderActivity : AppCompatActivity() {
         }
 
         //Check Permissions
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && permissionsDenied()) {
+        if (permissionsDenied()) {
             requestPermissions(permissions, requestPermissionCode)
         }
 
@@ -209,9 +213,6 @@ class AudioRecorderActivity : AppCompatActivity() {
             viewModel.insertAudio(audio)
 
             availableImages.remove(currentImage)
-            if (availableImages.isEmpty()) {
-                done()
-            }
 
             // Increase image description count
             currentImage.descriptionCount += 1
@@ -222,6 +223,10 @@ class AudioRecorderActivity : AppCompatActivity() {
 
             // Reset Recording box control
             binding.timerLabel.text = "00:00"
+
+            if (availableImages.isEmpty() || totalDescriptionCount >= totalExpectedDescription) {
+                done()
+            }
 
             showImageAtIndex(++currentImageIndex)
 
@@ -334,9 +339,14 @@ class AudioRecorderActivity : AppCompatActivity() {
     private fun showMaximumImageCountReachedDialog() {
         val dialog =
             AlertDialog.Builder(this).setTitle("Expected $totalExpectedDescription descriptions")
-                .setCancelable(false).setNegativeButton(getString(R.string.no)) { _, _ ->
+                .setPositiveButton(getString(R.string.yes)) { _, _ -> }
+
+        if (configuration?.allowSavingLessThanRequiredPerParticipant == true) {
+            dialog.setCancelable(false)
+                .setNegativeButton(getString(R.string.no)) { _, _ ->
                     done()
-                }.setPositiveButton(getString(R.string.yes)) { _, _ -> }
+                }
+        }
 
         val message =
             "You have recorded only $totalDescriptionCount descriptions. You will only be paid if you record $totalExpectedDescription descriptions. Continue to record?"

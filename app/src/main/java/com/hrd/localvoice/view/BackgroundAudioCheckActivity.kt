@@ -26,7 +26,6 @@ class BackgroundAudioCheckActivity : AppCompatActivity() {
     private var backgroundNoiseCheckDurationInSec = 3
     private var maxBackgroundNoiseLevel = 350
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityBackgroundAudioCheckBinding.inflate(layoutInflater)

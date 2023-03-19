@@ -22,5 +22,11 @@ data class Configuration(
     @SerializedName("participant_privacy_statement_audio") @ColumnInfo(defaultValue = "") var privacyPolicyStatementAudioRemoteUrl: String? = "",
     @ColumnInfo(defaultValue = "") var privacyPolicyStatementAudioLocalUrl: String? = "",
 
+    @SerializedName("allow_saving_less_than_required_per_participant") @ColumnInfo(defaultValue = "0") var allowSavingLessThanRequiredPerParticipant: Boolean? = false,
+    @SerializedName("allow_recording_more_than_required_per_participant") @ColumnInfo(defaultValue = "0") var allowToRecordMoreThanRequiredPerParticipant: Boolean? = false,
+    @SerializedName("number_of_audios_per_participant") @ColumnInfo(defaultValue = "120") var numberOfAudiosPerParticipant: Int? = 120,
+
+    @SerializedName("max_audio_validation_per_user") @ColumnInfo(defaultValue = "0") var maxAudioValidationPerUser: Int? = 0,
+
     @SerializedName("max_background_noise_level") @ColumnInfo(defaultValue = "350") var maximumBackgroundNoiseLevel: Int? = 350,
 ) : Parcelable

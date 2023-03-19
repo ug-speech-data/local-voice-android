@@ -37,10 +37,10 @@ class UpdateConfigurationWorker(
                             remoteConfiguration.demoVideoLocalUrl = configuration.demoVideoLocalUrl
                             remoteConfiguration.privacyPolicyStatementAudioLocalUrl =
                                 configuration.privacyPolicyStatementAudioLocalUrl
-                        } else {
-                            // Put new configuration into database / Update
-                            database.ConfigurationDao().insertConfiguration(remoteConfiguration)
                         }
+
+                        // Put new configuration into database / Update
+                        database.ConfigurationDao().insertConfiguration(remoteConfiguration)
                         configuration = database.ConfigurationDao().getConfiguration()!!
 
                         if ((configuration.demoVideoRemoteUrl != remoteConfiguration.demoVideoRemoteUrl) || !File(

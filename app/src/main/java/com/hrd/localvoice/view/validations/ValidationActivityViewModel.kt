@@ -1,6 +1,8 @@
 package com.hrd.localvoice.view.validations
 
 import android.app.Application
+import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -60,6 +62,9 @@ class ValidationActivityViewModel(application: Application) : AndroidViewModel(a
             ) {
                 validationSuccess.value = response.body()?.string() != null
                 isLoading.value = false
+
+                Log.d("TEST", "onResponse: ${response.code()}")
+                Toast.makeText(context, response.body()?.string(), Toast.LENGTH_SHORT).show()
             }
 
             override fun onFailure(call: Call<ResponseBody?>, t: Throwable) {

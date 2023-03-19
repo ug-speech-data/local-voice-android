@@ -66,11 +66,57 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="start"
+                        android:visibility="gone"
                         android:layout_marginHorizontal="10dp"
                         android:drawablePadding="3dp"
                         app:drawableStartCompat="@drawable/ic_outline_info_24"
                         app:drawableTint="@color/gray_600"
                         tools:text="Audios Validated: 21" />
+
+                    <TextView
+                        android:id="@+id/audios_pending_view"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="start"
+                        android:layout_marginHorizontal="10dp"
+                        android:drawablePadding="3dp"
+                        app:drawableStartCompat="@drawable/ic_outline_info_24"
+                        app:drawableTint="@color/gray_600"
+                        tools:text="Audios Pending: 21" />
+
+                    <TextView
+                        android:id="@+id/audios_rejected_view"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="start"
+                        android:layout_marginHorizontal="10dp"
+                        android:drawablePadding="3dp"
+                        app:drawableStartCompat="@drawable/ic_outline_info_24"
+                        app:drawableTint="@color/gray_600"
+                        tools:text="Audios rejected: 21" />
+
+                    <TextView
+                        android:id="@+id/audios_accepted_view"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="start"
+                        android:layout_marginHorizontal="10dp"
+                        android:drawablePadding="3dp"
+                        app:drawableStartCompat="@drawable/ic_outline_info_24"
+                        app:drawableTint="@color/gray_600"
+                        tools:text="Audios Accepted: 21" />
+
+                    <TextView
+                        android:id="@+id/balance_deduction_view"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="start"
+                        android:layout_marginHorizontal="10dp"
+                        android:layout_marginVertical="10dp"
+                        android:drawablePadding="3dp"
+                        app:drawableStartCompat="@drawable/ic_baseline_account_balance_wallet_24"
+                        app:drawableTint="@color/gray_600"
+                        tools:text="Deduction: GHC 22.00" />
 
                     <TextView
                         android:id="@+id/balance_view"

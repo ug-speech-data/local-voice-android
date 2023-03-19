@@ -34,8 +34,4 @@ class RecorderActivityViewModel(application: Application) : AndroidViewModel(app
     fun getParticipantById(id: Long): Participant? {
         return repository.getParticipantById(id)
     }
-
-    fun getAudiosByParticipant(id: Long): LiveData<List<Audio>>? {
-        return repository.getAudiosByParticipant(id)
-    }
 }

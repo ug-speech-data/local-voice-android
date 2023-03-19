@@ -71,6 +71,18 @@ class MainActivity : AppCompatActivity() {
                             getString(R.string.audios_submitted, user?.audiosSubmitted);
                         binding.audiosValidatedView.text =
                             getString(R.string.audios_validated, user?.audiosValidated);
+
+                        binding.audiosPendingView.text =
+                            getString(R.string.audios_pending, user?.audiosPending);
+
+                        binding.audiosRejectedView.text =
+                            getString(R.string.audios_rejected, user?.audiosRejected);
+
+                        binding.audiosAcceptedView.text =
+                            getString(R.string.audios_accepted, user?.audiosAccepted);
+
+                        binding.balanceDeductionView.text =
+                            getString(R.string.balance_deduction, user?.estimatedDeductionAmount.toString());
                     }
 
                     // Hide/Show Audio validation button
@@ -173,12 +185,19 @@ class MainActivity : AppCompatActivity() {
             ).show()
         }
 
-        // Enqueue upload worker
+        // Enqueue upload workers
         val uploadWorker =
             PeriodicWorkRequest.Builder(UploadWorker::class.java, 15, TimeUnit.MINUTES)
                 .setConstraints(constraints).setInputData(createInputDataForUri()).build()
         workManager.enqueueUniquePeriodicWork(
-            "AudioUploadWorker", ExistingPeriodicWorkPolicy.REPLACE, uploadWorker
+            "AudioUploadWorker", ExistingPeriodicWorkPolicy.UPDATE, uploadWorker
+        )
+
+        val updateConfiguration =
+            PeriodicWorkRequest.Builder(UpdateConfigurationWorker::class.java, 15, TimeUnit.MINUTES)
+                .setConstraints(constraints).build()
+        workManager.enqueueUniquePeriodicWork(
+            "UpdateConfiguration", ExistingPeriodicWorkPolicy.UPDATE, updateConfiguration
         )
     }
 

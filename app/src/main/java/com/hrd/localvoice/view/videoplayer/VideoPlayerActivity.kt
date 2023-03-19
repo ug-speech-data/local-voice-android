@@ -6,7 +6,6 @@ import android.os.*
 import android.view.*
 import android.widget.Button
 import android.widget.ImageView
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -19,7 +18,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.hrd.localvoice.R
 import com.hrd.localvoice.databinding.ActivityVideoPlayerBinding
 import com.hrd.localvoice.models.Configuration
-import com.hrd.localvoice.view.BackgroundAudioCheckActivity
+import com.hrd.localvoice.view.audiorecorder.AudioRecorderActivity
 import java.io.File
 
 class VideoPlayerActivity : AppCompatActivity() {
@@ -233,7 +232,7 @@ class VideoPlayerActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_continue -> {
-                val intent = Intent(this, BackgroundAudioCheckActivity::class.java)
+                val intent = Intent(this, AudioRecorderActivity::class.java)
                 intent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
                 startActivity(intent)
             }

@@ -36,6 +36,7 @@ class AudioRecorderActivity : AppCompatActivity() {
     private lateinit var availableImages: MutableList<Image>
     private lateinit var binding: ActivityAudioRecorderBinding
     private lateinit var recorder: WaveRecorder
+    private lateinit var backgroundNoiseMonitor: WaveRecorder
     private var currentImageIndex = 0
     private val requestPermissionCode = 4
     private var currentParticipant: Participant? = null
@@ -47,6 +48,9 @@ class AudioRecorderActivity : AppCompatActivity() {
     private var requiredAudioDuration = 15
     private var allowedPauseDuration = 3
     private var configuration: Configuration? = null
+
+    private var backgroundNoiseCheckDurationInSec = 3
+    private var maxBackgroundNoiseLevel = 350
 
     // List of images described by the current participant
     private val deviceId = Build.MANUFACTURER + " " + Build.MODEL
@@ -108,7 +112,6 @@ class AudioRecorderActivity : AppCompatActivity() {
                 recorder.startRecording()
                 binding.startStopButton.text = getString(R.string.stop)
                 Thread(updateProgressRunnable).start()
-                Thread(monitorAudioAmplitude).start()
             } else {
                 showRecordingCompletedDialog()
                 recorder.stopRecording()
@@ -140,6 +143,54 @@ class AudioRecorderActivity : AppCompatActivity() {
             if (environment == null && currentUser != null) {
                 environment = currentUser?.environment
             }
+        }
+
+        // Start monitoring background noise.
+        backgroundNoiseMonitor = WaveRecorder(this, false)
+        backgroundNoiseMonitor.startRecording()
+        AppRoomDatabase.databaseWriteExecutor.execute {
+            val value = AppRoomDatabase.INSTANCE?.ConfigurationDao()
+                ?.getConfiguration()?.maximumBackgroundNoiseLevel
+            if (value != null) {
+                maxBackgroundNoiseLevel = value
+            }
+            Thread(monitorBackgroundNoise).start()
+        }
+    }
+
+
+    private val monitorBackgroundNoise = Runnable {
+        var duration = 0
+        while (true) {
+            runOnUiThread {
+                val percentage = (backgroundNoiseMonitor.averageAmplitude / 1500 * 100).toInt()
+                binding.progressBar.progress = percentage
+            }
+
+            if (backgroundNoiseMonitor.averageAmplitude < maxBackgroundNoiseLevel) {
+                duration++
+            } else {
+                duration = 0
+            }
+
+            // If the background is silent for 5 seconds, enable continue button.
+            runOnUiThread {
+                if (!recorder.isRecording()) {
+                    binding.startStopButton.isEnabled =
+                        duration >= 10 * backgroundNoiseCheckDurationInSec
+
+                    if (duration >= 10 * backgroundNoiseCheckDurationInSec) {
+                        binding.startStopButton.text = "Start"
+                    } else {
+                        binding.startStopButton.text = "Too Noisy"
+                    }
+                }
+            }
+
+            Thread.sleep(100)
+//            if (!backgroundNoiseMonitor.isRecording()) {
+//                break
+//            }
         }
     }
 
@@ -395,23 +446,6 @@ class AudioRecorderActivity : AppCompatActivity() {
             }
             Thread.sleep(100)
             if (!recorder.isRecording()) {
-                break
-            }
-        }
-    }
-
-    private val monitorAudioAmplitude = Runnable {
-        while (true) {
-            runOnUiThread {
-                // Update audio amplitude display
-                val percentage = (recorder.averageAmplitude / 1500 * 100).toInt()
-                binding.progressBar.progress = percentage
-            }
-            Thread.sleep(100)
-            if (!recorder.isRecording()) {
-                runOnUiThread {
-                    binding.progressBar.progress = 0
-                }
                 break
             }
         }

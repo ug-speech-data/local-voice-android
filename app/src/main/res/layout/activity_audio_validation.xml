@@ -175,6 +175,7 @@
                         android:layout_height="wrap_content"
                         android:background="@color/white"
                         android:contentDescription="@string/play_button"
+                        android:foregroundTint="@android:color/transparent"
                         android:padding="10dp"
                         android:src="@drawable/ic_baseline_play_circle_outline_24"
                         app:layout_constraintBottom_toBottomOf="parent"

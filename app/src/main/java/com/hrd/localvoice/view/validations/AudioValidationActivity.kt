@@ -22,6 +22,7 @@ class AudioValidationActivity : AppCompatActivity() {
     private var currentAudio: UploadedAudio? = null
     private var player: ExoPlayer? = null
     private var isAudioPlaying = false
+    private var progressBarThread: Thread? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -150,7 +151,10 @@ class AudioValidationActivity : AppCompatActivity() {
         player!!.addListener(object : Player.Listener {
             override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
                 super.onPlayerStateChanged(playWhenReady, playbackState)
-                Thread(updateProgressRunnable).start()
+
+
+                progressBarThread = Thread(updateProgressRunnable)
+                progressBarThread?.start()
                 binding.playPauseButton.isEnabled = false
                 when (playbackState) {
                     Player.STATE_ENDED -> {
@@ -172,9 +176,7 @@ class AudioValidationActivity : AppCompatActivity() {
                 super.onPlayerError(error)
                 binding.playerLoading.visibility = View.GONE
                 Toast.makeText(
-                    this@AudioValidationActivity,
-                    "Couldn't play video: " + error.message,
-                    Toast.LENGTH_LONG
+                    this@AudioValidationActivity, "Couldn't play video", Toast.LENGTH_LONG
                 ).show()
             }
         })
@@ -185,11 +187,11 @@ class AudioValidationActivity : AppCompatActivity() {
             runOnUiThread {
                 // Update timer text
                 var duration = player?.duration?.div(1000)
-                if (player!!.duration == C.TIME_UNSET) {
+                if (player?.duration == C.TIME_UNSET) {
                     duration = 0
                 }
-                val playerDuration = player!!.duration
-                if (playerDuration != 0L && duration != null) {
+                val playerDuration = player?.duration
+                if (playerDuration != 0L && duration != null && playerDuration != null) {
                     val progress = (player!!.currentPosition * 100) / playerDuration
                     val minutes = (duration / 60).toInt().toString().padStart(2, '0')
                     val seconds = (duration % 60).toString().padStart(2, '0')
@@ -229,5 +231,4 @@ class AudioValidationActivity : AppCompatActivity() {
         super.onPause()
         releasePlayer()
     }
-
 }

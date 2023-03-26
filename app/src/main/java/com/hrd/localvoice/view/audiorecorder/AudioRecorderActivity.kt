@@ -289,7 +289,7 @@ class AudioRecorderActivity : AppCompatActivity() {
             // Reset Recording box control
             resetTimerLabel()
 
-            if (availableImages.isEmpty() || totalDescriptionCount >= totalExpectedDescription) {
+            if (availableImages.isEmpty()) {
                 done()
             }
 

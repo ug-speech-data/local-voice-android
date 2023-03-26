@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 29,
-    "identityHash": "7c6e30eddde6212cf1163d53fb359368",
+    "identityHash": "865875eda79b2be7a2501956a93cd33e",
     "entities": [
       {
         "tableName": "audios",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`userId` INTEGER NOT NULL, `timestamp` INTEGER NOT NULL, `remoteImageID` INTEGER NOT NULL, `localFileURl` TEXT NOT NULL, `deviceId` TEXT NOT NULL, `environment` TEXT NOT NULL, `description` TEXT NOT NULL, `status` TEXT NOT NULL, `remoteId` INTEGER, `remoteURL` INTEGER, `duration` INTEGER, `sizeInBytes` INTEGER, `participantId` INTEGER, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, FOREIGN KEY(`participantId`) REFERENCES `participants`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`userId` INTEGER NOT NULL, `timestamp` INTEGER NOT NULL, `remoteImageID` INTEGER NOT NULL, `localFileURl` TEXT NOT NULL, `deviceId` TEXT NOT NULL, `environment` TEXT NOT NULL, `description` TEXT NOT NULL, `status` TEXT NOT NULL, `remoteId` INTEGER, `remoteURL` INTEGER, `duration` INTEGER, `sizeInBytes` INTEGER, `localImageURl` TEXT DEFAULT '', `participantId` INTEGER, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, FOREIGN KEY(`participantId`) REFERENCES `participants`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL )",
         "fields": [
           {
             "fieldPath": "userId",
@@ -79,6 +79,13 @@
             "columnName": "sizeInBytes",
             "affinity": "INTEGER",
             "notNull": false
+          },
+          {
+            "fieldPath": "localImageURl",
+            "columnName": "localImageURl",
+            "affinity": "TEXT",
+            "notNull": false,
+            "defaultValue": "''"
           },
           {
             "fieldPath": "participantId",
@@ -521,7 +528,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '7c6e30eddde6212cf1163d53fb359368')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '865875eda79b2be7a2501956a93cd33e')"
     ]
   }
 }

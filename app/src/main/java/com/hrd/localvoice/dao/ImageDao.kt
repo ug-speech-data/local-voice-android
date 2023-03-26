@@ -33,5 +33,5 @@ interface ImageDao {
     fun getImages(): LiveData<List<Image>>
 
     @Query("SELECT * FROM $IMAGES_TABLE WHERE remoteId = :remoteId")
-    fun getImage(remoteId: Long): Image
+    fun getImage(remoteId: Long): Image?
 }

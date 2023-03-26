@@ -11,7 +11,7 @@ interface AudioDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAudio(audio: Audio): Long
 
-    @Update()
+    @Update
     fun updateAudio(audio: Audio)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -37,6 +37,12 @@ interface AudioDao {
 
     @Query("SELECT * FROM $AUDIOS_TABLE WHERE participantId = :participantId")
     fun getAudiosByParticipant(participantId: Long): List<Audio>
+
+    @Query("SELECT * FROM $AUDIOS_TABLE WHERE participantId is NUll")
+    fun getAudiosByUser(): List<Audio>
+
+    @Query("SELECT EXISTS(SELECT * FROM $AUDIOS_TABLE WHERE localFileURl LIKE :fileName OR remoteId = :remoteId)")
+    fun checkAudioWithFileNameExists(fileName: String, remoteId: Long): Boolean
 
     @Query("SELECT * FROM $AUDIOS_TABLE WHERE participantId = :participantId")
     fun getAudiosByParticipantLive(participantId: Long): LiveData<List<Audio>>

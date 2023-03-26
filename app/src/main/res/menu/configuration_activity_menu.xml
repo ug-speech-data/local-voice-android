@@ -4,8 +4,8 @@
     <item
         android:id="@+id/action_update_configuration"
         android:icon="@drawable/baseline_refresh_24"
-        android:iconTint="@color/white"
         android:orderInCategory="1"
-        android:title="Update configuration"
+        android:title="@string/update_configuration"
+        app:iconTint="@color/white"
         app:showAsAction="ifRoom" />
 </menu>

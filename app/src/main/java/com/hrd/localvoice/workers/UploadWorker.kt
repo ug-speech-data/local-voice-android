@@ -2,17 +2,23 @@ package com.hrd.localvoice.workers
 
 import android.content.Context
 import android.util.Log
-import android.widget.Toast
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.google.gson.Gson
 import com.hrd.localvoice.AppRoomDatabase
+import com.hrd.localvoice.BuildConfig
+import com.hrd.localvoice.models.Audio
 import com.hrd.localvoice.models.Participant
 import com.hrd.localvoice.network.RestApiFactory
+import com.hrd.localvoice.network.response_models.AudiosResponse
 import com.hrd.localvoice.utils.Constants.AUDIO_STATUS_UPLOADED
+import com.hrd.localvoice.utils.Functions.Companion.syncUploadedAudios
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.io.File
 
 
@@ -25,6 +31,7 @@ class UploadWorker(
 
     override fun doWork(): Result {
         uploadPendingAudios()
+        syncUploadedAudios(context)
         return Result.success()
     }
 
@@ -70,20 +77,24 @@ class UploadWorker(
                     )
                 }
 
+                val apiClient = MultipartBody.Part.createFormData(
+                    "api_client", null, RequestBody.create(
+                        MediaType.parse("text/plain"), "android-v${BuildConfig.VERSION_NAME}"
+                    )
+                )
+
                 try {
-                    val response =
-                        apiService?.uploadAudioFile(audioFile, audioDataBody, participantDataBody)
-                            ?.execute()
+                    val response = apiService?.uploadAudioFile(
+                        audioFile, audioDataBody, apiClient, participantDataBody
+                    )?.execute()
                     if (response?.body()?.success == true) {
                         audio.status = AUDIO_STATUS_UPLOADED
+                        audio.remoteId = response.body()?.audio?.id
                         AppRoomDatabase.databaseWriteExecutor.execute {
                             database?.AudioDao()?.updateAudio(audio)
                         }
                     }
                 } catch (e: Exception) {
-                    Toast.makeText(
-                        context, "Error: ${e.message}", Toast.LENGTH_SHORT
-                    ).show()
                     Log.d(tag, "Error: ${e.message}")
                 }
             }

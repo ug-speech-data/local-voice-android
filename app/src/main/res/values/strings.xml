@@ -48,7 +48,7 @@
     <string name="ok">OK</string>
     <string name="start">Start</string>
     <string name="play">Play</string>
-    <string name="save">Save</string>
+    <string name="save">SAVE</string>
     <string name="stop">Stop</string>
     <string name="background_check">Background Check</string>
     <string name="checking_background_quality">Checking background quality…</string>
@@ -83,7 +83,7 @@
     <string name="full_name">Full Name</string>
     <string name="enter_your_full_name">Enter your full name</string>
     <string name="read_me">READ ME</string>
-    <string name="video_instructions">Please find attached a demonstration video of a sample audio description recording. It is important to note that an effective audio description should not include phrases such as "I can see" or "the picture". \n\nOnce you have finished viewing the demonstration video, kindly click on "Continue" to proceed or "Skip" if desired.</string>
+    <string name="video_instructions"> This is demo video for an audio description recording. Click "Continue" or "Skip" after watching.  </string>
     <string name="click_to_view_images">View all the downloaded images and their number of descriptions.</string>
     <string name="network_selection_icon">Network Selection Icon</string>
     <string name="update">Update</string>
@@ -146,4 +146,8 @@
     <string name="record_more_than_120">Record more than 120</string>
     <string name="number_of_recordings_per_participant">Number of recordings per participant</string>
     <string name="expected_number_of_validations">Expected Number of Validations</string>
+    <string name="update_configuration">Update configuration</string>
+    <string name="audio">Audio</string>
+    <string name="back_button">Back button</string>
+    <string name="this_audio_was_not_recorded_on_this_device">This audio was not recorded on this device.</string>
 </resources>

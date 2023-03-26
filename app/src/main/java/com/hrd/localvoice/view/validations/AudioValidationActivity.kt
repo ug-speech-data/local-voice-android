@@ -66,9 +66,11 @@ class AudioValidationActivity : AppCompatActivity() {
                 viewModel.getAssignedAudios(currentAudio!!.id)
             }
         }
+
         binding.acceptButton.setOnClickListener {
             viewModel.validateDate(currentAudio!!.id, AudioStatus.ACCEPTED)
         }
+
         binding.rejectButton.setOnClickListener {
             if (currentAudio != null) viewModel.validateDate(
                 currentAudio!!.id, AudioStatus.REJECTED
@@ -90,7 +92,6 @@ class AudioValidationActivity : AppCompatActivity() {
         // Audio move to next image
         viewModel.validationSuccess.observe(this) { success ->
             if (success && currentAudio != null) {
-                Toast.makeText(this, getString(R.string.success), Toast.LENGTH_SHORT).show()
                 viewModel.getAssignedAudios(currentAudio!!.id)
             }
         }
@@ -183,18 +184,21 @@ class AudioValidationActivity : AppCompatActivity() {
         while (true) {
             runOnUiThread {
                 // Update timer text
-                var duration = player!!.duration / 1000
+                var duration = player?.duration?.div(1000)
                 if (player!!.duration == C.TIME_UNSET) {
                     duration = 0
                 }
-                val progress = (player!!.currentPosition * 100) / player!!.duration
-                val minutes = (duration / 60).toInt().toString().padStart(2, '0')
-                val seconds = (duration % 60).toString().padStart(2, '0')
-                binding.timerLabel.text = "${minutes}:${seconds}"
-                binding.playerProgressBar.progress = progress.toInt()
-                isAudioPlaying = player?.isPlaying == true
+                val playerDuration = player!!.duration
+                if (playerDuration != 0L && duration != null) {
+                    val progress = (player!!.currentPosition * 100) / playerDuration
+                    val minutes = (duration / 60).toInt().toString().padStart(2, '0')
+                    val seconds = (duration % 60).toString().padStart(2, '0')
+                    binding.timerLabel.text = "${minutes}:${seconds}"
+                    binding.playerProgressBar.progress = progress.toInt()
+                    isAudioPlaying = player?.isPlaying == true
 
-                if (isAudioPlaying) binding.playPauseButton.setImageResource(R.drawable.ic_baseline_pause_circle_outline_24)
+                    if (isAudioPlaying) binding.playPauseButton.setImageResource(R.drawable.ic_baseline_pause_circle_outline_24)
+                }
             }
             Thread.sleep(1000)
             if (!isAudioPlaying) {

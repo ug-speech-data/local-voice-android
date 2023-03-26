@@ -1,21 +1,26 @@
 package com.hrd.localvoice.utils
 
-import android.app.Activity
 import android.app.DownloadManager
 import android.content.Context
 import android.content.SharedPreferences
 import android.database.Cursor
 import android.net.Uri
-import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import android.util.Log
 import com.google.gson.Gson
+import com.hrd.localvoice.AppRoomDatabase
+import com.hrd.localvoice.models.Audio
 import com.hrd.localvoice.models.User
+import com.hrd.localvoice.network.RestApiFactory
+import com.hrd.localvoice.network.response_models.AudiosResponse
 import com.hrd.localvoice.utils.Constants.SHARED_PREFS_FILE
 import com.hrd.localvoice.utils.Constants.USER_ID
 import com.hrd.localvoice.utils.Constants.USER_OBJECT
 import com.hrd.localvoice.utils.Constants.USER_TOKEN
-import java.io.Serializable
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class Functions {
     companion object {
@@ -57,8 +62,7 @@ class Functions {
                     .setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE or DownloadManager.Request.NETWORK_WIFI) // Tell on which network you want to download file.
                     .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED) // This will show notification on top when downloading the file.
                     // Title for notification.
-                    .setTitle(title)
-                    .setDescription("Please wait, downloading...")
+                    .setTitle(title).setDescription("Please wait, downloading...")
                     .setDestinationInExternalPublicDir(
                         Environment.DIRECTORY_DOCUMENTS, "LocalVoice/$title"
                     )
@@ -83,16 +87,49 @@ class Functions {
             return s
         }
 
-        @Suppress("DEPRECATION")
-        fun <T : Serializable?> getSerializable(
-            activity: Activity,
-            name: String,
-            clazz: Class<T>
-        ): T? {
-            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-                activity.intent.getSerializableExtra(name, clazz)
-            else
-                activity.intent.getSerializableExtra(name) as T?
+        fun syncUploadedAudios(context: Context) {
+            val database: AppRoomDatabase? = AppRoomDatabase.INSTANCE
+            val apiService = RestApiFactory.create(context)
+
+            apiService?.getUploadedAudios()?.enqueue(object : Callback<AudiosResponse?> {
+                override fun onResponse(
+                    call: Call<AudiosResponse?>, response: Response<AudiosResponse?>
+                ) {
+                    val audios = response.body()?.audios
+                    AppRoomDatabase.databaseWriteExecutor.execute {
+                        val user = database?.UserDao()?.getUser()
+                        audios?.forEach { audio ->
+                            val fileName = audio.file.split("/")[audio.file.split("/").size - 1]
+                            val image = database?.ImageDao()?.getImage(audio.remoteImageId)
+                            if (database?.AudioDao()?.checkAudioWithFileNameExists(
+                                        "%${fileName}%", audio.id
+                                    ) != true && image != null
+                            ) {
+                                val newAudio = Audio(
+                                    userId = user!!.id,
+                                    timestamp = System.currentTimeMillis(),
+                                    remoteImageID = audio.remoteImageId,
+                                    localFileURl = "",
+                                    localImageURl = image.localURl,
+                                    description = image.name,
+                                    remoteId = audio.id,
+                                    status = Constants.AUDIO_STATUS_UPLOADED,
+                                    duration = audio.duration,
+                                    deviceId = audio.deviceID,
+                                    environment = audio.environment
+                                )
+                                image.descriptionCount += 1
+                                database.ImageDao().updateImage(image)
+                                database.AudioDao().insertAudio(newAudio)
+                            }
+                        }
+                    }
+                }
+
+                override fun onFailure(call: Call<AudiosResponse?>, t: Throwable) {
+                    t.message.toString().let { Log.e("Function", it) }
+                }
+            })
         }
     }
 

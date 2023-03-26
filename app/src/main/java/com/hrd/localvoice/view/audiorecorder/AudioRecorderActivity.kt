@@ -21,6 +21,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.hrd.localvoice.AppRoomDatabase
 import com.hrd.localvoice.R
 import com.hrd.localvoice.databinding.ActivityAudioRecorderBinding
+import com.hrd.localvoice.databinding.RecorderBottomSheetDialogLayoutBinding
 import com.hrd.localvoice.models.*
 import com.hrd.localvoice.utils.Constants
 import com.hrd.localvoice.utils.WaveRecorder
@@ -63,8 +64,13 @@ class AudioRecorderActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityAudioRecorderBinding.inflate(layoutInflater);
         setContentView(binding.root)
-        viewModel = ViewModelProvider(this)[RecorderActivityViewModel::class.java]
-        recorder = WaveRecorder(this)
+
+        try {
+            viewModel = ViewModelProvider(this)[RecorderActivityViewModel::class.java]
+            recorder = WaveRecorder(this)
+        } catch (e: java.lang.Exception) {
+            e.localizedMessage?.let { showErrorDialog(it) }
+        }
 
         viewModel.getConfiguration()?.observe(this) {
             configuration = it
@@ -74,6 +80,10 @@ class AudioRecorderActivity : AppCompatActivity() {
         }
 
         // App bar actions
+        binding.backButton.setOnClickListener {
+            finish()
+        }
+
         binding.buttonDone.setOnClickListener {
             if (totalDescriptionCount < totalExpectedDescription) {
                 showMaximumImageCountReachedDialog()
@@ -158,7 +168,6 @@ class AudioRecorderActivity : AppCompatActivity() {
         }
     }
 
-
     private val monitorBackgroundNoise = Runnable {
         var duration = 0
         while (true) {
@@ -173,7 +182,7 @@ class AudioRecorderActivity : AppCompatActivity() {
                 duration = 0
             }
 
-            // If the background is silent for 5 seconds, enable continue button.
+            // If the background is silent for 3 seconds, enable continue button.
             runOnUiThread {
                 if (!recorder.isRecording()) {
                     binding.startStopButton.isEnabled =
@@ -188,18 +197,20 @@ class AudioRecorderActivity : AppCompatActivity() {
             }
 
             Thread.sleep(100)
-//            if (!backgroundNoiseMonitor.isRecording()) {
-//                break
-//            }
         }
     }
 
     private fun loadImages() {
-        val currentParticipantId = currentParticipant?.id ?: -1 // If recording oneself.
-
+        val currentParticipantId = currentParticipant?.id
         AppRoomDatabase.databaseWriteExecutor.execute {
-            val audios =
-                AppRoomDatabase.INSTANCE?.AudioDao()?.getAudiosByParticipant(currentParticipantId)
+            val audios: List<Audio>? = if (currentParticipantId != null) {
+                AppRoomDatabase.INSTANCE?.AudioDao()
+                    ?.getAudiosByParticipant(currentParticipantId)
+            } else {
+                AppRoomDatabase.INSTANCE?.AudioDao()
+                    ?.getAudiosByUser()
+            }
+
             // Prevent double description of same image
             val excludedImageIds = mutableListOf<Long>()
 
@@ -217,7 +228,8 @@ class AudioRecorderActivity : AppCompatActivity() {
             }
 
             // Get images, excluding already described by current participant
-            val images = AppRoomDatabase.INSTANCE?.ImageDao()?.getImages(excludedImageIds)
+            val images = AppRoomDatabase.INSTANCE?.ImageDao()
+                ?.getImages(excludedImageIds)
 
             availableImages = images as MutableList<Image>
             currentImageIndex = 0
@@ -246,15 +258,17 @@ class AudioRecorderActivity : AppCompatActivity() {
         ) + "_u${currentImage.remoteId}_${currentImage.descriptionCount + 1}_${System.currentTimeMillis()}.wav"
 
         val result = recorder.saveAudioIntoFile(fileName)
-        if (result != null && currentUser != null) {
+        val duration = recorder.audioDuration()
+        if (result != null && currentUser != null && duration >= 0) {
             val description = currentImage.name
             val audio = Audio(
                 userId = currentUser!!.id,
                 timestamp = System.currentTimeMillis(),
                 remoteImageID = currentImage.remoteId,
                 localFileURl = result,
+                localImageURl = currentImage.localURl,
                 description = description,
-                duration = recorder.audioDuration(),
+                duration = duration,
                 deviceId = deviceId,
                 environment = environment!!
             )
@@ -273,7 +287,7 @@ class AudioRecorderActivity : AppCompatActivity() {
             viewModel.descriptionCount.value = totalDescriptionCount
 
             // Reset Recording box control
-            binding.timerLabel.text = "00:00"
+            resetTimerLabel()
 
             if (availableImages.isEmpty() || totalDescriptionCount >= totalExpectedDescription) {
                 done()
@@ -318,36 +332,34 @@ class AudioRecorderActivity : AppCompatActivity() {
 
     private fun showSaveDeleteBottomSheetDialog() {
         val dialog = BottomSheetDialog(this)
-        dialog.setContentView(R.layout.recorder_bottom_sheet_dialog_layout)
+        val dialogBinding = RecorderBottomSheetDialogLayoutBinding.inflate(layoutInflater)
+        dialog.setContentView(dialogBinding.root)
         dialog.setCancelable(false)
-        val playStopButton = dialog.findViewById<Button>(R.id.play_stop_button)
-        val saveButton = dialog.findViewById<Button>(R.id.save_button)
-        val deleteButton = dialog.findViewById<TextView>(R.id.delete_button)
 
         // Playback
-        playStopButton?.setOnClickListener {
+        dialogBinding.playStopButton?.setOnClickListener {
             if (!recorder.isAudioPlaying()) {
                 recorder.playBackRecording()
-                playStopButton.text = getString(R.string.stop)
+                dialogBinding.playStopButton.text = getString(R.string.stop)
             } else {
                 recorder.stopPlayback()
-                playStopButton.text = getString(R.string.play)
+                dialogBinding.playStopButton.text = getString(R.string.play)
             }
         }
 
         // Save
-        saveButton?.setOnClickListener {
+        dialogBinding.saveButton.setOnClickListener {
             // Stop play in case the user left it playing before exiting
             recorder.stopPlayback()
 
             saveAudioIntoFile()
             dialog.dismiss()
-            binding.timerLabel.text = "00:00"
+            resetTimerLabel()
             recorder.reset()
         }
 
         // delete
-        deleteButton?.setOnClickListener {
+        dialogBinding.deleteButton?.setOnClickListener {
             // Audio is written to only a temporary location.
             // Next recording will overwrite, no need to perform an actual deletion.
 
@@ -355,15 +367,20 @@ class AudioRecorderActivity : AppCompatActivity() {
             recorder.stopPlayback()
 
             dialog.dismiss()
-            binding.timerLabel.text = "00:00"
+            resetTimerLabel()
         }
         dialog.show()
+    }
+
+    private fun resetTimerLabel() {
+        binding.timerLabel.text = "00:00"
+        binding.timerLabel.setTextColor(getColor(R.color.black))
     }
 
     private fun showRecordingCompletedDialog() {
         val dialog = AlertDialog.Builder(this).setTitle("Recording completed").setCancelable(false)
             .setPositiveButton(getString(R.string.ok)) { _, _ ->
-                binding.timerLabel.text = "00:00"
+                resetTimerLabel()
                 recorder.stopRecording()
                 recorder.reset()
             }
@@ -393,14 +410,22 @@ class AudioRecorderActivity : AppCompatActivity() {
                 .setPositiveButton(getString(R.string.yes)) { _, _ -> }
 
         if (configuration?.allowSavingLessThanRequiredPerParticipant == true) {
-            dialog.setCancelable(false)
-                .setNegativeButton(getString(R.string.no)) { _, _ ->
-                    done()
-                }
+            dialog.setCancelable(false).setNegativeButton(getString(R.string.no)) { _, _ ->
+                done()
+            }
         }
 
         val message =
             "You have recorded only $totalDescriptionCount descriptions. You will only be paid if you record $totalExpectedDescription descriptions. Continue to record?"
+        dialog.setMessage(message)
+        dialog.create()
+        dialog.show()
+    }
+
+    private fun showErrorDialog(message: String) {
+        val dialog =
+            AlertDialog.Builder(this).setTitle("Error")
+                .setPositiveButton("Exit") { _, _ -> finish() }
         dialog.setMessage(message)
         dialog.create()
         dialog.show()
@@ -435,14 +460,6 @@ class AudioRecorderActivity : AppCompatActivity() {
                 if (duration >= (maxAudioDuration - 5) && recorder.silentDuration() < allowedPauseDuration) {
                     binding.timerLabel.setTextColor(Color.rgb(200, 150, 50))
                 }
-
-                // Auto stop when the desired audio length is reached and the
-                // participant pauses.
-                if (duration >= requiredAudioDuration && recorder.silentDuration() >= (allowedPauseDuration - 1)) {
-                    recorder.stopRecording()
-                    binding.startStopButton.text = getString(R.string.start)
-                    showRecordingCompletedDialog()
-                }
             }
             Thread.sleep(100)
             if (!recorder.isRecording()) {
@@ -454,7 +471,7 @@ class AudioRecorderActivity : AppCompatActivity() {
     private fun showImageAtIndex(index: Int) {
         if (recorder.isRecording() || availableImages.size < 1) return
 
-        binding.timerLabel.text = "00:00"
+        resetTimerLabel()
 
         val currentImage = availableImages[index.mod(availableImages.size)]
         val options: RequestOptions =

@@ -10,9 +10,11 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModelProvider
 import androidx.work.*
 import com.hrd.localvoice.AppRoomDatabase
+import com.hrd.localvoice.BuildConfig
 import com.hrd.localvoice.R
 import com.hrd.localvoice.databinding.ActivityMainBinding
 import com.hrd.localvoice.models.User
@@ -42,6 +44,8 @@ class MainActivity : AppCompatActivity() {
         val binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         viewModel = ViewModelProvider(this)[MainActivityViewModel::class.java]
+
+
 
         // Background work manager
         val constraints = Constraints.Builder().apply {
@@ -82,7 +86,10 @@ class MainActivity : AppCompatActivity() {
                             getString(R.string.audios_accepted, user?.audiosAccepted);
 
                         binding.balanceDeductionView.text =
-                            getString(R.string.balance_deduction, user?.estimatedDeductionAmount.toString());
+                            getString(
+                                R.string.balance_deduction,
+                                user?.estimatedDeductionAmount.toString()
+                            );
                     }
 
                     // Hide/Show Audio validation button
@@ -199,6 +206,10 @@ class MainActivity : AppCompatActivity() {
         workManager.enqueueUniquePeriodicWork(
             "UpdateConfiguration", ExistingPeriodicWorkPolicy.UPDATE, updateConfiguration
         )
+
+
+        // Check for APK update
+//        checkForUpdate()
     }
 
     private fun scheduleConfigurationUpdate(
@@ -223,13 +234,29 @@ class MainActivity : AppCompatActivity() {
                 val intent = Intent(this, VideoPlayerActivity::class.java)
                 intent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
                 startActivity(intent)
-                finish()
             }.setPositiveButton("OTHERS") { _, _ ->
                 startActivity(Intent(this, ParticipantBioActivity::class.java))
             }.setMessage("Who is the speaker?")
 
         dialog.create()
         dialog.show()
+    }
+
+    private fun checkForUpdate() {
+        val intent = Intent(Intent.ACTION_VIEW)
+        var pathToApk = "/data/user/0/com.hrd.localvoice/files/localvoice-v15-release.apk"
+        pathToApk = "/storage/emulated/0/Download/localvoice-v15-release.apk"
+
+        val uri = FileProvider.getUriForFile(
+            this@MainActivity,
+            BuildConfig.APPLICATION_ID + ".provider",
+            File(pathToApk)
+        )
+
+        intent.setDataAndType(uri, "application/vnd.android.package-archive")
+        intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+        startActivity(intent)
     }
 
     private fun createInputDataForUri(): Data {

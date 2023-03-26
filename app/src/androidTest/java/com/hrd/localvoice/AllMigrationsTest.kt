@@ -30,7 +30,11 @@ class AllMigrationsTest {
             InstrumentationRegistry.getInstrumentation().targetContext,
             AppRoomDatabase::class.java,
             DB_NAME
-        ).addMigrations(AppRoomDatabase.migration18To19, AppRoomDatabase.migration24To25)
+        ).addMigrations(
+            AppRoomDatabase.migration18To19,
+            AppRoomDatabase.migration24To25,
+            AppRoomDatabase.migration29To30
+        )
             .build().apply {
                 openHelper.writableDatabase.close()
             }

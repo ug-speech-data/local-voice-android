@@ -17,16 +17,15 @@
 
         <ImageView
             android:id="@+id/image_view"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
             android:layout_margin="5dp"
             android:contentDescription="@string/described_image"
             android:scaleType="fitCenter"
             android:src="@drawable/ic_outline_audio_file_24"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:tint="#80412878" />
+            app:layout_constraintTop_toTopOf="parent"/>
 
         <LinearLayout
             android:layout_width="wrap_content"

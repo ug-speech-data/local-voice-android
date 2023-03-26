@@ -8,6 +8,7 @@ import android.media.AudioRecord
 import android.media.MediaPlayer
 import android.media.MediaRecorder
 import android.util.Log
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import java.io.File
 import java.io.FileNotFoundException
@@ -73,6 +74,8 @@ class WaveRecorder(private var context: Context) {
     fun reset() {
         audioDurationInSeconds = 0.0f
         maxContinuousSilentDurationInSeconds = 0.0f
+        audioRecorder?.stop()
+        audioRecorder?.release()
     }
 
     fun isRecording(): Boolean {
@@ -106,15 +109,20 @@ class WaveRecorder(private var context: Context) {
                 audioEncoding,
                 minBufferSize
             )
+            if (audioRecorder?.state != AudioRecord.STATE_INITIALIZED){
+                Toast.makeText(context, "Can't initialise recorder.", Toast.LENGTH_LONG).show()
+                return@Thread
+            }
 
             // Start Recording.
-            audioRecorder!!.startRecording()
+            audioRecorder?.startRecording()
             maxContinuousSilentDurationInSeconds = 0F
             averageAmplitude = 0F
 
-            val maxAudioByte = minBufferSize * 10000
+            val totalAllocatedAudioByte = 15000000 // 15MB max
             val readAudioBuffer = ByteArray(minBufferSize)
-            val totalAudioData = ByteArray(maxAudioByte)
+            val totalAudioData =
+                if (saveRecordingIntoTempFile) ByteArray(totalAllocatedAudioByte) else ByteArray(0)
             var totalReadBytes = 0
             var isVoiceDetected = false
             var currentContinuousSilentPeriods = 0f
@@ -171,7 +179,7 @@ class WaveRecorder(private var context: Context) {
                         )
                         totalReadBytes += numberOfReadBytes
                     }
-                    if (totalReadBytes >= maxAudioByte) {
+                    if (totalReadBytes >= totalAllocatedAudioByte) {
                         break
                     }
                 }

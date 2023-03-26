@@ -94,6 +94,9 @@ class UpdateAssignedImagesWorker(
                             Functions.removeUserToken(context)
                         }
                     }
+
+                    // Sync uploaded audios
+                    Functions.syncUploadedAudios(context)
                 }
             }
 

@@ -125,7 +125,7 @@ class UpdateConfigurationWorker(
 
             override fun onFailure(call: Call<ConfigurationResponse?>, t: Throwable) {
                 Toast.makeText(
-                    context, "Couldn't update app configurations: ${t.message}", Toast.LENGTH_LONG
+                    context, "Couldn't update app configurations", Toast.LENGTH_LONG
                 ).show()
             }
         })

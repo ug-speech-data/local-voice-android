@@ -1,7 +1,6 @@
 package com.hrd.localvoice.view.validations
 
 import android.app.Application
-import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -11,6 +10,7 @@ import com.hrd.localvoice.R
 import com.hrd.localvoice.models.UploadedAudio
 import com.hrd.localvoice.models.User
 import com.hrd.localvoice.network.RestApiFactory
+import com.hrd.localvoice.network.response_models.AudioValidationResponse
 import com.hrd.localvoice.network.response_models.UploadedAudioResponse
 import okhttp3.ResponseBody
 import retrofit2.Call
@@ -56,18 +56,18 @@ class ValidationActivityViewModel(application: Application) : AndroidViewModel(a
 
     fun validateDate(id: Long, status: String) {
         isLoading.value = true
-        apiService?.validateAudio(id, status)?.enqueue(object : Callback<ResponseBody?> {
+        apiService?.validateAudio(id, status)?.enqueue(object : Callback<AudioValidationResponse?> {
             override fun onResponse(
-                call: Call<ResponseBody?>, response: Response<ResponseBody?>
+                call: Call<AudioValidationResponse?>, response: Response<AudioValidationResponse?>
             ) {
-                validationSuccess.value = response.body()?.string() != null
+                validationSuccess.value = response.body()?.message != null
                 isLoading.value = false
-
-                Log.d("TEST", "onResponse: ${response.code()}")
-                Toast.makeText(context, response.body()?.string(), Toast.LENGTH_SHORT).show()
+                if(response.body()?.message != null) {
+                    Toast.makeText(context, response.body()?.message, Toast.LENGTH_SHORT).show()
+                }
             }
 
-            override fun onFailure(call: Call<ResponseBody?>, t: Throwable) {
+            override fun onFailure(call: Call<AudioValidationResponse?>, t: Throwable) {
                 errorMessage.value = t.message
                 isLoading.value = false
                 validationSuccess.value = false

@@ -2,7 +2,6 @@ package com.hrd.localvoice.network
 
 import com.hrd.localvoice.network.response_models.*
 import okhttp3.MultipartBody
-import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.http.*
 
@@ -48,6 +47,7 @@ interface ApiService {
     fun uploadAudioFile(
         @Part file: MultipartBody.Part?,
         @Part audioDataBody: MultipartBody.Part?,
+        @Part apiClient: MultipartBody.Part?,
         @Part participantDataBody: MultipartBody.Part?,
     ): Call<UploadResponse?>?
 
@@ -60,6 +60,9 @@ interface ApiService {
     @GET("get-assigned-images/")
     fun getAssignedImages(): Call<ImagesResponse?>?
 
+    @GET("get-uploaded-audios/")
+    fun getUploadedAudios(): Call<AudiosResponse?>?
+
     @GET("get-audio-to-validate")
     fun getAssignedAudios(
         @Query("offset") offset: Long
@@ -69,6 +72,6 @@ interface ApiService {
     @POST("validate-audio/")
     fun validateAudio(
         @Field("id") id: Long, @Field("status") status: String
-    ): Call<ResponseBody>?
+    ): Call<AudioValidationResponse>?
 
 }

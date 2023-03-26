@@ -6,17 +6,20 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.Button
+import android.widget.ImageView
 import android.widget.ProgressBar
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.work.*
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.hrd.localvoice.R
 import com.hrd.localvoice.adapters.AudioAdapter
 import com.hrd.localvoice.databinding.ActivityMyAudiosBinding
+import com.hrd.localvoice.databinding.PlayBackBottomSheetDialogLayoutBinding
 import com.hrd.localvoice.models.Audio
 import com.hrd.localvoice.workers.UploadWorker
 import java.io.File
@@ -53,44 +56,58 @@ class MyAudiosActivity : AppCompatActivity() {
         adapter.setOnPlayStopAudioListener(object : AudioAdapter.OnPlayStopButtonClickListener {
             override fun playStopAudioListener(audio: Audio) {
                 playerDialog = BottomSheetDialog(this@MyAudiosActivity)
-                playerDialog.setContentView(R.layout.play_back_bottom_sheet_dialog_layout)
-                val playStopButton = playerDialog.findViewById<Button>(R.id.play_stop_button)
-                val audioEnvironmentLabel =
-                    playerDialog.findViewById<TextView>(R.id.audio_environment_label)
-                val audioNameLabel = playerDialog.findViewById<TextView>(R.id.audio_name_label)
+                val dialogBinding = PlayBackBottomSheetDialogLayoutBinding.inflate(layoutInflater)
+                playerDialog.setContentView(dialogBinding.root)
 
-                val participantLabelText =
-                    playerDialog.findViewById<TextView>(R.id.audio_participant_momo_label_text)
-                val participantLabel =
-                    playerDialog.findViewById<TextView>(R.id.audio_participant_momo_label)
-                val progressBar = playerDialog.findViewById<ProgressBar>(R.id.progress_bar)
+                // If audio file is missing
+                if (audio.localFileURl?.isNotEmpty() != true) {
+                    dialogBinding.playerControl.visibility = View.GONE
+                    dialogBinding.noFileMessage.visibility = View.VISIBLE
+                } else {
+                    dialogBinding.playerControl.visibility = View.VISIBLE
+                    dialogBinding.noFileMessage.visibility = View.GONE
+                }
 
-                audioEnvironmentLabel?.text = audio.environment
-                audioNameLabel?.text = audio.description
+                val imageView = playerDialog.findViewById<ImageView>(R.id.image_view)
+                if (audio.localImageURl?.isNotEmpty() == true && imageView != null) {
+                    val imageUrl = audio.localImageURl
+                    val options: RequestOptions =
+                        RequestOptions().fitCenter()
+                            .placeholder(R.drawable.ic_outline_audio_file_24)
+                            .error(R.drawable.ic_outline_audio_file_24)
+                    Glide.with(this@MyAudiosActivity).load(imageUrl).apply(options)
+                        .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC).into(imageView)
+                }
+
+                dialogBinding.audioEnvironmentLabel.text = audio.environment
+                dialogBinding.audioNameLabel.text = audio.description
 
                 if (audio.participantId != null) {
                     viewModel.getParticipant(audio.participantId!!)
                         ?.observe(this@MyAudiosActivity) { participant ->
                             if (participant != null) {
-                                participantLabelText?.visibility = View.VISIBLE
-                                participantLabel?.visibility = View.VISIBLE
-                                participantLabel?.text = participant.momoNumber
-                                participantLabel?.text =
+                                dialogBinding.audioParticipantMomoLabelText.visibility =
+                                    View.VISIBLE
+                                dialogBinding.audioParticipantMomoLabel.visibility = View.VISIBLE
+                                dialogBinding.audioParticipantMomoLabel.text =
+                                    participant.momoNumber
+                                dialogBinding.audioParticipantMomoLabel.text =
                                     if (participant.momoNumber?.isNotEmpty() == true) participant.momoNumber else "null"
                             } else {
-                                participantLabelText?.visibility = View.VISIBLE
+                                dialogBinding.audioParticipantMomoLabelText.visibility =
+                                    View.VISIBLE
                             }
                         }
                 }
 
-                playStopButton?.setOnClickListener {
+                dialogBinding.playStopButton.setOnClickListener {
                     if (mediaPlayer?.isPlaying == true && currentAudio?.localFileURl == audio.localFileURl) {
                         mediaPlayer?.stop()
-                        playStopButton.text = getString(R.string.play)
-                        progressBar?.progress = 0
+                        dialogBinding.playStopButton.text = getString(R.string.play)
+                        dialogBinding.progressBar.progress = 0
                     } else {
                         playFile(File(audio.localFileURl))
-                        playStopButton.text = getString(R.string.stop)
+                        dialogBinding.playStopButton.text = getString(R.string.stop)
 
                         // Trigger progress bar update
                         Thread(updateProgressRunnable).start()

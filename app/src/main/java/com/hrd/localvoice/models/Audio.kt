@@ -24,7 +24,7 @@ data class Audio(
     val userId: Long,
     val timestamp: Long,
     var remoteImageID: Long,
-    val localFileURl: String,
+    var localFileURl: String,
     @SerializedName("device_id") val deviceId: String,
     @ColumnInfo(defaultValue = "") var localImageURl: String? = "",
     val environment: String,

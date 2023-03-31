@@ -45,8 +45,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         viewModel = ViewModelProvider(this)[MainActivityViewModel::class.java]
 
-
-
         // Background work manager
         val constraints = Constraints.Builder().apply {
             setRequiredNetworkType(NetworkType.CONNECTED)
@@ -71,25 +69,19 @@ class MainActivity : AppCompatActivity() {
                         startActivity(intent)
                     } else {
                         binding.balanceView.text = getString(R.string.balance, user?.balance);
-                        binding.audiosSubmittedView.text =
-                            getString(R.string.audios_submitted, user?.audiosSubmitted);
-                        binding.audiosValidatedView.text =
-                            getString(R.string.audios_validated, user?.audiosValidated);
+                        binding.audiosSubmittedView.text = user?.audiosSubmitted.toString()
+                        binding.audiosValidatedView.text = user?.audiosValidated.toString()
 
-                        binding.audiosPendingView.text =
-                            getString(R.string.audios_pending, user?.audiosPending);
+                        binding.audiosPendingView.text = user?.audiosPending.toString()
 
-                        binding.audiosRejectedView.text =
-                            getString(R.string.audios_rejected, user?.audiosRejected);
+                        binding.audiosRejectedView.text = user?.audiosRejected.toString()
 
-                        binding.audiosAcceptedView.text =
-                            getString(R.string.audios_accepted, user?.audiosAccepted);
+                        binding.audiosAcceptedView.text = user?.audiosAccepted.toString()
 
-                        binding.balanceDeductionView.text =
-                            getString(
-                                R.string.balance_deduction,
-                                user?.estimatedDeductionAmount.toString()
-                            );
+
+                        binding.balanceDeductionView.text = getString(
+                            R.string.balance_deduction, user?.estimatedDeductionAmount.toString()
+                        );
                     }
 
                     // Hide/Show Audio validation button
@@ -135,6 +127,16 @@ class MainActivity : AppCompatActivity() {
                 val intent = Intent(this, VideoPlayerActivity::class.java)
                 intent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
                 startActivity(intent)
+            }
+
+            // Show/Hide record depending on user's permission
+            if (user?.permissions?.contains("record_others") == true || user?.permissions?.contains(
+                    "record_self"
+                ) == true
+            ) {
+                binding.recordingCard.visibility = View.VISIBLE
+            } else {
+                binding.recordingCard.visibility = View.GONE
             }
         }
 
@@ -207,6 +209,12 @@ class MainActivity : AppCompatActivity() {
             "UpdateConfiguration", ExistingPeriodicWorkPolicy.UPDATE, updateConfiguration
         )
 
+        binding.refreshButton.setOnClickListener {
+            workManager.enqueueUniquePeriodicWork(
+                "UpdateConfiguration", ExistingPeriodicWorkPolicy.UPDATE, updateConfiguration
+            )
+            Toast.makeText(this, "Update requested.", Toast.LENGTH_SHORT).show()
+        }
 
         // Check for APK update
 //        checkForUpdate()
@@ -248,9 +256,7 @@ class MainActivity : AppCompatActivity() {
         pathToApk = "/storage/emulated/0/Download/localvoice-v15-release.apk"
 
         val uri = FileProvider.getUriForFile(
-            this@MainActivity,
-            BuildConfig.APPLICATION_ID + ".provider",
-            File(pathToApk)
+            this@MainActivity, BuildConfig.APPLICATION_ID + ".provider", File(pathToApk)
         )
 
         intent.setDataAndType(uri, "application/vnd.android.package-archive")

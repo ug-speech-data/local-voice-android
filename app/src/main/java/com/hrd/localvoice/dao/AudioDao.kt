@@ -8,13 +8,13 @@ import com.hrd.localvoice.utils.Constants.UPLOAD_STATUS_PENDING
 
 @Dao
 interface AudioDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insertAudio(audio: Audio): Long
 
     @Update
-    fun updateAudio(audio: Audio)
+    fun updateAudio(audio: Audio): Int
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insertAudios(audios: List<Audio>): LongArray
 
     @Query("DELETE FROM $AUDIOS_TABLE")

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">UGSpeechData</string>
+    <string name="app_name">UGSPEECHDATA</string>
     <string name="search">Search</string>
     <string name="next">Next</string>
     <string name="image_to_describe">Image to describe</string>
@@ -60,12 +60,12 @@
     <string name="recorded_audios">%1$d Recorded Audios</string>
     <string name="background_noise_check_message">Checking background noise level. \nPlease be silent 3 seconds.</string>
     <string name="no_data_found">No data found.</string>
-    <string name="update_local_images">Update Local Images</string>
+    <string name="update_local_images">Download Assigned Images</string>
     <string name="participant_bio">Participant\'s Bio</string>
     <string name="category">Category</string>
     <string name="name">Name</string>
     <string name="scheduled_local_image_update">Scheduled updates for local images</string>
-    <string name="outdated_config_info">App configuration is not up to date. \nPlease connect to internet and restart the app.</string>
+    <string name="outdated_config_info">App configuration is not up to date. \nPlease connect to internet.</string>
     <string name="configurations_set">All configurations set</string>
     <string name="delete_uploaded">Delete Uploaded</string>
     <string name="audio_deletion_info">All your audios will be deleted from the phones local storage to free up more spaces.</string>
@@ -104,7 +104,7 @@
     <string name="locale">Locale</string>
     <string name="duration">Duration</string>
     <string name="audio_validation_message">Validate audios submitted by others by ensuring that audios vividly describe the images.</string>
-    <string name="home_screen_intro_text"><b>Welcome to Local Voice</b>\nChoose an activity below to start with.</string>
+    <string name="home_screen_intro_text">Choose an activity below to start with.</string>
     <string name="audio_validation">Audio Validation</string>
     <string name="no_more_audios">No more audios</string>
     <string name="success">Success</string>

@@ -7,10 +7,10 @@ import com.hrd.localvoice.utils.Constants.IMAGES_TABLE
 
 @Dao
 interface ImageDao {
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.ABORT)
     fun insertImage(image: Image): Long
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.ABORT)
     fun insertImages(images: List<Image>): LongArray
 
     @Query("DELETE FROM $IMAGES_TABLE")

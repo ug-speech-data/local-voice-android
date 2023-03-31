@@ -23,6 +23,7 @@ import com.hrd.localvoice.R
 import com.hrd.localvoice.databinding.ActivityAudioRecorderBinding
 import com.hrd.localvoice.databinding.RecorderBottomSheetDialogLayoutBinding
 import com.hrd.localvoice.models.*
+import com.hrd.localvoice.utils.AudioUtil
 import com.hrd.localvoice.utils.Constants
 import com.hrd.localvoice.utils.WaveRecorder
 import com.hrd.localvoice.view.ImageViewActivity
@@ -275,7 +276,16 @@ class AudioRecorderActivity : AppCompatActivity() {
             if (currentParticipant != null) {
                 audio.participantId = currentParticipant!!.id
             }
-            viewModel.insertAudio(audio)
+
+            // Insert audio and convert to mp3
+            AppRoomDatabase.databaseWriteExecutor.execute {
+                val id = AppRoomDatabase.getDatabase(application)?.AudioDao()?.insertAudio(audio)
+                if (id != null) {
+                    audio.id = id
+                    // Convert to mp3
+                    AudioUtil.convert(audio, application)
+                }
+            }
 
             availableImages.remove(currentImage)
 

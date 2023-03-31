@@ -77,7 +77,7 @@
                             app:cardCornerRadius="10dp">
 
                             <LinearLayout
-                                android:layout_width="wrap_content"
+                                android:layout_width="match_parent"
                                 android:layout_height="match_parent"
                                 android:gravity="center"
                                 android:orientation="vertical">
@@ -88,7 +88,7 @@
                                     android:layout_height="wrap_content"
                                     android:lines="1"
                                     android:padding="5dp"
-                                    android:text="0"
+                                    tools:text="0"
                                     android:textAlignment="center"
                                     android:textSize="30sp"
                                     android:textStyle="bold" />
@@ -97,7 +97,7 @@
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:padding="5dp"
-                                    android:text="Audios You Uploaded"
+                                    android:text="@string/audios_you_uploaded"
                                     android:textAlignment="center" />
                             </LinearLayout>
                         </androidx.cardview.widget.CardView>
@@ -109,7 +109,7 @@
                             app:cardCornerRadius="10dp">
 
                             <LinearLayout
-                                android:layout_width="wrap_content"
+                                android:layout_width="match_parent"
                                 android:layout_height="match_parent"
                                 android:gravity="center"
                                 android:orientation="vertical">
@@ -120,7 +120,7 @@
                                     android:layout_height="wrap_content"
                                     android:lines="1"
                                     android:padding="5dp"
-                                    android:text="34"
+                                    tools:text="34"
                                     android:textAlignment="center"
                                     android:textSize="30sp"
                                     android:textStyle="bold" />
@@ -129,7 +129,7 @@
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:padding="5dp"
-                                    android:text="Audios You Validated"
+                                    android:text="@string/audios_you_validated"
                                     android:textAlignment="center" />
                             </LinearLayout>
                         </androidx.cardview.widget.CardView>
@@ -142,7 +142,7 @@
                             app:cardCornerRadius="10dp">
 
                             <LinearLayout
-                                android:layout_width="wrap_content"
+                                android:layout_width="match_parent"
                                 android:layout_height="match_parent"
                                 android:gravity="center"
                                 android:orientation="vertical">
@@ -174,7 +174,7 @@
                             app:cardCornerRadius="10dp">
 
                             <LinearLayout
-                                android:layout_width="wrap_content"
+                                android:layout_width="match_parent"
                                 android:layout_height="match_parent"
                                 android:gravity="center"
                                 android:orientation="vertical">
@@ -206,7 +206,7 @@
                             app:cardCornerRadius="10dp">
 
                             <LinearLayout
-                                android:layout_width="wrap_content"
+                                android:layout_width="match_parent"
                                 android:layout_height="match_parent"
                                 android:gravity="center"
                                 android:orientation="vertical">

@@ -120,5 +120,5 @@ dependencies {
     implementation 'com.bugfender.sdk:android:3.+'
 
     // ffmpeg
-    implementation 'com.arthenica:mobile-ffmpeg-full:4.4'
+    implementation 'com.arthenica:mobile-ffmpeg-audio:4.4'
 }

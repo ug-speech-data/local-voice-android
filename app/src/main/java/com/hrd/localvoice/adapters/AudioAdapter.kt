@@ -36,15 +36,18 @@ class AudioAdapter(private val context: Context) :
 
         fun bind(audio: Audio) {
             with(binding) {
-                description.text = audio.description
+                val name =
+                    if (audio.localFileURl.isNotEmpty()) audio.localFileURl.split("/")[audio.localFileURl.split(
+                        "/"
+                    ).size - 1] else (audio.description)
+                description.text = name
                 statusText.text = audio.status
 
                 if (audio.localImageURl?.isNotEmpty() == true) {
                     val imageUrl = audio.localImageURl
-                    val options: RequestOptions =
-                        RequestOptions().fitCenter()
-                            .placeholder(R.drawable.ic_outline_audio_file_24)
-                            .error(R.drawable.ic_outline_audio_file_24)
+                    val options: RequestOptions = RequestOptions().fitCenter()
+                        .placeholder(R.drawable.ic_outline_audio_file_24)
+                        .error(R.drawable.ic_outline_audio_file_24)
                     Glide.with(context).load(imageUrl).apply(options)
                         .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC).into(imageView)
                 }
@@ -74,8 +77,7 @@ class AudioAdapter(private val context: Context) :
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AudioViewHolder {
-        val binding =
-            ItemAudioBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val binding = ItemAudioBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return AudioViewHolder(binding.root)
     }
 

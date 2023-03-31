@@ -256,7 +256,7 @@ class AudioRecorderActivity : AppCompatActivity() {
         val currentImage = availableImages[currentImageIndex.mod(availableImages.size)]
         val fileName = currentUser?.locale + "_image_" + currentImage.remoteId.toString().padStart(
             4, '0'
-        ) + "_u${currentImage.remoteId}_${currentImage.descriptionCount + 1}_${System.currentTimeMillis()}.wav"
+        ) + "_u${currentUser?.id}_${currentImage.descriptionCount + 1}_${System.currentTimeMillis()}.wav"
 
         val result = recorder.saveAudioIntoFile(fileName)
         val duration = recorder.audioDuration()

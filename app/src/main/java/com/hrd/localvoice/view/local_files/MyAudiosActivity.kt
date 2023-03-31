@@ -80,7 +80,9 @@ class MyAudiosActivity : AppCompatActivity() {
                 }
 
                 dialogBinding.audioEnvironmentLabel.text = audio.environment
-                dialogBinding.audioNameLabel.text = audio.description
+                dialogBinding.audioNameLabel.text = if (audio.localFileURl.isNotEmpty()) audio.localFileURl.split("/")[audio.localFileURl.split(
+                    "/"
+                ).size - 1] else (audio.description)
 
                 if (audio.participantId != null) {
                     viewModel.getParticipant(audio.participantId!!)

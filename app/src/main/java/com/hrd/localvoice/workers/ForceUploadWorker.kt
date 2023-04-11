@@ -100,7 +100,7 @@ class ForceUploadWorker(
                         if (response?.body()?.success == true) {
                             audio.status = AUDIO_STATUS_UPLOADED
                             audio.remoteId = response.body()?.audio?.id
-                            audio.updatedAt = System.currentTimeMillis()
+                            audio.uploadCount += 1
                             AppRoomDatabase.databaseWriteExecutor.execute {
                                 database?.AudioDao()?.updateAudio(audio)
                             }

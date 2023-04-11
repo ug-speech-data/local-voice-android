@@ -3,6 +3,7 @@ package com.hrd.localvoice.adapters
 import android.content.Context
 import android.graphics.Color
 import android.icu.text.SimpleDateFormat
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,13 +19,8 @@ import java.io.File
 import java.util.*
 
 
-class AudioAdapter(private val context: Context) :    RecyclerView.Adapter<AudioAdapter.AudioViewHolder>() {
-
-
-
-
-
-
+class AudioAdapter(private val context: Context) :
+    RecyclerView.Adapter<AudioAdapter.AudioViewHolder>() {
 
 
     private var listener: OnPlayStopButtonClickListener? = null
@@ -47,8 +43,14 @@ class AudioAdapter(private val context: Context) :    RecyclerView.Adapter<Audio
                     if (audio.localFileURl.isNotEmpty()) audio.localFileURl.split("/")[audio.localFileURl.split(
                         "/"
                     ).size - 1] else (audio.description)
+
+                var sText = audio.status
+                if (audio.uploadCount > 1) {
+                    sText += " (${audio.uploadCount})"
+                }
+
                 description.text = name
-                statusText.text = audio.status
+                statusText.text = sText
 
                 if (audio.localImageURl?.isNotEmpty() == true) {
                     val imageUrl = audio.localImageURl

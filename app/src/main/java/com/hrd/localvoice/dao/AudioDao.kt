@@ -33,7 +33,7 @@ interface AudioDao {
     @Query("SELECT * from $AUDIOS_TABLE WHERE status = '$UPLOAD_STATUS_PENDING' ORDER BY timestamp ASC")
     fun getPendingAudios(): List<Audio>
 
-    @Query("SELECT * from $AUDIOS_TABLE WHERE status = '$AUDIO_STATUS_UPLOADED' ORDER BY updatedAt ASC, timestamp ASC")
+    @Query("SELECT * from $AUDIOS_TABLE WHERE status = '$AUDIO_STATUS_UPLOADED' ORDER BY uploadCount ASC, timestamp ASC")
     fun getUploadedAudios(): List<Audio>
 
     @Query("SELECT * FROM $AUDIOS_TABLE WHERE id = :id")

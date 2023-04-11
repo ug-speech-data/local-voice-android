@@ -36,5 +36,5 @@ data class Audio(
     var sizeInBytes: Long? = null,
     var participantId: Long? = null,
     @PrimaryKey(autoGenerate = true) var id: Long = 0,
-    @ColumnInfo(defaultValue = "0") var updatedAt: Long = 0,
+    @ColumnInfo(defaultValue = "1") var uploadCount: Long = 0,
 ) : Parcelable, Serializable

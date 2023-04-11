@@ -18,8 +18,15 @@ import java.io.File
 import java.util.*
 
 
-class AudioAdapter(private val context: Context) :
-    RecyclerView.Adapter<AudioAdapter.AudioViewHolder>() {
+class AudioAdapter(private val context: Context) :    RecyclerView.Adapter<AudioAdapter.AudioViewHolder>() {
+
+
+
+
+
+
+
+
     private var listener: OnPlayStopButtonClickListener? = null
     private var dataset = listOf<Audio>()
 

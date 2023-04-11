@@ -10,7 +10,9 @@ interface ApiService {
     @FormUrlEncoded
     @POST("auth/login/")
     fun login(
-        @Field("email_address") emailAddress: String?, @Field("password") password: String?
+        @Field("email_address") emailAddress: String?,
+        @Field("password") password: String?,
+        @Field("device_id") deviceID: String?,
     ): Call<AuthenticationResponse?>?
 
     @FormUrlEncoded
@@ -22,7 +24,9 @@ interface ApiService {
     @FormUrlEncoded
     @POST("auth/register/")
     fun register(
-        @Field("email_address") emailAddress: String?, @Field("password") password: String?
+        @Field("email_address") emailAddress: String?,
+        @Field("password") password: String?,
+        @Field("device_id") deviceID: String?,
     ): Call<AuthenticationResponse?>?
 
     @FormUrlEncoded
@@ -49,6 +53,7 @@ interface ApiService {
         @Part audioDataBody: MultipartBody.Part?,
         @Part apiClient: MultipartBody.Part?,
         @Part participantDataBody: MultipartBody.Part?,
+        @Part reUpload: MultipartBody.Part? = null,
     ): Call<UploadResponse?>?
 
     @GET("get-mobile-app-configurations/")

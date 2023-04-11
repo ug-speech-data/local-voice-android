@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.hrd.localvoice.models.Audio
 import com.hrd.localvoice.utils.Constants.AUDIOS_TABLE
+import com.hrd.localvoice.utils.Constants.AUDIO_STATUS_UPLOADED
 import com.hrd.localvoice.utils.Constants.UPLOAD_STATUS_PENDING
 
 @Dao
@@ -31,6 +32,9 @@ interface AudioDao {
 
     @Query("SELECT * from $AUDIOS_TABLE WHERE status = '$UPLOAD_STATUS_PENDING' ORDER BY timestamp ASC")
     fun getPendingAudios(): List<Audio>
+
+    @Query("SELECT * from $AUDIOS_TABLE WHERE status = '$AUDIO_STATUS_UPLOADED' ORDER BY updatedAt ASC, timestamp ASC")
+    fun getUploadedAudios(): List<Audio>
 
     @Query("SELECT * FROM $AUDIOS_TABLE WHERE id = :id")
     fun getAudio(id: Long): LiveData<Audio>

@@ -7,6 +7,7 @@ import android.database.Cursor
 import android.net.Uri
 import android.os.Environment
 import android.provider.MediaStore
+import android.provider.Settings
 import android.util.Log
 import com.google.gson.Gson
 import com.hrd.localvoice.AppRoomDatabase
@@ -21,6 +22,7 @@ import com.hrd.localvoice.utils.Constants.USER_TOKEN
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+
 
 class Functions {
     companion object {
@@ -76,17 +78,6 @@ class Functions {
             }
         }
 
-        fun getPathFromUri(context: Context, uri: Uri): String? {
-            val projection = arrayOf(MediaStore.Images.Media.DATA)
-            val cursor: Cursor =
-                context.contentResolver.query(uri, projection, null, null, null) ?: return null
-            val columnIndex: Int = cursor.getColumnIndex(MediaStore.Images.Media.DATA)
-            cursor.moveToFirst()
-            val s: String = cursor.getString(columnIndex)
-            cursor.close()
-            return s
-        }
-
         fun syncUploadedAudios(context: Context) {
             val database: AppRoomDatabase? = AppRoomDatabase.INSTANCE
             val apiService = RestApiFactory.create(context)
@@ -102,8 +93,8 @@ class Functions {
                             val fileName = audio.file.split("/")[audio.file.split("/").size - 1]
                             val image = database?.ImageDao()?.getImage(audio.remoteImageId)
                             if (database?.AudioDao()?.checkAudioWithFileNameExists(
-                                        "%${fileName}%", audio.id
-                                    ) != true && image != null
+                                    "%${fileName}%", audio.id
+                                ) != true && image != null
                             ) {
                                 val newAudio = Audio(
                                     userId = user!!.id,
@@ -130,6 +121,10 @@ class Functions {
                     t.message.toString().let { Log.e("Function", it) }
                 }
             })
+        }
+
+        fun getUniquePseudoID(context: Context): String {
+            return Settings.Secure.ANDROID_ID
         }
     }
 

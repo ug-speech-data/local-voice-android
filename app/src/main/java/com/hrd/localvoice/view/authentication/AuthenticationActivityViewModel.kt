@@ -15,6 +15,7 @@ import com.hrd.localvoice.network.response_models.AuthenticationResponse
 import com.hrd.localvoice.utils.Constants.IS_NEW_USER
 import com.hrd.localvoice.utils.Constants.SHARED_PREFS_FILE
 import com.hrd.localvoice.utils.Constants.USER_TOKEN
+import com.hrd.localvoice.utils.Functions.Companion.getUniquePseudoID
 import com.hrd.localvoice.utils.Functions.Companion.removeUserToken
 import retrofit2.Call
 import retrofit2.Callback
@@ -38,7 +39,8 @@ class AuthenticationActivityViewModel(application: Application) : AndroidViewMod
 
     fun login(emailAddress: String, password: String) {
         isLoading.value = true
-        apiService?.login(emailAddress, password)
+        val deviceId = getUniquePseudoID(context)
+        apiService?.login(emailAddress, password, deviceId)
             ?.enqueue(object : Callback<AuthenticationResponse?> {
                 override fun onResponse(
                     call: Call<AuthenticationResponse?>,
@@ -91,7 +93,8 @@ class AuthenticationActivityViewModel(application: Application) : AndroidViewMod
         password: String
     ) {
         isLoading.value = true
-        apiService?.register(emailAddress, password)
+        val deviceId = getUniquePseudoID(context)
+        apiService?.register(emailAddress, password, deviceId)
             ?.enqueue(object : Callback<AuthenticationResponse?> {
                 override fun onResponse(
                     call: Call<AuthenticationResponse?>,

@@ -8,6 +8,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.ImageView
 import android.widget.ProgressBar
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -21,6 +22,7 @@ import com.hrd.localvoice.adapters.AudioAdapter
 import com.hrd.localvoice.databinding.ActivityMyAudiosBinding
 import com.hrd.localvoice.databinding.PlayBackBottomSheetDialogLayoutBinding
 import com.hrd.localvoice.models.Audio
+import com.hrd.localvoice.workers.ForceUploadWorker
 import com.hrd.localvoice.workers.UploadWorker
 import java.io.File
 import java.io.IOException
@@ -80,9 +82,10 @@ class MyAudiosActivity : AppCompatActivity() {
                 }
 
                 dialogBinding.audioEnvironmentLabel.text = audio.environment
-                dialogBinding.audioNameLabel.text = if (audio.localFileURl.isNotEmpty()) audio.localFileURl.split("/")[audio.localFileURl.split(
-                    "/"
-                ).size - 1] else (audio.description)
+                dialogBinding.audioNameLabel.text =
+                    if (audio.localFileURl.isNotEmpty()) audio.localFileURl.split("/")[audio.localFileURl.split(
+                        "/"
+                    ).size - 1] else (audio.description)
 
                 if (audio.participantId != null) {
                     viewModel.getParticipant(audio.participantId!!)
@@ -207,6 +210,19 @@ class MyAudiosActivity : AppCompatActivity() {
                 workManager.enqueueUniquePeriodicWork(
                     "AudioUploadWorker", ExistingPeriodicWorkPolicy.REPLACE, uploadWorker
                 )
+            }
+            R.id.action_reupload_audios -> {
+                // Schedule on-time work
+                val constraints = Constraints.Builder().apply {
+                    setRequiredNetworkType(NetworkType.CONNECTED)
+                }.build()
+                val workManager = WorkManager.getInstance(application)
+                val workRequest =
+                    OneTimeWorkRequestBuilder<ForceUploadWorker>().setConstraints(
+                        constraints
+                    ).build()
+                workManager.enqueue(workRequest)
+                Toast.makeText(this, "Scheduled force upload.", Toast.LENGTH_LONG).show()
             }
             android.R.id.home -> finish()
         }

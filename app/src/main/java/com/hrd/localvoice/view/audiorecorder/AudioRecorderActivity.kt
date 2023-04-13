@@ -485,7 +485,8 @@ class AudioRecorderActivity : AppCompatActivity() {
 
         val currentImage = availableImages[index.mod(availableImages.size)]
         val options: RequestOptions =
-            RequestOptions().fitCenter().placeholder(R.mipmap.loading).error(R.mipmap.loading)
+            RequestOptions().fitCenter().placeholder(R.drawable.placeholder)
+                .error(R.drawable.placeholder)
         val imageUrl =
             if (currentImage.localURl != null) currentImage.localURl else currentImage.remoteURL
         Glide.with(this).load(imageUrl).apply(options)
@@ -496,7 +497,6 @@ class AudioRecorderActivity : AppCompatActivity() {
         binding.imageCategory.text = currentImage.category
     }
 
-    @RequiresApi(Build.VERSION_CODES.M)
     private fun permissionsDenied(): Boolean {
         for (permission in permissions) {
             if (checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
@@ -506,7 +506,6 @@ class AudioRecorderActivity : AppCompatActivity() {
         return false
     }
 
-    @RequiresApi(Build.VERSION_CODES.M)
     override fun onRequestPermissionsResult(
         requestCode: Int, permissions: Array<String?>, grantResults: IntArray
     ) {

@@ -115,7 +115,8 @@ class AudioValidationActivity : AppCompatActivity() {
             // Load images
             val imageUrl = audio.imageURL
             val options: RequestOptions =
-                RequestOptions().fitCenter().placeholder(R.mipmap.loading).error(R.mipmap.loading)
+                RequestOptions().fitCenter().placeholder(R.drawable.placeholder)
+                    .error(R.drawable.placeholder)
             Glide.with(this).load(imageUrl).apply(options)
                 .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC).into(binding.imageView)
 

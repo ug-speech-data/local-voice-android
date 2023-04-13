@@ -154,4 +154,9 @@
     <string name="audios_you_validated">Audios You Validated</string>
     <string name="force_re_upload">Force re-upload all </string>
     <string name="upload_as_duplicate">Upload as duplicate</string>
+    <string name="dagaare">Dagaare</string>
+    <string name="dagbani">Dagbani</string>
+    <string name="ikposo">Ikposo</string>
+    <string name="ewe">Ewe</string>
+    <string name="akan">Akan</string>
 </resources>

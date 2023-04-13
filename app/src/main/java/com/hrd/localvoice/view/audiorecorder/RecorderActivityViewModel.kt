@@ -15,10 +15,6 @@ class RecorderActivityViewModel(application: Application) : AndroidViewModel(app
     val user: LiveData<User?>?
         get() = repository.user
 
-    fun insertAudio(audio: Audio) {
-        repository.insertAudio(audio)
-    }
-
     fun getImages(excludes: List<Long>): LiveData<List<Image>>? {
         return repository.getAssignedImages(excludes)
     }

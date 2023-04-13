@@ -58,11 +58,12 @@
                         android:layout_margin="2dp"
                         android:background="?attr/selectableItemBackground"
                         android:padding="10dp"
-                        android:src="@drawable/baseline_refresh_24" />
+                        android:src="@drawable/baseline_refresh_24"
+                        app:tint="@color/gray_600" />
                 </LinearLayout>
 
                 <HorizontalScrollView
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content">
 
                     <LinearLayout
@@ -74,6 +75,7 @@
                             android:layout_width="100dp"
                             android:layout_height="120dp"
                             android:layout_margin="10dp"
+                            android:layout_weight="1"
                             app:cardCornerRadius="10dp">
 
                             <LinearLayout
@@ -88,10 +90,10 @@
                                     android:layout_height="wrap_content"
                                     android:lines="1"
                                     android:padding="5dp"
-                                    tools:text="0"
                                     android:textAlignment="center"
                                     android:textSize="30sp"
-                                    android:textStyle="bold" />
+                                    android:textStyle="bold"
+                                    tools:text="0" />
 
                                 <TextView
                                     android:layout_width="match_parent"
@@ -106,6 +108,7 @@
                             android:layout_width="100dp"
                             android:layout_height="120dp"
                             android:layout_margin="10dp"
+                            android:layout_weight="1"
                             app:cardCornerRadius="10dp">
 
                             <LinearLayout
@@ -120,10 +123,10 @@
                                     android:layout_height="wrap_content"
                                     android:lines="1"
                                     android:padding="5dp"
-                                    tools:text="34"
                                     android:textAlignment="center"
                                     android:textSize="30sp"
-                                    android:textStyle="bold" />
+                                    android:textStyle="bold"
+                                    tools:text="34" />
 
                                 <TextView
                                     android:layout_width="match_parent"
@@ -139,6 +142,7 @@
                             android:layout_width="100dp"
                             android:layout_height="120dp"
                             android:layout_margin="10dp"
+                            android:layout_weight="1"
                             app:cardCornerRadius="10dp">
 
                             <LinearLayout
@@ -171,6 +175,7 @@
                             android:layout_width="100dp"
                             android:layout_height="120dp"
                             android:layout_margin="10dp"
+                            android:layout_weight="1"
                             app:cardCornerRadius="10dp">
 
                             <LinearLayout
@@ -203,6 +208,7 @@
                             android:layout_width="100dp"
                             android:layout_height="120dp"
                             android:layout_margin="10dp"
+                            android:layout_weight="1"
                             app:cardCornerRadius="10dp">
 
                             <LinearLayout

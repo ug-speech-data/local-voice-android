@@ -1,6 +1,7 @@
 package com.hrd.localvoice.view.validations
 
 import android.app.Application
+import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -12,12 +13,12 @@ import com.hrd.localvoice.models.User
 import com.hrd.localvoice.network.RestApiFactory
 import com.hrd.localvoice.network.response_models.AudioValidationResponse
 import com.hrd.localvoice.network.response_models.UploadedAudioResponse
-import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
 class ValidationActivityViewModel(application: Application) : AndroidViewModel(application) {
+    private val tag = "ValidationActivityViewModel"
     private val repository: DataRepository = DataRepository(application)
     private val apiService = RestApiFactory.create(application);
     val errorMessage = MutableLiveData<String>()
@@ -48,8 +49,9 @@ class ValidationActivityViewModel(application: Application) : AndroidViewModel(a
             }
 
             override fun onFailure(call: Call<UploadedAudioResponse?>, t: Throwable) {
-                errorMessage.value = t.message
+                errorMessage.value = "Couldn't connect to server."
                 isLoading.value = false
+                Log.e(tag, "onFailure: ${t.message}")
             }
         })
     }
@@ -62,15 +64,16 @@ class ValidationActivityViewModel(application: Application) : AndroidViewModel(a
             ) {
                 validationSuccess.value = response.body()?.message != null
                 isLoading.value = false
-                if(response.body()?.message != null) {
+                if (response.body()?.message != null) {
                     Toast.makeText(context, response.body()?.message, Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onFailure(call: Call<AudioValidationResponse?>, t: Throwable) {
-                errorMessage.value = t.message
+                errorMessage.value = "Couldn't connect to server."
                 isLoading.value = false
                 validationSuccess.value = false
+                Log.e(tag, "onFailure: ${t.message}")
             }
         })
     }

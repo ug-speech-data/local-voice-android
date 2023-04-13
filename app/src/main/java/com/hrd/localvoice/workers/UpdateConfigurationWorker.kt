@@ -114,12 +114,6 @@ class UpdateConfigurationWorker(
                             }
                         }
                     }
-                } else {
-                    Toast.makeText(
-                        context,
-                        "Configurations are not found: ${response.message()}",
-                        Toast.LENGTH_LONG
-                    ).show()
                 }
             }
 
@@ -146,9 +140,7 @@ class UpdateConfigurationWorker(
             }
 
             override fun onFailure(call: Call<AuthenticationResponse?>, t: Throwable) {
-                Toast.makeText(
-                    context, "Couldn't update profile: ${t.message}", Toast.LENGTH_LONG
-                ).show()
+                Log.e(tag, "onFailure: ${t.message}")
             }
         })
         return Result.success()

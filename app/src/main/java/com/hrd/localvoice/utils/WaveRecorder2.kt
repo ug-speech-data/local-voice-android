@@ -16,10 +16,8 @@ import java.io.IOException
 import kotlin.math.abs
 
 
-class WaveRecorder(private var context: Context) {
+class WaveRecorder2(private var context: Context, private var saveData: Boolean = false) {
     private val audioSampleRate = 44100
-    private var continueRecording = true
-    private var isRecording = false
     private val recorderChannel = AudioFormat.CHANNEL_IN_STEREO
     private val channelCount = 2;
     private val audioEncoding = AudioFormat.ENCODING_PCM_16BIT
@@ -33,11 +31,136 @@ class WaveRecorder(private var context: Context) {
     var maxContinuousSilentDurationInSeconds = 0.0f
     private val voiceAmplitude = 350.0f
     private lateinit var finalAudioBuffer: ByteArray
-    private var saveRecordingIntoTempFile = true
+    var recorderState: Int? = null
 
-    constructor(context: Context, saveRecordingIntoTempFile: Boolean) : this(context) {
-        this.saveRecordingIntoTempFile = saveRecordingIntoTempFile
+    init {
+        startRecordingThread()
     }
+
+    private fun startRecordingThread() {
+        val recordingThread = Thread {
+            // Get the minimum buffer size required for the successful creation of an AudioRecord object.
+            val minBufferSize = AudioRecord.getMinBufferSize(
+                audioSampleRate, recorderChannel, audioEncoding
+            )
+
+            if (ActivityCompat.checkSelfPermission(
+                    context, Manifest.permission.RECORD_AUDIO
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                return@Thread
+            }
+
+            audioRecorder = AudioRecord(
+                MediaRecorder.AudioSource.MIC,
+                audioSampleRate,
+                recorderChannel,
+                audioEncoding,
+                minBufferSize
+            )
+            recorderState = audioRecorder?.state
+            if (recorderState != AudioRecord.STATE_INITIALIZED) {
+                Log.e(TAG, "Can't initialise recorder.")
+                return@Thread
+            }
+
+            // Start Recording.
+            audioRecorder?.startRecording()
+            maxContinuousSilentDurationInSeconds = 0F
+            averageAmplitude = 0F
+
+            val totalAllocatedAudioByte = 15000000 // 15MB max
+            val readAudioBuffer = ByteArray(minBufferSize)
+            var totalAudioData = ByteArray(totalAllocatedAudioByte)
+            var totalReadBytes = 0
+            var isVoiceDetected = false
+            var currentContinuousSilentPeriods = 0f
+
+            // Used for sample analysis.
+            val tempFloatBuffer = FloatArray(3)
+            var tempIndex = 0
+
+            // While data come from microphone.
+            while (audioRecorder != null) {
+                val numberOfReadBytes = audioRecorder?.read(readAudioBuffer, 0, minBufferSize)
+                if (numberOfReadBytes == null) {
+                    Log.d(TAG, "startRecordingThread: Couldn't initialise recorder.")
+                    break
+                }
+
+                // Analyse audio and if a good candidate, do these
+                var totalAbsValue = 0.0f
+                var i = 0
+                while (i < numberOfReadBytes) {
+                    val sample =
+                        (readAudioBuffer[i].toInt() or (readAudioBuffer[i + 1].toInt() shl 8)).toShort()
+                    totalAbsValue += abs(sample.toInt()) / (numberOfReadBytes / 2.0f)
+                    i += 2
+                }
+
+                // Analyze temp buffer.
+                tempFloatBuffer[tempIndex % tempFloatBuffer.size] = totalAbsValue
+                var averageAmp = 0.0f
+                for (v in tempFloatBuffer) {
+                    averageAmp += v
+                }
+                // Update recorder's current average amplitude
+                averageAmplitude = averageAmp
+
+                tempIndex++
+                audioDurationInSeconds =
+                    (totalReadBytes / (audioSampleRate * channelCount * bitsPerSample / 8f))
+
+                if (saveData) {
+                    isVoiceDetected = averageAmp >= voiceAmplitude || isVoiceDetected
+                    // Calculate the duration of silent periods
+                    if (isVoiceDetected && averageAmp < voiceAmplitude) {
+                        currentContinuousSilentPeriods += numberOfReadBytes / (audioSampleRate * channelCount * bitsPerSample / 8f)
+                    } else {
+                        currentContinuousSilentPeriods = 0f
+                    }
+
+                    // Compare duration of silent periods
+                    maxContinuousSilentDurationInSeconds =
+                        maxContinuousSilentDurationInSeconds.coerceAtLeast(
+                            currentContinuousSilentPeriods
+                        )
+
+                    // Save read buffer into RAM
+                    if (isVoiceDetected && numberOfReadBytes >= 0) {
+                        System.arraycopy(
+                            readAudioBuffer, 0, totalAudioData, totalReadBytes, numberOfReadBytes
+                        )
+                        totalReadBytes += numberOfReadBytes
+                    }
+                    if (totalReadBytes >= totalAllocatedAudioByte) {
+                        break
+                    }
+                } else if (totalReadBytes > 0) {
+                    finalAudioBuffer = ByteArray(44 + totalReadBytes)
+                    val byteRate = (bitsPerSample * audioSampleRate * recorderChannel / 8).toLong()
+                    constructWaveHeader(
+                        totalReadBytes.toLong(),
+                        (totalReadBytes + 36).toLong(),
+                        audioSampleRate.toLong(),
+                        channelCount.toByte(),
+                        byteRate,
+                        finalAudioBuffer
+                    )
+                    System.arraycopy(totalAudioData, 0, finalAudioBuffer, 44, totalReadBytes)
+                    saveIntoSaveFile(finalAudioBuffer, null)
+
+                    // Reset values
+                    totalReadBytes = 0
+                    totalAudioData = ByteArray(totalAllocatedAudioByte)
+                    maxContinuousSilentDurationInSeconds = 0F
+                    isVoiceDetected = false
+                }
+            }
+        }
+        recordingThread.start()
+    }
+
 
     fun playBackRecording() {
         val fileName = File(context.filesDir, "temp.wav").absolutePath
@@ -67,18 +190,17 @@ class WaveRecorder(private var context: Context) {
     }
 
     fun stopRecording() {
-        continueRecording = false
+        saveData = false
+        maxContinuousSilentDurationInSeconds = 0.0f
     }
 
     fun reset() {
         audioDurationInSeconds = 0.0f
         maxContinuousSilentDurationInSeconds = 0.0f
-        audioRecorder?.stop()
-        audioRecorder?.release()
     }
 
     fun isRecording(): Boolean {
-        return isRecording
+        return saveData
     }
 
     fun stopPlayback() {
@@ -86,124 +208,8 @@ class WaveRecorder(private var context: Context) {
     }
 
     fun startRecording() {
-        isRecording = true
-        val recordingThread = Thread {
-            continueRecording = true
-            // Get the minimum buffer size required for the successful creation of an AudioRecord object.
-            val minBufferSize = AudioRecord.getMinBufferSize(
-                audioSampleRate, recorderChannel, audioEncoding
-            )
-
-            if (ActivityCompat.checkSelfPermission(
-                    context, Manifest.permission.RECORD_AUDIO
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                return@Thread
-            }
-
-            audioRecorder = AudioRecord(
-                MediaRecorder.AudioSource.MIC,
-                audioSampleRate,
-                recorderChannel,
-                audioEncoding,
-                minBufferSize
-            )
-            if (audioRecorder?.state != AudioRecord.STATE_INITIALIZED) {
-                Log.e(TAG, "Can't initialise recorder.")
-                return@Thread
-            }
-
-            // Start Recording.
-            audioRecorder?.startRecording()
-            maxContinuousSilentDurationInSeconds = 0F
-            averageAmplitude = 0F
-
-            val totalAllocatedAudioByte = 15000000 // 15MB max
-            val readAudioBuffer = ByteArray(minBufferSize)
-            val totalAudioData =
-                if (saveRecordingIntoTempFile) ByteArray(totalAllocatedAudioByte) else ByteArray(0)
-            var totalReadBytes = 0
-            var isVoiceDetected = false
-            var currentContinuousSilentPeriods = 0f
-
-            // Used for sample analysis.
-            val tempFloatBuffer = FloatArray(3)
-            var tempIndex = 0
-
-            // While data come from microphone.
-            while (continueRecording && audioRecorder != null) {
-                val numberOfReadBytes = audioRecorder!!.read(readAudioBuffer, 0, minBufferSize)
-
-                // Analyse audio and if a good candidate, do these
-                var totalAbsValue = 0.0f
-                var i = 0
-                while (i < numberOfReadBytes) {
-                    val sample =
-                        (readAudioBuffer[i].toInt() or (readAudioBuffer[i + 1].toInt() shl 8)).toShort()
-                    totalAbsValue += abs(sample.toInt()) / (numberOfReadBytes / 2.0f)
-                    i += 2
-                }
-
-                // Analyze temp buffer.
-                tempFloatBuffer[tempIndex % tempFloatBuffer.size] = totalAbsValue
-                var averageAmp = 0.0f
-                for (v in tempFloatBuffer) averageAmp += v
-                isVoiceDetected = averageAmp >= voiceAmplitude || isVoiceDetected
-
-                // Update recorder's current average amplitude
-                averageAmplitude = averageAmp
-
-                // Calculate the duration of silent periods
-                if (isVoiceDetected && averageAmp < voiceAmplitude) {
-                    currentContinuousSilentPeriods += numberOfReadBytes / (audioSampleRate * channelCount * bitsPerSample / 8f)
-                } else {
-                    currentContinuousSilentPeriods = 0f
-                }
-
-                // Compare duration of silent periods
-                maxContinuousSilentDurationInSeconds =
-                    maxContinuousSilentDurationInSeconds.coerceAtLeast(
-                        currentContinuousSilentPeriods
-                    )
-
-                tempIndex++
-                audioDurationInSeconds =
-                    (totalReadBytes / (audioSampleRate * channelCount * bitsPerSample / 8f))
-
-                if (saveRecordingIntoTempFile) {
-                    // Save read buffer into RAM
-                    if (isVoiceDetected && numberOfReadBytes >= 0) {
-                        System.arraycopy(
-                            readAudioBuffer, 0, totalAudioData, totalReadBytes, numberOfReadBytes
-                        )
-                        totalReadBytes += numberOfReadBytes
-                    }
-                    if (totalReadBytes >= totalAllocatedAudioByte) {
-                        break
-                    }
-                }
-            }
-
-            // Stop recorder
-            audioRecorder?.stop()
-            isRecording = false
-
-            if (saveRecordingIntoTempFile) {
-                finalAudioBuffer = ByteArray(44 + totalReadBytes)
-                val byteRate = (bitsPerSample * audioSampleRate * recorderChannel / 8).toLong()
-                constructWaveHeader(
-                    totalReadBytes.toLong(),
-                    (totalReadBytes + 36).toLong(),
-                    audioSampleRate.toLong(),
-                    channelCount.toByte(),
-                    byteRate,
-                    finalAudioBuffer
-                )
-                System.arraycopy(totalAudioData, 0, finalAudioBuffer, 44, totalReadBytes)
-                saveIntoSaveFile(finalAudioBuffer, null)
-            }
-        }
-        recordingThread.start()
+        saveData = true
+        maxContinuousSilentDurationInSeconds = 0.0f
     }
 
     private fun constructWaveHeader(
@@ -314,5 +320,4 @@ class WaveRecorder(private var context: Context) {
         audioRecorder = null
         mediaPlayer = null
     }
-
 }

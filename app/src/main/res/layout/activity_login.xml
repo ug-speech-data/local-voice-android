@@ -8,7 +8,7 @@
     android:layout_height="match_parent">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="300dp"
+        android:layout_width="340dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:orientation="vertical"
@@ -28,7 +28,7 @@
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:contentDescription="@string/app_logo"
-                android:foregroundTint="@color/gray_600"
+                android:foregroundTint="@color/text_color"
                 android:src="@mipmap/ic_launcher"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -66,7 +66,7 @@
                     android:drawableStart="@drawable/baseline_email_24"
                     android:drawableLeft="@drawable/baseline_email_24"
                     android:drawablePadding="10dp"
-                    android:drawableTint="@color/gray_600"
+                    android:drawableTint="@color/text_color"
                     android:hint="@string/email_address"
                     android:inputType="textEmailAddress"
                     android:padding="10dp" />
@@ -85,7 +85,7 @@
                         android:layout_weight="1"
                         android:drawableStart="@drawable/ic_baseline_lock_24"
                         android:drawablePadding="10dp"
-                        android:drawableTint="@color/gray_600"
+                        android:drawableTint="@color/text_color"
                         android:hint="@string/password"
                         android:inputType="textPassword"
                         android:padding="10dp" />
@@ -97,7 +97,7 @@
                         android:layout_gravity="center_vertical"
                         android:layout_weight="9"
                         android:background="@drawable/ic_baseline_remove_red_eye_24"
-                        android:backgroundTint="@color/gray_600"
+                        android:backgroundTint="@color/text_color"
                         android:clickable="true"
                         android:contentDescription="@string/toggle_password_visibility"
                         android:focusable="true"

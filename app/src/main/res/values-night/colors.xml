@@ -4,5 +4,6 @@
     <color name="purple_500">#FF6200EE</color>
     <color name="purple_700">#9D8CC5</color>
     <color name="teal_200">#FF03DAC5</color>
+    <color name="text_color">#FFEEEEEE</color>
 </resources>
 

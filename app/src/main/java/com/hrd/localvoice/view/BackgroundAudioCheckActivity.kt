@@ -4,11 +4,9 @@ import android.Manifest
 import android.app.ActivityManager
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import com.hrd.localvoice.AppRoomDatabase
 import com.hrd.localvoice.R
@@ -92,7 +90,6 @@ class BackgroundAudioCheckActivity : AppCompatActivity() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.M)
     private fun permissionsDenied(): Boolean {
         for (permission in permissions) {
             if (checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
@@ -102,7 +99,6 @@ class BackgroundAudioCheckActivity : AppCompatActivity() {
         return false
     }
 
-    @RequiresApi(Build.VERSION_CODES.M)
     override fun onRequestPermissionsResult(
         requestCode: Int, permissions: Array<String?>, grantResults: IntArray
     ) {
@@ -116,8 +112,14 @@ class BackgroundAudioCheckActivity : AppCompatActivity() {
         }
     }
 
-    override fun onStop() {
-        super.onStop()
+    override fun onResume() {
+        super.onResume()
+        recorder = WaveRecorder(this, false)
+        recorder.startRecording()
+    }
+
+    override fun onPause() {
+        super.onPause()
         recorder.release()
     }
 

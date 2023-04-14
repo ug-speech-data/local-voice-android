@@ -9,6 +9,14 @@ android {
     namespace 'com.hrd.localvoice'
     compileSdk 33
 
+    Properties properties = new Properties()
+    properties.load(project.rootProject.file("local.properties").newDataInputStream())
+
+    defaultConfig {
+        resValue "string", "test_base_api_url", properties.getProperty("test.base.api.url", "https://sdapi.ugspeechdata.com/api/")
+        resValue "string", "live_base_api_url", properties.getProperty("live.base.api.url", "https://sdapi.ugspeechdata.com/api/")
+    }
+
     defaultConfig {
         applicationId "com.hrd.localvoice"
         minSdk 24

@@ -10,6 +10,8 @@
         android:layout_width="400dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginVertical="20dp"
         android:orientation="vertical">
 
         <ImageView
@@ -384,6 +386,7 @@
                         android:id="@+id/update_button"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="80dp"
                         android:gravity="center_horizontal"
                         android:text="@string/update"
                         app:layout_constraintEnd_toStartOf="parent"

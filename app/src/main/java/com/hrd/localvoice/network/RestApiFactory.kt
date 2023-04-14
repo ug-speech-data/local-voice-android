@@ -2,8 +2,7 @@ package com.hrd.localvoice.network
 
 import android.content.Context
 import com.hrd.localvoice.BuildConfig
-import com.hrd.localvoice.utils.Constants.LIVE_BASE_API_URL
-import com.hrd.localvoice.utils.Constants.TEST_BASE_API_URL
+import com.hrd.localvoice.R
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -11,15 +10,16 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 class RestApiFactory {
     companion object {
-        fun create(context: Context?): ApiService? {
+        fun create(context: Context): ApiService? {
             // Setting up request interceptor.
             val headerInterceptor = HeaderInterceptor(context)
             val okHttpClient = OkHttpClient()
                 .newBuilder().addInterceptor(headerInterceptor)
                 .build()
-            var baseUrl: String = TEST_BASE_API_URL
+
+            var baseUrl: String = context.getString(R.string.test_base_api_url)
             if (!BuildConfig.DEBUG) {
-                baseUrl = LIVE_BASE_API_URL
+                baseUrl = context.getString(R.string.live_base_api_url)
             }
             val retrofit = Retrofit.Builder()
                 .client(okHttpClient)

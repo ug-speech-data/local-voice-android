@@ -21,7 +21,6 @@ import com.hrd.localvoice.fragments.PrivacyPolicyBottomSheet
 import com.hrd.localvoice.models.Configuration
 import com.hrd.localvoice.models.Participant
 import com.hrd.localvoice.utils.Constants
-import com.hrd.localvoice.view.BackgroundAudioCheckActivity
 import com.hrd.localvoice.view.videoplayer.VideoPlayerActivity
 
 
@@ -165,7 +164,7 @@ class ParticipantBioActivity : AppCompatActivity() {
                         .apply()
 
                     // Launch background check
-                    val intent = Intent(this, BackgroundAudioCheckActivity::class.java)
+                    val intent = Intent(this, VideoPlayerActivity::class.java)
                     startActivity(intent)
                     finish()
                 }
@@ -198,7 +197,7 @@ class ParticipantBioActivity : AppCompatActivity() {
                                 ?.deleteParticipant(previousParticipant!!)
                         }
                     }
-                } else{
+                } else {
                     recreate()
                 }
             }

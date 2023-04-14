@@ -9,6 +9,7 @@ import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -48,6 +49,7 @@ class AudioRecorderActivity : AppCompatActivity() {
     private var requiredAudioDuration = 15
     private var allowedPauseDuration = 3
     private var configuration: Configuration? = null
+    private var amplitudeLevelThread: Thread? = null
 
     private var backgroundNoiseCheckDurationInSec = 3
     private var maxBackgroundNoiseLevel = 350
@@ -163,34 +165,43 @@ class AudioRecorderActivity : AppCompatActivity() {
         }
     }
 
-    private val monitorBackgroundNoise = Runnable {
-        var duration = 0
-        while (true) {
+    private val amplitudeLeveRunnable = Runnable {
+        var recordedSilentDuration = 0
+        while (!Thread.currentThread().isInterrupted) {
+            Log.d(
+                tag,
+                ": amplitudeLeveRunnable ${Thread.currentThread().isInterrupted}: ${Thread.currentThread().name}"
+            )
+
             runOnUiThread {
                 val percentage = (waveRecorder2.averageAmplitude / 1500 * 100).toInt()
                 binding.progressBar.progress = percentage
             }
 
             if (waveRecorder2.averageAmplitude < maxBackgroundNoiseLevel) {
-                duration++
+                recordedSilentDuration++
             } else {
-                duration = 0
+                recordedSilentDuration = 0
             }
 
             // If the background is silent for 3 seconds, enable continue button.
             runOnUiThread {
                 if (!waveRecorder2.isRecording()) {
                     binding.startStopButton.isEnabled =
-                        duration >= 10 * backgroundNoiseCheckDurationInSec
+                        recordedSilentDuration >= 10 * backgroundNoiseCheckDurationInSec
 
-                    if (duration >= 10 * backgroundNoiseCheckDurationInSec) {
+                    if (recordedSilentDuration >= 10 * backgroundNoiseCheckDurationInSec) {
                         binding.startStopButton.text = "Start"
                     } else {
                         binding.startStopButton.text = "Too Noisy"
                     }
                 }
             }
-            Thread.sleep(100)
+            try {
+                Thread.sleep(100)
+            } catch (_: InterruptedException) {
+                break
+            }
         }
     }
 
@@ -510,12 +521,19 @@ class AudioRecorderActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        waveRecorder2 = WaveRecorder2(this, false)
-        Thread(monitorBackgroundNoise).start()
+        amplitudeLevelThread?.interrupt()
+
+        amplitudeLevelThread = Thread(amplitudeLeveRunnable)
+        amplitudeLevelThread?.start()
     }
 
     override fun onPause() {
         super.onPause()
+        amplitudeLevelThread?.interrupt()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
         waveRecorder2.release()
     }
 }

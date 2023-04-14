@@ -212,6 +212,10 @@ class WaveRecorder2(private var context: Context, private var saveData: Boolean 
         maxContinuousSilentDurationInSeconds = 0.0f
     }
 
+    fun isActive(): Boolean {
+        return audioRecorder != null
+    }
+
     private fun constructWaveHeader(
         totalAudioLen: Long,
         totalDataLen: Long,
@@ -315,6 +319,8 @@ class WaveRecorder2(private var context: Context, private var saveData: Boolean 
     }
 
     fun release() {
+        mediaPlayer?.stop()
+        audioRecorder?.stop()
         mediaPlayer?.release()
         audioRecorder?.release()
         audioRecorder = null

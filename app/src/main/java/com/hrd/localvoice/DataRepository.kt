@@ -20,9 +20,18 @@ class DataRepository(application: Application) {
     private val configurationDao: ConfigurationDao?
     private val imageDao: ImageDao?
     private val userDao: UserDao?
+    private val validationAudioDao: ValidationAudioDao?
 
     fun getAssignedImages(excludes: List<Long>): LiveData<List<Image>>? {
         return imageDao?.getImagesLive(excludes)
+    }
+
+    fun getValidationAudios(): LiveData<List<ValidationAudio>>? {
+        return validationAudioDao?.getValidationAudios()
+    }
+
+    fun getPendingAudioValidations(): LiveData<List<ValidationAudio>>? {
+        return validationAudioDao?.getPendingAudioValidations()
     }
 
     fun getImages(): LiveData<List<Image>>? {
@@ -87,6 +96,7 @@ class DataRepository(application: Application) {
         imageDao = db?.ImageDao()
         configurationDao = db?.ConfigurationDao()
         userDao = db?.UserDao()
+        validationAudioDao = db?.ValidationAudioDao()
 
         audios = audioDao?.getAudios()
         participants = participantDao?.getParticipants()

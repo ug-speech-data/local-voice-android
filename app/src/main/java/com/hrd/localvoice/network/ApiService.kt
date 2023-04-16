@@ -65,6 +65,9 @@ interface ApiService {
     @GET("get-assigned-images/")
     fun getAssignedImages(): Call<ImagesResponse?>?
 
+    @GET("get-assigned-audios-to-validate/")
+    fun getAssignedAudios(@Query("completed") completed: Boolean = false): Call<ValidationAudiosResponse?>?
+
     @GET("get-uploaded-audios/")
     fun getUploadedAudios(): Call<AudiosResponse?>?
 

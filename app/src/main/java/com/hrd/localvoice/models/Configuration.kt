@@ -29,4 +29,7 @@ data class Configuration(
     @SerializedName("max_audio_validation_per_user") @ColumnInfo(defaultValue = "0") var maxAudioValidationPerUser: Int? = 0,
 
     @SerializedName("max_background_noise_level") @ColumnInfo(defaultValue = "350") var maximumBackgroundNoiseLevel: Int? = 350,
-) : Parcelable
+
+    @SerializedName("hours_to_keep_audios_for_validation") @ColumnInfo(defaultValue = "12") var hoursToKeepAudiosForValidation: Int? = 12,
+
+    ) : Parcelable

@@ -18,7 +18,6 @@ import com.hrd.localvoice.BuildConfig
 import com.hrd.localvoice.R
 import com.hrd.localvoice.databinding.ActivityMainBinding
 import com.hrd.localvoice.models.User
-import com.hrd.localvoice.utils.AudioUtil
 import com.hrd.localvoice.utils.Constants
 import com.hrd.localvoice.utils.Constants.SHARED_PREFS_FILE
 import com.hrd.localvoice.view.authentication.LoginActivity
@@ -27,7 +26,7 @@ import com.hrd.localvoice.view.configurations.ConfigurationActivity
 import com.hrd.localvoice.view.local_files.MyAudiosActivity
 import com.hrd.localvoice.view.local_files.MyImagesActivity
 import com.hrd.localvoice.view.participants.ParticipantBioActivity
-import com.hrd.localvoice.view.validations.AudioValidationActivity
+import com.hrd.localvoice.view.validations.AssignedAudiosActivity
 import com.hrd.localvoice.view.videoplayer.VideoPlayerActivity
 import com.hrd.localvoice.workers.UpdateAssignedImagesWorker
 import com.hrd.localvoice.workers.UpdateConfigurationWorker
@@ -78,7 +77,6 @@ class MainActivity : AppCompatActivity() {
                         binding.audiosRejectedView.text = user?.audiosRejected.toString()
 
                         binding.audiosAcceptedView.text = user?.audiosAccepted.toString()
-
 
                         binding.balanceDeductionView.text = getString(
                             R.string.balance_deduction, user?.estimatedDeductionAmount.toString()
@@ -153,7 +151,7 @@ class MainActivity : AppCompatActivity() {
 
         // Open audio validation activity
         binding.audioValidationCard.setOnClickListener {
-            startActivity(Intent(this, AudioValidationActivity::class.java))
+            startActivity(Intent(this, AssignedAudiosActivity::class.java))
         }
 
         // Fetch maximum description count from db
@@ -168,16 +166,22 @@ class MainActivity : AppCompatActivity() {
                 binding.appStatusInfo.setTextColor(Color.rgb(50, 200, 50))
                 binding.appStatusInfo.text = getString(R.string.configurations_set)
             }
+        }
 
-            // Get images without required number of descriptions
-            viewModel.getImages()?.observe(this) { images ->
-                binding.assignedImagesInfo.text = "${images.size} Assigned Images"
-            }
+        // Get images without required number of descriptions
+        viewModel.getImages()?.observe(this) { images ->
+            binding.assignedImagesInfo.text = "${images.size} Assigned Images"
+        }
 
-            // Update recorded descriptions
-            viewModel.getAudios()?.observe(this) { audios ->
-                binding.recordedAudioLabel.text = getString(R.string.recorded_audios, audios.size)
-            }
+        // Update recorded descriptions
+        viewModel.getAudios()?.observe(this) { audios ->
+            binding.recordedAudioLabel.text = getString(R.string.recorded_audios, audios.size)
+        }
+
+        // Downloaded validations
+        viewModel.getValidationAudios()?.observe(this) { audios ->
+            binding.audioValidationTextLabel.text =
+                getString(R.string.audios_to_validate, audios.size)
         }
 
         // Attach listener to update local images button

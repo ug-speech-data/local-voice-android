@@ -33,8 +33,6 @@ class ForceUploadWorker(
     private fun forceUploadUploadedAudios() {
         val audios = database?.AudioDao()?.getUploadedAudios()
 
-        Log.d(tag, "forceUploadUploadedAudios: ${audios?.size}")
-
         audios?.forEach { audio ->
             // Insert audio and convert to mp3
             if (audio.localFileURl.split(".wav").size > 1) {

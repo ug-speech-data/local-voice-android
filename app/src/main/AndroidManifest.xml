@@ -19,6 +19,9 @@
         android:theme="@style/Theme.UGDataCollection"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
+        <activity
+            android:name=".view.validations.AssignedAudiosActivity"
+            android:exported="false" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

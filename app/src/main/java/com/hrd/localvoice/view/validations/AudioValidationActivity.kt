@@ -1,6 +1,9 @@
 package com.hrd.localvoice.view.validations
 
+import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
@@ -11,18 +14,28 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.exoplayer2.*
+import com.hrd.localvoice.AppRoomDatabase
 import com.hrd.localvoice.R
 import com.hrd.localvoice.databinding.ActivityAudioValidationBinding
-import com.hrd.localvoice.models.UploadedAudio
+import com.hrd.localvoice.databinding.LayoutSkipWarningBinding
+import com.hrd.localvoice.models.ValidationAudio
 import com.hrd.localvoice.utils.AudioStatus
+import com.hrd.localvoice.utils.Constants
+import com.hrd.localvoice.utils.Constants.DO_NOT_SHOW_SKIP_WARNING
+import com.hrd.localvoice.view.MainActivity
+import java.io.File
+
 
 class AudioValidationActivity : AppCompatActivity() {
+    val tag = "AudioValidationActivity"
     lateinit var binding: ActivityAudioValidationBinding
     private lateinit var viewModel: ValidationActivityViewModel
-    private var currentAudio: UploadedAudio? = null
     private var player: ExoPlayer? = null
     private var isAudioPlaying = false
     private var progressBarThread: Thread? = null
+    private var allAudios: MutableList<ValidationAudio> = mutableListOf()
+    private var currentIndex = 0
+    private var currentAudio: ValidationAudio? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,6 +45,10 @@ class AudioValidationActivity : AppCompatActivity() {
         title = getString(R.string.audio_validation)
         // Show back button
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+        var currentIndex = intent.getIntExtra("position", 0)
+        val preferences: SharedPreferences =
+            getSharedPreferences(Constants.SHARED_PREFS_FILE, MODE_PRIVATE)
 
         viewModel = ViewModelProvider(this)[ValidationActivityViewModel::class.java]
         viewModel.isLoading.observe(this) { value ->
@@ -54,8 +71,15 @@ class AudioValidationActivity : AppCompatActivity() {
             }
         }
 
-        // Get first audio
-        viewModel.getAssignedAudios(-1)
+        AppRoomDatabase.databaseWriteExecutor.execute {
+            val audios =
+                AppRoomDatabase.INSTANCE?.ValidationAudioDao()?.getSyncPendingAudioValidations()
+            allAudios = audios as MutableList<ValidationAudio>
+            runOnUiThread {
+                showAudioAtIndex(currentIndex)
+            }
+            currentIndex = 0
+        }
 
         viewModel.errorMessage.observe(this) { message ->
             binding.messageTextView.text = message
@@ -63,19 +87,39 @@ class AudioValidationActivity : AppCompatActivity() {
 
         // Image navigation
         binding.skipButton.setOnClickListener {
-            if (currentAudio != null) {
-                viewModel.getAssignedAudios(currentAudio!!.id)
+            if (!preferences.getBoolean(DO_NOT_SHOW_SKIP_WARNING, false)) {
+                showSkipWarning()
+            } else {
+                deleteAudio(currentAudio!!)
             }
         }
 
         binding.acceptButton.setOnClickListener {
-            viewModel.validateDate(currentAudio!!.id, AudioStatus.ACCEPTED)
+            currentAudio!!.validatedStatus = AudioStatus.ACCEPTED
+            currentAudio!!.updatedAt = System.currentTimeMillis()
+            AppRoomDatabase.databaseWriteExecutor.execute {
+                AppRoomDatabase.INSTANCE?.ValidationAudioDao()
+                    ?.updateAudioValidation(currentAudio!!)
+
+                runOnUiThread {
+                    allAudios.remove(currentAudio)
+                    showAudioAtIndex(currentIndex)
+                }
+            }
         }
 
         binding.rejectButton.setOnClickListener {
-            if (currentAudio != null) viewModel.validateDate(
-                currentAudio!!.id, AudioStatus.REJECTED
-            )
+            currentAudio!!.validatedStatus = AudioStatus.REJECTED
+            currentAudio!!.updatedAt = System.currentTimeMillis()
+            AppRoomDatabase.databaseWriteExecutor.execute {
+                AppRoomDatabase.INSTANCE?.ValidationAudioDao()
+                    ?.updateAudioValidation(currentAudio!!)
+
+                runOnUiThread {
+                    allAudios.remove(currentAudio)
+                    showAudioAtIndex(currentIndex)
+                }
+            }
         }
 
         binding.playPauseButton.setOnClickListener {
@@ -89,50 +133,96 @@ class AudioValidationActivity : AppCompatActivity() {
                 }
             }
         }
-
-        // Audio move to next image
-        viewModel.validationSuccess.observe(this) { success ->
-            if (success && currentAudio != null) {
-                viewModel.getAssignedAudios(currentAudio!!.id)
-            }
-        }
-
-        // If No more images
-        viewModel.noMoreImages.observe(this) { done ->
-            if (done) {
-                showNoMoreImagesDialog()
-            }
-        }
-
-        // Listen for response
-        viewModel.audio.observe(this) { audio ->
-            currentAudio = audio
-            binding.audioLocale.text = audio.locale
-            binding.audioEnvironment.text = audio.environment
-            binding.audioDuration.text = audio.duration.toString()
-            binding.audioName.text = audio.id.toString()
-
-            // Load images
-            val imageUrl = audio.imageURL
-            val options: RequestOptions =
-                RequestOptions().fitCenter().placeholder(R.drawable.placeholder)
-                    .error(R.drawable.placeholder)
-            Glide.with(this).load(imageUrl).apply(options)
-                .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC).into(binding.imageView)
-
-            initializePlayer()
-        }
     }
 
-    private fun showNoMoreImagesDialog() {
-        val dialog = AlertDialog.Builder(this).setTitle("No more images").setCancelable(false)
-            .setNegativeButton(getString(R.string.no)) { _, _ -> finish() }
-            .setPositiveButton(getString(R.string.yes)) { _, _ ->
-                viewModel.getAssignedAudios(-1)
-            }.setMessage("There are no more images available. Would you like to restart?")
+    private fun showSkipWarning() {
+        val skipWarningBinding = LayoutSkipWarningBinding.inflate(layoutInflater)
+        var doDoNotShow = false
+        skipWarningBinding.checkbox.setOnCheckedChangeListener { buttonView, isChecked ->
+            doDoNotShow = isChecked
+        }
 
+        skipWarningBinding.checkbox.text = "Do not show this message again."
+
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("SKIP AUDIO")
+        builder.setMessage("Audios skipped will be deleted from your device. Continue to skip?")
+            .setView(skipWarningBinding.root)
+            .setCancelable(false)
+            .setPositiveButton("Yes") { dialog, id ->
+                val editPref =
+                    getSharedPreferences(Constants.SHARED_PREFS_FILE, MODE_PRIVATE).edit()
+                editPref.putBoolean(DO_NOT_SHOW_SKIP_WARNING, doDoNotShow).apply()
+                deleteAudio(currentAudio!!)
+            }
+            .setNegativeButton(
+                "No"
+            ) { dialog, id -> dialog.cancel() }.show()
+    }
+
+    private fun deleteAudio(audio: ValidationAudio) {
+        player?.stop()
+
+        if (audio.localImageUrl?.let { it1 -> File(it1).exists() } == true) audio.localImageUrl?.let { it1 ->
+            File(
+                it1
+            ).delete()
+        }
+        if (audio.localAudioUrl?.let { it1 -> File(it1).exists() } == true) audio.localAudioUrl?.let { it1 ->
+            File(
+                it1
+            ).delete()
+        }
+        AppRoomDatabase.databaseWriteExecutor.execute {
+            AppRoomDatabase.INSTANCE?.ValidationAudioDao()?.delete(audio)
+            runOnUiThread {
+                Toast.makeText(
+                    this@AudioValidationActivity,
+                    "Removed audio ${audio.id} from device.",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+
+        allAudios.remove(audio)
+        showAudioAtIndex(currentIndex)
+    }
+
+    private fun showNoAudiosDialog() {
+        val dialog = AlertDialog.Builder(this).setTitle("No audios found").setCancelable(false)
+            .setPositiveButton("GO HOME") { _, _ ->
+                val intent = Intent(this, MainActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+                startActivity(intent)
+                finish()
+            }
+        dialog.setMessage("Please refresh your validation list.")
         dialog.create()
         dialog.show()
+    }
+
+    private fun showAudioAtIndex(index: Int) {
+        if (allAudios.isEmpty()) {
+            showNoAudiosDialog()
+            return
+        }
+        currentAudio = allAudios[index.mod(allAudios.size)]
+        if (currentAudio == null) return
+
+        binding.audioLocale.text = currentAudio!!.locale
+        binding.audioEnvironment.text = currentAudio!!.environment
+        binding.audioDuration.text = currentAudio!!.duration.toString()
+        binding.audioName.text = currentAudio!!.id.toString()
+
+        // Load images
+        val imageUrl = currentAudio!!.localImageUrl
+        val options: RequestOptions =
+            RequestOptions().fitCenter().placeholder(R.drawable.placeholder)
+                .error(R.drawable.placeholder)
+        Glide.with(this).load(imageUrl).apply(options)
+            .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC).into(binding.imageView)
+
+        initializePlayer()
     }
 
     private fun initializePlayer() {
@@ -145,15 +235,13 @@ class AudioValidationActivity : AppCompatActivity() {
         }
         player!!.playWhenReady = false
         player!!.seekTo(0)
-        player!!.setMediaItem(MediaItem.fromUri(currentAudio!!.audioURL))
+        player!!.setMediaItem(MediaItem.fromUri(currentAudio!!.localAudioUrl!!))
         player!!.prepare()
         binding.playerLoading.visibility = View.VISIBLE
 
         player!!.addListener(object : Player.Listener {
             override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
                 super.onPlayerStateChanged(playWhenReady, playbackState)
-
-
                 progressBarThread = Thread(updateProgressRunnable)
                 progressBarThread?.start()
                 binding.playPauseButton.isEnabled = false
@@ -177,8 +265,11 @@ class AudioValidationActivity : AppCompatActivity() {
                 super.onPlayerError(error)
                 binding.playerLoading.visibility = View.GONE
                 Toast.makeText(
-                    this@AudioValidationActivity, "Couldn't play video", Toast.LENGTH_LONG
+                    this@AudioValidationActivity,
+                    "Couldn't play audio: ${error.errorCodeName}",
+                    Toast.LENGTH_SHORT
                 ).show()
+                Log.e(tag, "onPlayerError: ${error.message}")
             }
         })
     }
@@ -220,7 +311,6 @@ class AudioValidationActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-
     private fun releasePlayer() {
         if (player != null) {
             player!!.release()
@@ -228,8 +318,8 @@ class AudioValidationActivity : AppCompatActivity() {
         }
     }
 
-    override fun onPause() {
-        super.onPause()
+    override fun onDestroy() {
+        super.onDestroy()
         releasePlayer()
     }
 }

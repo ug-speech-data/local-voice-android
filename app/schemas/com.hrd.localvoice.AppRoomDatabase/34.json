@@ -1,0 +1,646 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 34,
+    "identityHash": "b34d74222c4c3a0822f2a30d447b3ae0",
+    "entities": [
+      {
+        "tableName": "audios",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`userId` INTEGER NOT NULL, `timestamp` INTEGER NOT NULL, `remoteImageID` INTEGER NOT NULL, `localFileURl` TEXT NOT NULL, `deviceId` TEXT NOT NULL, `localImageURl` TEXT DEFAULT '', `environment` TEXT NOT NULL, `description` TEXT NOT NULL, `status` TEXT NOT NULL, `remoteId` INTEGER, `remoteURL` INTEGER, `duration` INTEGER, `sizeInBytes` INTEGER, `participantId` INTEGER, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `uploadCount` INTEGER NOT NULL DEFAULT 1, FOREIGN KEY(`participantId`) REFERENCES `participants`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL )",
+        "fields": [
+          {
+            "fieldPath": "userId",
+            "columnName": "userId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "timestamp",
+            "columnName": "timestamp",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "remoteImageID",
+            "columnName": "remoteImageID",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "localFileURl",
+            "columnName": "localFileURl",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deviceId",
+            "columnName": "deviceId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "localImageURl",
+            "columnName": "localImageURl",
+            "affinity": "TEXT",
+            "notNull": false,
+            "defaultValue": "''"
+          },
+          {
+            "fieldPath": "environment",
+            "columnName": "environment",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "remoteId",
+            "columnName": "remoteId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "remoteURL",
+            "columnName": "remoteURL",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "duration",
+            "columnName": "duration",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "sizeInBytes",
+            "columnName": "sizeInBytes",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "participantId",
+            "columnName": "participantId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "uploadCount",
+            "columnName": "uploadCount",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "1"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_audios_participantId",
+            "unique": false,
+            "columnNames": [
+              "participantId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_audios_participantId` ON `${TABLE_NAME}` (`participantId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "participants",
+            "onDelete": "SET NULL",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "participantId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "participants",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`age` INTEGER NOT NULL, `gender` TEXT NOT NULL, `status` TEXT, `momoNumber` TEXT, `network` TEXT, `environment` TEXT, `locale` TEXT, `fullname` TEXT, `audioDurationInSeconds` INTEGER, `acceptedPrivacyPolicy` INTEGER, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "age",
+            "columnName": "age",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gender",
+            "columnName": "gender",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "momoNumber",
+            "columnName": "momoNumber",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "network",
+            "columnName": "network",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "environment",
+            "columnName": "environment",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "locale",
+            "columnName": "locale",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "fullname",
+            "columnName": "fullname",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "audioDurationInSeconds",
+            "columnName": "audioDurationInSeconds",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "acceptedPrivacyPolicy",
+            "columnName": "acceptedPrivacyPolicy",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "images",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`name` TEXT NOT NULL, `remoteURL` TEXT, `remoteId` INTEGER NOT NULL, `localURl` TEXT, `category` TEXT, `descriptionCount` INTEGER NOT NULL, PRIMARY KEY(`remoteId`))",
+        "fields": [
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "remoteURL",
+            "columnName": "remoteURL",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "remoteId",
+            "columnName": "remoteId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "localURl",
+            "columnName": "localURl",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "category",
+            "columnName": "category",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "descriptionCount",
+            "columnName": "descriptionCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "remoteId"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "configurations",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`demoVideoLocalUrl` TEXT NOT NULL, `demoVideoRemoteUrl` TEXT NOT NULL, `maxImageDescriptionCount` INTEGER, `privacyPolicyStatement` TEXT, `id` INTEGER NOT NULL, `privacyPolicyStatementAudioRemoteUrl` TEXT DEFAULT '', `privacyPolicyStatementAudioLocalUrl` TEXT DEFAULT '', `allowSavingLessThanRequiredPerParticipant` INTEGER DEFAULT 0, `allowToRecordMoreThanRequiredPerParticipant` INTEGER DEFAULT 0, `numberOfAudiosPerParticipant` INTEGER DEFAULT 120, `maxAudioValidationPerUser` INTEGER DEFAULT 0, `maximumBackgroundNoiseLevel` INTEGER DEFAULT 350, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "demoVideoLocalUrl",
+            "columnName": "demoVideoLocalUrl",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "demoVideoRemoteUrl",
+            "columnName": "demoVideoRemoteUrl",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "maxImageDescriptionCount",
+            "columnName": "maxImageDescriptionCount",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "privacyPolicyStatement",
+            "columnName": "privacyPolicyStatement",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "privacyPolicyStatementAudioRemoteUrl",
+            "columnName": "privacyPolicyStatementAudioRemoteUrl",
+            "affinity": "TEXT",
+            "notNull": false,
+            "defaultValue": "''"
+          },
+          {
+            "fieldPath": "privacyPolicyStatementAudioLocalUrl",
+            "columnName": "privacyPolicyStatementAudioLocalUrl",
+            "affinity": "TEXT",
+            "notNull": false,
+            "defaultValue": "''"
+          },
+          {
+            "fieldPath": "allowSavingLessThanRequiredPerParticipant",
+            "columnName": "allowSavingLessThanRequiredPerParticipant",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "allowToRecordMoreThanRequiredPerParticipant",
+            "columnName": "allowToRecordMoreThanRequiredPerParticipant",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "numberOfAudiosPerParticipant",
+            "columnName": "numberOfAudiosPerParticipant",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "120"
+          },
+          {
+            "fieldPath": "maxAudioValidationPerUser",
+            "columnName": "maxAudioValidationPerUser",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "maximumBackgroundNoiseLevel",
+            "columnName": "maximumBackgroundNoiseLevel",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "350"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "users",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `photo` TEXT, `emailAddress` TEXT NOT NULL, `phone` TEXT, `network` TEXT, `surname` TEXT, `otherNames` TEXT, `gender` TEXT, `environment` TEXT, `age` INTEGER, `locale` TEXT, `lastLoginDate` TEXT NOT NULL, `acceptedPrivacyPolicy` INTEGER NOT NULL, `createdAt` TEXT NOT NULL, `balance` TEXT NOT NULL, `audiosSubmitted` INTEGER NOT NULL, `audiosValidated` INTEGER NOT NULL, `audiosPending` INTEGER NOT NULL DEFAULT 0, `audiosAccepted` INTEGER NOT NULL DEFAULT 0, `audiosRejected` INTEGER NOT NULL DEFAULT 0, `estimatedDeductionAmount` REAL NOT NULL DEFAULT 0.0, `permissions` TEXT, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "photo",
+            "columnName": "photo",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "emailAddress",
+            "columnName": "emailAddress",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "phone",
+            "columnName": "phone",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "network",
+            "columnName": "network",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "surname",
+            "columnName": "surname",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "otherNames",
+            "columnName": "otherNames",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "gender",
+            "columnName": "gender",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "environment",
+            "columnName": "environment",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "age",
+            "columnName": "age",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "locale",
+            "columnName": "locale",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "lastLoginDate",
+            "columnName": "lastLoginDate",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "acceptedPrivacyPolicy",
+            "columnName": "acceptedPrivacyPolicy",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "balance",
+            "columnName": "balance",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "audiosSubmitted",
+            "columnName": "audiosSubmitted",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "audiosValidated",
+            "columnName": "audiosValidated",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "audiosPending",
+            "columnName": "audiosPending",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "audiosAccepted",
+            "columnName": "audiosAccepted",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "audiosRejected",
+            "columnName": "audiosRejected",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "estimatedDeductionAmount",
+            "columnName": "estimatedDeductionAmount",
+            "affinity": "REAL",
+            "notNull": true,
+            "defaultValue": "0.0"
+          },
+          {
+            "fieldPath": "permissions",
+            "columnName": "permissions",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "activity_status",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "validation_audios",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`remoteAudioUrl` TEXT NOT NULL DEFAULT '', `remoteImageUrl` TEXT NOT NULL DEFAULT '', `name` TEXT NOT NULL DEFAULT '', `locale` TEXT NOT NULL DEFAULT '', `duration` INTEGER NOT NULL DEFAULT 0, `environment` TEXT NOT NULL DEFAULT '', `localAudioUrl` TEXT DEFAULT '', `localImageUrl` TEXT DEFAULT '', `assetsDownloadStatus` TEXT DEFAULT 'pending', `validatedStatus` TEXT DEFAULT 'pending', `id` INTEGER NOT NULL DEFAULT 1, `updatedAt` INTEGER NOT NULL DEFAULT 0, `createdAt` INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "remoteAudioUrl",
+            "columnName": "remoteAudioUrl",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "''"
+          },
+          {
+            "fieldPath": "remoteImageUrl",
+            "columnName": "remoteImageUrl",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "''"
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "''"
+          },
+          {
+            "fieldPath": "locale",
+            "columnName": "locale",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "''"
+          },
+          {
+            "fieldPath": "duration",
+            "columnName": "duration",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "environment",
+            "columnName": "environment",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "''"
+          },
+          {
+            "fieldPath": "localAudioUrl",
+            "columnName": "localAudioUrl",
+            "affinity": "TEXT",
+            "notNull": false,
+            "defaultValue": "''"
+          },
+          {
+            "fieldPath": "localImageUrl",
+            "columnName": "localImageUrl",
+            "affinity": "TEXT",
+            "notNull": false,
+            "defaultValue": "''"
+          },
+          {
+            "fieldPath": "assetsDownloadStatus",
+            "columnName": "assetsDownloadStatus",
+            "affinity": "TEXT",
+            "notNull": false,
+            "defaultValue": "'pending'"
+          },
+          {
+            "fieldPath": "validatedStatus",
+            "columnName": "validatedStatus",
+            "affinity": "TEXT",
+            "notNull": false,
+            "defaultValue": "'pending'"
+          },
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "1"
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updatedAt",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b34d74222c4c3a0822f2a30d447b3ae0')"
+    ]
+  }
+}

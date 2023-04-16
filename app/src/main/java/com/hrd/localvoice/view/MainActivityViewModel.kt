@@ -4,10 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import com.hrd.localvoice.DataRepository
-import com.hrd.localvoice.models.Audio
-import com.hrd.localvoice.models.Configuration
-import com.hrd.localvoice.models.Image
-import com.hrd.localvoice.models.User
+import com.hrd.localvoice.models.*
 
 class MainActivityViewModel(application: Application) : AndroidViewModel(application) {
     private val repository: DataRepository = DataRepository(application)
@@ -17,6 +14,10 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
 
     fun getImages(): LiveData<List<Image>>? {
         return repository.getAssignedImages(listOf())
+    }
+
+    fun getValidationAudios(): LiveData<List<ValidationAudio>>? {
+        return repository.getValidationAudios()
     }
 
     fun getAudios(): LiveData<List<Audio>>? {

@@ -10,6 +10,7 @@ import com.hrd.localvoice.DataRepository
 import com.hrd.localvoice.R
 import com.hrd.localvoice.models.UploadedAudio
 import com.hrd.localvoice.models.User
+import com.hrd.localvoice.models.ValidationAudio
 import com.hrd.localvoice.network.RestApiFactory
 import com.hrd.localvoice.network.response_models.AudioValidationResponse
 import com.hrd.localvoice.network.response_models.UploadedAudioResponse
@@ -54,6 +55,14 @@ class ValidationActivityViewModel(application: Application) : AndroidViewModel(a
                 Log.e(tag, "onFailure: ${t.message}")
             }
         })
+    }
+
+    fun getValidationAudios(): LiveData<List<ValidationAudio>>? {
+        return repository.getValidationAudios()
+    }
+
+    fun getPendingAudioValidations(): LiveData<List<ValidationAudio>>? {
+        return repository.getPendingAudioValidations()
     }
 
     fun validateDate(id: Long, status: String) {

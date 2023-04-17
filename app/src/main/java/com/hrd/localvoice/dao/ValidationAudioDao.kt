@@ -20,6 +20,9 @@ interface ValidationAudioDao {
     @Delete
     fun delete(audio: ValidationAudio): Int
 
+    @Delete
+    fun delete(audios: List<ValidationAudio>): Int
+
     @Query("SELECT * from $AUDIO_VALIDATION_TABLE ORDER BY createdAt DESC")
     fun getValidationAudios(): LiveData<List<ValidationAudio>>
 

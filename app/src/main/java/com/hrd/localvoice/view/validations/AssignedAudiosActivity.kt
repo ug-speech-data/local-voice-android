@@ -102,6 +102,22 @@ class AssignedAudiosActivity : AppCompatActivity() {
             R.id.action_get_new_audios -> {
                 scheduleDownloadWorker(constraints, workManager)
             }
+            R.id.action_clear_all_pending -> {
+                val builder = AlertDialog.Builder(this)
+                builder.setTitle("DELETE PENDING AUDIOS")
+                builder.setMessage("Are you sure you want to delete all audios awaiting your validation?")
+                    .setNegativeButton("CANCEL") { _, _ -> }
+                    .setPositiveButton("YES") { _, _ ->
+                        AppRoomDatabase.databaseWriteExecutor.execute {
+                            val pendingAudios = AppRoomDatabase.INSTANCE?.ValidationAudioDao()
+                                ?.getSyncPendingAudioValidations()
+                            if (pendingAudios?.isNotEmpty() == true) {
+                                AppRoomDatabase.INSTANCE?.ValidationAudioDao()
+                                    ?.delete(pendingAudios)
+                            }
+                        }
+                    }.show()
+            }
             R.id.action_upload_validations -> {
                 workManager.enqueueUniquePeriodicWork(
                     "ValidationUploadWorker",

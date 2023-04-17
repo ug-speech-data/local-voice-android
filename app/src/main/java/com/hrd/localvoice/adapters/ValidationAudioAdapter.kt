@@ -38,9 +38,15 @@ class ValidationAudioAdapter(private val context: Context) :
             val audio = dataset[position]
             with(binding) {
                 val fileName =
-                    if (audio.remoteAudioUrl.isNotEmpty()) audio.remoteAudioUrl.split("/")[audio.remoteAudioUrl.split(
-                        "/"
-                    ).size - 1] else (audio.name)
+                    if (audio.localAudioUrl?.isNotEmpty() == true)
+                        if (audio.localAudioUrl!!.isNotEmpty()) audio.localAudioUrl!!.split("/")[audio.localAudioUrl!!.split(
+                            "/"
+                        ).size - 1] else (audio.name)
+                    else {
+                        if (audio.remoteAudioUrl.isNotEmpty()) audio.remoteAudioUrl.split("/")[audio.remoteAudioUrl.split(
+                            "/"
+                        ).size - 1] else (audio.name)
+                    }
 
                 name.text = fileName
                 statusText.text = audio.assetsDownloadStatus

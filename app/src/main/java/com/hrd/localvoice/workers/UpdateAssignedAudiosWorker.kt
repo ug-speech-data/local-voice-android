@@ -42,7 +42,7 @@ class UpdateAssignedAudiosWorker(
                                 audio.createdAt = System.currentTimeMillis()
                                 audio.validatedStatus = UPLOAD_STATUS_PENDING
                                 audio.assetsDownloadStatus = UPLOAD_STATUS_PENDING
-                                database.ValidationAudioDao()?.insertAudioValidation(audio)
+                                database.ValidationAudioDao().insertAudioValidation(audio)
                                 val audioUrl = audio.remoteAudioUrl
                                 val imageUrl = audio.remoteImageUrl
                                 count += 1

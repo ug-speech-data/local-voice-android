@@ -38,14 +38,10 @@ class ValidationUploadWorker(
                             if (response.body()?.status == "success") {
                                 // Remove audio
                                 if (audio.localImageUrl?.let { it1 -> File(it1).exists() } == true) audio.localImageUrl?.let { it1 ->
-                                    File(
-                                        it1
-                                    ).delete()
+                                    File(it1).delete()
                                 }
                                 if (audio.localAudioUrl?.let { it1 -> File(it1).exists() } == true) audio.localAudioUrl?.let { it1 ->
-                                    File(
-                                        it1
-                                    ).delete()
+                                    File(it1).delete()
                                 }
 
                                 AppRoomDatabase.databaseWriteExecutor.execute {

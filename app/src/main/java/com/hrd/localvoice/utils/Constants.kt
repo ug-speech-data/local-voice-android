@@ -18,6 +18,7 @@ object Constants {
     const val IS_NEW_USER = "com.hrd.localvoice.IS_NEW_USER"
     const val USER_OBJECT = "com.hrd.localvoice.USER_OBJECT"
     const val DO_NOT_SHOW_SKIP_WARNING = "com.hrd.localvoice.DO_NOT_SHOW_SKIP_WARNING"
+    const val IGNORED_UPDATE_VERSION = "com.hrd.localvoice.DO_NOT_UPDATE_WARNING"
 
     val ENVIRONMENTS = arrayOf(
         "Outdoor",

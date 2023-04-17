@@ -31,5 +31,6 @@ data class Configuration(
     @SerializedName("max_background_noise_level") @ColumnInfo(defaultValue = "350") var maximumBackgroundNoiseLevel: Int? = 350,
 
     @SerializedName("hours_to_keep_audios_for_validation") @ColumnInfo(defaultValue = "12") var hoursToKeepAudiosForValidation: Int? = 12,
-
-    ) : Parcelable
+    @SerializedName("current_apk_versions") @ColumnInfo(defaultValue = "") var currentAPKVersion: String? = "",
+    @SerializedName("android_apk") @ColumnInfo(defaultValue = "") var apkLink: String? = "",
+) : Parcelable

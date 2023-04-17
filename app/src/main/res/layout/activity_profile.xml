@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="10dp"
     tools:context=".view.authentication.ProfileActivity">
 
     <LinearLayout
@@ -441,6 +442,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginTop="10dp"
+            android:layout_marginBottom="100dp"
             tools:text="V 1.0.0" />
     </LinearLayout>
 </ScrollView>

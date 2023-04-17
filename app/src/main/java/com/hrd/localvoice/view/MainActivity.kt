@@ -2,7 +2,9 @@ package com.hrd.localvoice.view
 
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -17,6 +19,7 @@ import com.hrd.localvoice.AppRoomDatabase
 import com.hrd.localvoice.BuildConfig
 import com.hrd.localvoice.R
 import com.hrd.localvoice.databinding.ActivityMainBinding
+import com.hrd.localvoice.databinding.LayoutSkipWarningBinding
 import com.hrd.localvoice.models.User
 import com.hrd.localvoice.utils.Constants
 import com.hrd.localvoice.utils.Constants.SHARED_PREFS_FILE
@@ -38,12 +41,15 @@ import java.util.concurrent.TimeUnit
 class MainActivity : AppCompatActivity() {
     private lateinit var viewModel: MainActivityViewModel
     private var user: User? = null
+    private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val binding = ActivityMainBinding.inflate(layoutInflater)
+        binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         viewModel = ViewModelProvider(this)[MainActivityViewModel::class.java]
+        val preferences: SharedPreferences =
+            getSharedPreferences(Constants.SHARED_PREFS_FILE, MODE_PRIVATE)
 
         // Background work manager
         val constraints = Constraints.Builder().apply {
@@ -62,6 +68,8 @@ class MainActivity : AppCompatActivity() {
             viewModel.user?.observe(this) {
                 user = it
                 if (user != null) {
+                    title = "Hi ${user?.emailAddress}"
+
                     if ((it?.network == null || it.age == null || it.gender == null || it.environment == null)) {
                         Toast.makeText(this, "Please update your profile", Toast.LENGTH_LONG).show()
                         val intent = Intent(this, ProfileActivity::class.java)
@@ -166,6 +174,14 @@ class MainActivity : AppCompatActivity() {
                 binding.appStatusInfo.setTextColor(Color.rgb(50, 200, 50))
                 binding.appStatusInfo.text = getString(R.string.configurations_set)
             }
+
+            // Alert if current server apk doesn't match
+            if (configuration?.currentAPKVersion?.isNotEmpty() == true && BuildConfig.VERSION_NAME != configuration.currentAPKVersion && preferences.getString(
+                    Constants.IGNORED_UPDATE_VERSION, ""
+                ) != configuration.currentAPKVersion
+            ) {
+                showUpdateAlert(configuration)
+            }
         }
 
         // Get images without required number of descriptions
@@ -220,9 +236,33 @@ class MainActivity : AppCompatActivity() {
             )
             Toast.makeText(this, "Update requested.", Toast.LENGTH_SHORT).show()
         }
+    }
 
-        // Check for APK update
-//        checkForUpdate()
+    private fun showUpdateAlert(configuration: com.hrd.localvoice.models.Configuration) {
+        val ignoreCheckBox = LayoutSkipWarningBinding.inflate(layoutInflater)
+        var doDoNotShow = false
+        ignoreCheckBox.checkbox.setOnCheckedChangeListener { _, isChecked ->
+            doDoNotShow = isChecked
+        }
+        ignoreCheckBox.checkbox.text = getString(R.string.do_not_show_again)
+        val dialog = AlertDialog.Builder(this).setTitle("NEW UPDATE").setCancelable(true)
+            .setView(ignoreCheckBox.root).setNegativeButton("CANCEL") { _, _ ->
+                if (doDoNotShow) {
+                    val editPref = getSharedPreferences(SHARED_PREFS_FILE, MODE_PRIVATE).edit()
+                    editPref.putString(
+                        Constants.IGNORED_UPDATE_VERSION,
+                        configuration.currentAPKVersion
+                    ).apply()
+                }
+            }.setPositiveButton("DOWNLOAD") { _, _ ->
+                val uri: Uri = Uri.parse(configuration.apkLink)
+                val intent = Intent(Intent.ACTION_VIEW, uri)
+                startActivity(intent)
+            }
+            .setMessage("App version ${configuration.currentAPKVersion} is available. Download to update.")
+
+        dialog.create()
+        dialog.show()
     }
 
     private fun scheduleConfigurationUpdate(

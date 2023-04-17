@@ -23,6 +23,9 @@ interface ValidationAudioDao {
     @Delete
     fun delete(audios: List<ValidationAudio>): Int
 
+    @Query("SELECT * FROM $AUDIO_VALIDATION_TABLE where createdAt < :deadlineInMills AND validatedStatus = '$UPLOAD_STATUS_PENDING'")
+    fun getExpiredAudios(deadlineInMills: Long): List<ValidationAudio>
+
     @Query("SELECT * from $AUDIO_VALIDATION_TABLE ORDER BY createdAt DESC")
     fun getValidationAudios(): LiveData<List<ValidationAudio>>
 

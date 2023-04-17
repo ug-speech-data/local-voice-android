@@ -47,6 +47,7 @@ class AudioValidationActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         var currentIndex = intent.getIntExtra("position", 0)
+
         val preferences: SharedPreferences =
             getSharedPreferences(Constants.SHARED_PREFS_FILE, MODE_PRIVATE)
 
@@ -75,10 +76,10 @@ class AudioValidationActivity : AppCompatActivity() {
             val audios =
                 AppRoomDatabase.INSTANCE?.ValidationAudioDao()?.getSyncPendingAudioValidations()
             allAudios = audios as MutableList<ValidationAudio>
+            currentIndex = allAudios.size - currentIndex - 1
             runOnUiThread {
                 showAudioAtIndex(currentIndex)
             }
-            currentIndex = 0
         }
 
         viewModel.errorMessage.observe(this) { message ->
@@ -141,8 +142,7 @@ class AudioValidationActivity : AppCompatActivity() {
         skipWarningBinding.checkbox.setOnCheckedChangeListener { buttonView, isChecked ->
             doDoNotShow = isChecked
         }
-
-        skipWarningBinding.checkbox.text = "Do not show this message again."
+        skipWarningBinding.checkbox.text = getString(R.string.do_not_show_again)
 
         val builder = AlertDialog.Builder(this)
         builder.setTitle("SKIP AUDIO")
@@ -233,13 +233,13 @@ class AudioValidationActivity : AppCompatActivity() {
         if (player == null) {
             player = ExoPlayer.Builder(this).build()
         }
-        player!!.playWhenReady = false
-        player!!.seekTo(0)
-        player!!.setMediaItem(MediaItem.fromUri(currentAudio!!.localAudioUrl!!))
-        player!!.prepare()
+        player?.playWhenReady = false
+        player?.seekTo(0)
+        player?.setMediaItem(MediaItem.fromUri(currentAudio!!.localAudioUrl!!))
+        player?.prepare()
         binding.playerLoading.visibility = View.VISIBLE
 
-        player!!.addListener(object : Player.Listener {
+        player?.addListener(object : Player.Listener {
             override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
                 super.onPlayerStateChanged(playWhenReady, playbackState)
                 progressBarThread = Thread(updateProgressRunnable)
@@ -313,8 +313,7 @@ class AudioValidationActivity : AppCompatActivity() {
 
     private fun releasePlayer() {
         if (player != null) {
-            player!!.release()
-            player = null
+            player?.release()
         }
     }
 

@@ -86,6 +86,7 @@ class ValidationAudioAdapter(private val context: Context) :
 
                 cardView.setOnClickListener {
                     val intent = Intent(context, AudioValidationActivity::class.java)
+                    intent.putExtra("position", position)
                     context.startActivity(intent)
                 }
             }

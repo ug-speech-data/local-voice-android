@@ -21,7 +21,7 @@ class UpdateAssignedImagesWorker(
     private val context: Context, workerParams: WorkerParameters
 ) : Worker(context, workerParams) {
     override fun doWork(): Result {
-        val tag = "Configuration"
+        val tag = "UpdateAssignedImagesWorker"
         val database: AppRoomDatabase? = AppRoomDatabase.INSTANCE
         val apiService = RestApiFactory.create(context)
 

@@ -18,9 +18,11 @@ import com.hrd.localvoice.databinding.ActivityAssignedAudiosBinding
 import com.hrd.localvoice.models.ValidationAudio
 import com.hrd.localvoice.workers.UpdateAssignedAudiosWorker
 import com.hrd.localvoice.workers.ValidationUploadWorker
+import java.io.File
 import java.util.concurrent.TimeUnit
 
 class AssignedAudiosActivity : AppCompatActivity() {
+    private val tag = "AssignedAudiosActivity"
     lateinit var binding: ActivityAssignedAudiosBinding
     private lateinit var viewModel: ValidationActivityViewModel
     private lateinit var adapter: ValidationAudioAdapter
@@ -40,11 +42,11 @@ class AssignedAudiosActivity : AppCompatActivity() {
         binding = ActivityAssignedAudiosBinding.inflate(layoutInflater)
         setContentView(binding.root)
         viewModel = ViewModelProvider(this)[ValidationActivityViewModel::class.java]
-
         title = "Validations"
 
         // Show back button
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        deleteExpiredAudios()
 
         adapter = ValidationAudioAdapter(this)
         binding.recyclerView.adapter = adapter
@@ -79,7 +81,7 @@ class AssignedAudiosActivity : AppCompatActivity() {
         constraints: Constraints, workManager: WorkManager
     ) {
         val updateAssignedAudiosWorker = PeriodicWorkRequest.Builder(
-            UpdateAssignedAudiosWorker::class.java, 30, TimeUnit.MINUTES
+            UpdateAssignedAudiosWorker::class.java, 12, TimeUnit.HOURS
         ).setConstraints(constraints).build()
         workManager.enqueueUniquePeriodicWork(
             "UpdateAssignedAudiosWorker",
@@ -106,8 +108,7 @@ class AssignedAudiosActivity : AppCompatActivity() {
                 val builder = AlertDialog.Builder(this)
                 builder.setTitle("DELETE PENDING AUDIOS")
                 builder.setMessage("Are you sure you want to delete all audios awaiting your validation?")
-                    .setNegativeButton("CANCEL") { _, _ -> }
-                    .setPositiveButton("YES") { _, _ ->
+                    .setNegativeButton("CANCEL") { _, _ -> }.setPositiveButton("YES") { _, _ ->
                         AppRoomDatabase.databaseWriteExecutor.execute {
                             val pendingAudios = AppRoomDatabase.INSTANCE?.ValidationAudioDao()
                                 ?.getSyncPendingAudioValidations()
@@ -138,6 +139,29 @@ class AssignedAudiosActivity : AppCompatActivity() {
         builder.setMessage(getString(R.string.validation_audios_availability))
             .setPositiveButton("OK") { _, _ ->
             }.show()
+    }
+
+    private fun deleteExpiredAudios() {
+        AppRoomDatabase.databaseWriteExecutor.execute {
+            val hoursToKeepAudiosForValidation = AppRoomDatabase.INSTANCE?.ConfigurationDao()
+                ?.getConfiguration()?.hoursToKeepAudiosForValidation
+            hoursToKeepAudiosForValidation?.let { hours ->
+                val total = System.currentTimeMillis() - (hours * 3600 * 1000)
+                val audios = AppRoomDatabase.INSTANCE?.ValidationAudioDao()?.getExpiredAudios(total)
+                audios?.forEach { audio ->
+                    // Remove audio
+                    if (audio.localImageUrl?.let { it1 -> File(it1).exists() } == true) audio.localImageUrl?.let { it1 ->
+                        File(it1).delete()
+                    }
+                    if (audio.localAudioUrl?.let { it1 -> File(it1).exists() } == true) audio.localAudioUrl?.let { it1 ->
+                        File(it1).delete()
+                    }
+                }
+                if (audios != null) {
+                    AppRoomDatabase.INSTANCE?.ValidationAudioDao()?.delete(audios)
+                }
+            }
+        }
     }
 
     private fun loadAudios() {

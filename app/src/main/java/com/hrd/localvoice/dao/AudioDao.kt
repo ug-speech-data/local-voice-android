@@ -27,8 +27,8 @@ interface AudioDao {
     @Delete
     fun deleteAudio(audio: Audio)
 
-    @Query("SELECT * from $AUDIOS_TABLE ORDER BY timestamp DESC")
-    fun getAudios(): LiveData<List<Audio>>
+    @Query("SELECT * from $AUDIOS_TABLE WHERE userId = :id ORDER BY timestamp DESC")
+    fun getAudios(id: Long?): LiveData<List<Audio>>
 
     @Query("SELECT * from $AUDIOS_TABLE WHERE status = '$UPLOAD_STATUS_PENDING' ORDER BY timestamp ASC")
     fun getPendingAudios(): List<Audio>

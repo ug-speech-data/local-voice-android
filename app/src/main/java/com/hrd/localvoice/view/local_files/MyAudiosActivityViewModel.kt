@@ -7,12 +7,16 @@ import com.hrd.localvoice.DataRepository
 import com.hrd.localvoice.models.Audio
 import com.hrd.localvoice.models.Image
 import com.hrd.localvoice.models.Participant
+import com.hrd.localvoice.models.User
 
 class MyAudiosActivityViewModel(application: Application) : AndroidViewModel(application) {
     private val repository: DataRepository = DataRepository(application)
 
-    fun getAudios(): LiveData<List<Audio>>? {
-        return repository.getAudios()
+    val user: LiveData<User?>?
+        get() = repository.user
+
+    fun getAudios(id: Long?): LiveData<List<Audio>>? {
+        return repository.getAudios(id)
     }
 
     fun getImages(): LiveData<List<Image>>? {

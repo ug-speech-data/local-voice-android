@@ -11,6 +11,7 @@ import com.hrd.localvoice.BuildConfig
 import com.hrd.localvoice.models.Participant
 import com.hrd.localvoice.network.RestApiFactory
 import com.hrd.localvoice.utils.AudioUtil
+import com.hrd.localvoice.utils.CONVERSION_STATUS
 import com.hrd.localvoice.utils.Constants.AUDIO_STATUS_UPLOADED
 import com.hrd.localvoice.utils.Functions.Companion.syncUploadedAudios
 import okhttp3.MediaType
@@ -27,8 +28,8 @@ class UploadWorker(
     val database: AppRoomDatabase? = AppRoomDatabase.INSTANCE
 
     override fun doWork(): Result {
-        uploadPendingAudios()
         syncUploadedAudios(context)
+        uploadPendingAudios()
         return Result.success()
     }
 
@@ -37,7 +38,7 @@ class UploadWorker(
 
         audios?.forEach { audio ->
             // Insert audio and convert to mp3
-            if (audio.localFileURl.split(".wav").size > 1) {
+            if (audio.localFileURl.split(".wav").size > 1 || audio.conversionStatus == CONVERSION_STATUS.RETRY) {
                 // Convert to mp3
                 AudioUtil.convert(audio, context as Application)
             } else {

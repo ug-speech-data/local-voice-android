@@ -20,8 +20,8 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         return repository.getValidationAudios()
     }
 
-    fun getAudios(): LiveData<List<Audio>>? {
-        return repository.getAudios()
+    fun getAudios(id: Long?): LiveData<List<Audio>>? {
+        return repository.getAudios(id)
     }
 
     fun getConfiguration(): LiveData<Configuration?>? {

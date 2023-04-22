@@ -1,9 +1,7 @@
 package com.hrd.localvoice.adapters
 
 import android.content.Context
-import android.graphics.Color
 import android.icu.text.SimpleDateFormat
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,6 +12,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.hrd.localvoice.R
 import com.hrd.localvoice.databinding.ItemAudioBinding
 import com.hrd.localvoice.models.Audio
+import com.hrd.localvoice.utils.CONVERSION_STATUS
 import com.hrd.localvoice.utils.Constants.UPLOAD_STATUS_PENDING
 import java.io.File
 import java.util.*
@@ -50,6 +49,7 @@ class AudioAdapter(private val context: Context) :
 
                 description.text = name
                 statusText.text = sText
+                conversionStatus.text = audio.conversionStatus
 
                 if (audio.localImageURl?.isNotEmpty() == true) {
                     val imageUrl = audio.localImageURl
@@ -65,12 +65,20 @@ class AudioAdapter(private val context: Context) :
                 val formatter = SimpleDateFormat("E, dd MMM Y, hh:mm:a")
                 timestamp.text = formatter.format(calendar.time);
 
+                // Color code uploaded status
                 if (audio.status == UPLOAD_STATUS_PENDING) {
-                    statusText.setTextColor(Color.rgb(200, 50, 50))
+                    statusText.setTextColor(context.getColor(R.color.color_warning))
                 } else if (audio.localFileURl.isEmpty()) {
-                    statusText.setTextColor(Color.rgb(200, 200, 200))
+                    statusText.setTextColor(context.getColor(R.color.gray_400))
                 } else {
-                    statusText.setTextColor(Color.rgb(50, 200, 50))
+                    statusText.setTextColor(context.getColor(R.color.color_success))
+                }
+
+                // Color code conversion status
+                if (audio.conversionStatus == CONVERSION_STATUS.CONVERTED) {
+                    conversionStatus.setTextColor(context.getColor(R.color.color_success))
+                } else {
+                    conversionStatus.setTextColor(context.getColor(R.color.color_warning))
                 }
 
                 cardView.setOnClickListener {

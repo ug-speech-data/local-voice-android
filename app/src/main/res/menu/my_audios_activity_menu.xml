@@ -8,12 +8,4 @@
         android:title="@string/upload_audios"
         app:iconTint="@color/white"
         app:showAsAction="ifRoom" />
-
-    <item
-        android:id="@+id/action_reupload_audios"
-        android:icon="@drawable/ic_outline_cloud_upload_24"
-        android:orderInCategory="1"
-        android:title="@string/force_re_upload"
-        app:iconTint="@color/white"
-        app:showAsAction="never" />
 </menu>

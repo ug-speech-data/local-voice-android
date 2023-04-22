@@ -9,7 +9,6 @@ class DataRepository(application: Application) {
     private var application: Application
     private var db: AppRoomDatabase?
 
-    private val audios: LiveData<List<Audio>>?
     val configuration: LiveData<Configuration?>?
 
     val participants: LiveData<List<Participant>>?
@@ -62,8 +61,8 @@ class DataRepository(application: Application) {
         }
     }
 
-    fun getAudios(): LiveData<List<Audio>>? {
-        return audioDao?.getAudios()
+    fun getAudios(id:Long?): LiveData<List<Audio>>? {
+        return audioDao?.getAudios(id)
     }
 
     fun updateImage(image: Image) {
@@ -98,7 +97,6 @@ class DataRepository(application: Application) {
         userDao = db?.UserDao()
         validationAudioDao = db?.ValidationAudioDao()
 
-        audios = audioDao?.getAudios()
         participants = participantDao?.getParticipants()
         user = userDao?.getUserAsync()
 

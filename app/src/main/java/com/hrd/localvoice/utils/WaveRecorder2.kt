@@ -108,10 +108,10 @@ class WaveRecorder2(private var context: Context, private var saveData: Boolean 
                 averageAmplitude = averageAmp
 
                 tempIndex++
-                audioDurationInSeconds =
-                    (totalReadBytes / (audioSampleRate * channelCount * bitsPerSample / 8f))
-
                 if (saveData) {
+                    audioDurationInSeconds =
+                        (totalReadBytes / (audioSampleRate * channelCount * bitsPerSample / 8f))
+
                     isVoiceDetected = averageAmp >= voiceAmplitude || isVoiceDetected
                     // Calculate the duration of silent periods
                     if (isVoiceDetected && averageAmp < voiceAmplitude) {

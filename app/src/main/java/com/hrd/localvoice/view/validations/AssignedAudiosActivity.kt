@@ -20,6 +20,7 @@ import com.hrd.localvoice.workers.UpdateAssignedAudiosWorker
 import com.hrd.localvoice.workers.ValidationUploadWorker
 import java.io.File
 import java.util.concurrent.TimeUnit
+import kotlin.math.max
 
 class AssignedAudiosActivity : AppCompatActivity() {
     private val tag = "AssignedAudiosActivity"
@@ -180,7 +181,10 @@ class AssignedAudiosActivity : AppCompatActivity() {
                     val lastAudio = audios?.let { aus -> aus[aus.size - 1].createdAt }
                     lastAudio?.let {
                         val timeLeft =
-                            (-System.currentTimeMillis() + hours * 3600 * 1000 + lastAudio) / (3600 * 1000)
+                            max(
+                                (-System.currentTimeMillis() + hours * 3600 * 1000 + lastAudio) / (3600 * 1000),
+                                0
+                            )
                         runOnUiThread {
                             binding.timeLeftLabel.text = "${timeLeft}hrs left"
                         }

@@ -96,42 +96,42 @@ class AudioValidationActivity : AppCompatActivity() {
         }
 
         binding.acceptButton.setOnClickListener {
-            currentAudio!!.validatedStatus = AudioStatus.ACCEPTED
-            currentAudio!!.updatedAt = System.currentTimeMillis()
-            AppRoomDatabase.databaseWriteExecutor.execute {
-                AppRoomDatabase.INSTANCE?.ValidationAudioDao()
-                    ?.updateAudioValidation(currentAudio!!)
-
-                runOnUiThread {
-                    allAudios.remove(currentAudio)
-                    showAudioAtIndex(currentIndex)
+            currentAudio?.let { audio ->
+                AppRoomDatabase.databaseWriteExecutor.execute {
+                    audio.validatedStatus = AudioStatus.ACCEPTED
+                    audio.updatedAt = System.currentTimeMillis()
+                    AppRoomDatabase.INSTANCE?.ValidationAudioDao()
+                        ?.updateAudioValidation(audio)
+                    runOnUiThread {
+                        allAudios.remove(audio)
+                        showAudioAtIndex(currentIndex)
+                    }
                 }
             }
         }
 
         binding.rejectButton.setOnClickListener {
-            currentAudio!!.validatedStatus = AudioStatus.REJECTED
-            currentAudio!!.updatedAt = System.currentTimeMillis()
-            AppRoomDatabase.databaseWriteExecutor.execute {
-                AppRoomDatabase.INSTANCE?.ValidationAudioDao()
-                    ?.updateAudioValidation(currentAudio!!)
-
-                runOnUiThread {
-                    allAudios.remove(currentAudio)
-                    showAudioAtIndex(currentIndex)
+            currentAudio?.let { audio ->
+                AppRoomDatabase.databaseWriteExecutor.execute {
+                    audio.validatedStatus = AudioStatus.REJECTED
+                    audio.updatedAt = System.currentTimeMillis()
+                    AppRoomDatabase.INSTANCE?.ValidationAudioDao()
+                        ?.updateAudioValidation(audio)
+                    runOnUiThread {
+                        allAudios.remove(audio)
+                        showAudioAtIndex(currentIndex)
+                    }
                 }
             }
         }
 
         binding.playPauseButton.setOnClickListener {
-            if (player != null) {
-                if (player?.isPlaying == true) {
-                    player?.pause()
-                    binding.playPauseButton.setImageResource(R.drawable.ic_baseline_play_circle_outline_24)
-                } else {
-                    player?.play()
-                    binding.playPauseButton.setImageResource(R.drawable.ic_baseline_pause_circle_outline_24)
-                }
+            if (player?.isPlaying == true) {
+                player?.pause()
+                binding.playPauseButton.setImageResource(R.drawable.ic_baseline_play_circle_outline_24)
+            } else {
+                player?.play()
+                binding.playPauseButton.setImageResource(R.drawable.ic_baseline_pause_circle_outline_24)
             }
         }
     }
@@ -139,7 +139,7 @@ class AudioValidationActivity : AppCompatActivity() {
     private fun showSkipWarning() {
         val skipWarningBinding = LayoutSkipWarningBinding.inflate(layoutInflater)
         var doDoNotShow = false
-        skipWarningBinding.checkbox.setOnCheckedChangeListener { buttonView, isChecked ->
+        skipWarningBinding.checkbox.setOnCheckedChangeListener { _, isChecked ->
             doDoNotShow = isChecked
         }
         skipWarningBinding.checkbox.text = getString(R.string.do_not_show_again)
@@ -235,7 +235,7 @@ class AudioValidationActivity : AppCompatActivity() {
         }
         player?.playWhenReady = false
         player?.seekTo(0)
-        player?.setMediaItem(MediaItem.fromUri(currentAudio!!.localAudioUrl!!))
+        currentAudio?.localAudioUrl?.let { MediaItem.fromUri(it) }?.let { player?.setMediaItem(it) }
         player?.prepare()
         binding.playerLoading.visibility = View.VISIBLE
 

@@ -75,9 +75,6 @@ class AudioRecorderActivity : AppCompatActivity() {
 
         viewModel.getConfiguration()?.observe(this) {
             configuration = it
-            if (configuration?.numberOfAudiosPerParticipant != null) {
-                totalExpectedDescription = configuration!!.numberOfAudiosPerParticipant!!
-            }
         }
 
         // App bar actions
@@ -86,11 +83,17 @@ class AudioRecorderActivity : AppCompatActivity() {
         }
 
         binding.buttonDone.setOnClickListener {
-            if (totalDescriptionCount < totalExpectedDescription) {
-                showMaximumImageCountReachedDialog()
-            } else {
-                done()
-            }
+            val dialog =
+                AlertDialog.Builder(this)
+                    .setTitle("Done?")
+                    .setNegativeButton(getString(R.string.no)) { _, _ -> }
+                    .setPositiveButton(getString(R.string.yes)) { _, _ ->
+                        done()
+                    }
+            val message = "Do you want to end the current session?"
+            dialog.setMessage(message)
+            dialog.create()
+            dialog.show()
         }
 
         AppRoomDatabase.databaseWriteExecutor.execute {
@@ -168,11 +171,6 @@ class AudioRecorderActivity : AppCompatActivity() {
     private val amplitudeLeveRunnable = Runnable {
         var recordedSilentDuration = 0
         while (!Thread.currentThread().isInterrupted) {
-            Log.d(
-                tag,
-                ": amplitudeLeveRunnable ${Thread.currentThread().isInterrupted}: ${Thread.currentThread().name}"
-            )
-
             runOnUiThread {
                 val percentage = (waveRecorder2.averageAmplitude / 1500 * 100).toInt()
                 binding.progressBar.progress = percentage
@@ -209,7 +207,8 @@ class AudioRecorderActivity : AppCompatActivity() {
         val currentParticipantId = currentParticipant?.id
         AppRoomDatabase.databaseWriteExecutor.execute {
             val audios: List<Audio>? = if (currentParticipantId != null) {
-                AppRoomDatabase.INSTANCE?.AudioDao()?.getAudiosByParticipant(currentParticipantId)
+                AppRoomDatabase.INSTANCE?.AudioDao()
+                    ?.getAudiosByParticipant(currentParticipantId)
             } else {
                 AppRoomDatabase.INSTANCE?.AudioDao()?.getAudiosByUser()
             }
@@ -255,12 +254,14 @@ class AudioRecorderActivity : AppCompatActivity() {
 
     private fun saveAudioIntoFile() {
         val currentImage = availableImages[currentImageIndex.mod(availableImages.size)]
-        val fileName = currentUser?.locale + "_image_" + currentImage.remoteId.toString().padStart(
-            4, '0'
-        ) + "_u${currentUser?.id}_${currentImage.descriptionCount + 1}_${System.currentTimeMillis()}.wav"
+        val fileName =
+            currentUser?.locale + "_image_" + currentImage.remoteId.toString().padStart(
+                4, '0'
+            ) + "_u${currentUser?.id}_${currentImage.descriptionCount + 1}_${System.currentTimeMillis()}.wav"
 
-        val result = waveRecorder2.saveAudioIntoFile(fileName)
+
         val duration = waveRecorder2.audioDuration()
+        val result = waveRecorder2.saveAudioIntoFile(fileName)
         if (result != null && currentUser != null && duration >= 0) {
             val description = currentImage.name
             val audio = Audio(
@@ -280,7 +281,8 @@ class AudioRecorderActivity : AppCompatActivity() {
 
             // Insert audio and convert to mp3
             AppRoomDatabase.databaseWriteExecutor.execute {
-                val id = AppRoomDatabase.getDatabase(application)?.AudioDao()?.insertAudio(audio)
+                val id =
+                    AppRoomDatabase.getDatabase(application)?.AudioDao()?.insertAudio(audio)
                 if (id != null) {
                     audio.id = id
                     // Convert to mp3
@@ -315,7 +317,6 @@ class AudioRecorderActivity : AppCompatActivity() {
     private fun done() {
         if (currentParticipant != null && totalDescriptionCount > 0) {
             startActivity(Intent(this, ParticipantCompensationDetailsActivity::class.java))
-            finish()
         } else if (totalDescriptionCount > 0) {
             Toast.makeText(
                 this, getString(R.string.saved_recording), Toast.LENGTH_SHORT
@@ -389,12 +390,13 @@ class AudioRecorderActivity : AppCompatActivity() {
     }
 
     private fun showRecordingCompletedDialog() {
-        val dialog = AlertDialog.Builder(this).setTitle("Recording completed").setCancelable(false)
-            .setPositiveButton(getString(R.string.ok)) { _, _ ->
-                resetTimerLabel()
-                waveRecorder2.stopRecording()
-                waveRecorder2.reset()
-            }
+        val dialog =
+            AlertDialog.Builder(this).setTitle("Recording completed").setCancelable(false)
+                .setPositiveButton(getString(R.string.ok)) { _, _ ->
+                    resetTimerLabel()
+                    waveRecorder2.stopRecording()
+                    waveRecorder2.reset()
+                }
 
         var message = ""
         if (waveRecorder2.silentDuration() >= allowedPauseDuration) {
@@ -413,24 +415,6 @@ class AudioRecorderActivity : AppCompatActivity() {
             dialog.create()
             dialog.show()
         }
-    }
-
-    private fun showMaximumImageCountReachedDialog() {
-        val dialog =
-            AlertDialog.Builder(this).setTitle("Expected $totalExpectedDescription descriptions")
-                .setPositiveButton(getString(R.string.yes)) { _, _ -> }
-
-        if (configuration?.allowSavingLessThanRequiredPerParticipant == true) {
-            dialog.setCancelable(false).setNegativeButton(getString(R.string.no)) { _, _ ->
-                done()
-            }
-        }
-
-        val message =
-            "You have recorded only $totalDescriptionCount descriptions. You will only be paid if you record $totalExpectedDescription descriptions. Continue to record?"
-        dialog.setMessage(message)
-        dialog.create()
-        dialog.show()
     }
 
     private fun showErrorDialog(message: String) {

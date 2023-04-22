@@ -167,5 +167,6 @@
     <string name="get_assigned_audios">Get assigned audios</string>
     <string name="validation_audios_availability">Audios assigned to you are only available for a limited time. If not validated, they may be reassigned to another user.</string>
     <string name="clear_all_pending">Clear all pending</string>
-    <string name="do_not_show_again">Do not show this message again.</string>
+    <string name="do_not_show_again">Ignore this version.</string>
+    <string name="delete_audio">Delete audio</string>
 </resources>

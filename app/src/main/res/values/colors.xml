@@ -16,5 +16,6 @@
     <color name="light_blue_A400">#FF00B0FF</color>
     <color name="black_overlay">#66000000</color>
     <color name="text_color">#FF1D1D1D</color>
-    <color name="color_warning">#ED2525</color>
+    <color name="color_success">#FF03DAC5</color>
+    <color name="color_warning">#DA03C5</color>
 </resources>

@@ -49,7 +49,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         viewModel = ViewModelProvider(this)[MainActivityViewModel::class.java]
         val preferences: SharedPreferences =
-            getSharedPreferences(Constants.SHARED_PREFS_FILE, MODE_PRIVATE)
+            getSharedPreferences(SHARED_PREFS_FILE, MODE_PRIVATE)
 
         // Background work manager
         val constraints = Constraints.Builder().apply {
@@ -101,6 +101,13 @@ class MainActivity : AppCompatActivity() {
                     if (user?.permissions?.contains("record_self") != true) {
                         binding.balanceView.visibility = View.GONE
                     }
+
+                    // Update recorded descriptions
+                    viewModel.getAudios(user?.id)?.observe(this) { audios ->
+                        binding.recordedAudioLabel.text =
+                            getString(R.string.recorded_audios, audios.size)
+                    }
+
                 }
             }
         }
@@ -164,9 +171,11 @@ class MainActivity : AppCompatActivity() {
 
         // Fetch maximum description count from db
         viewModel.getConfiguration()?.observe(this) { configuration ->
-            if (configuration == null || !File(configuration.demoVideoLocalUrl).exists() || !File(
-                    configuration.privacyPolicyStatementAudioLocalUrl
-                ).exists()
+            if (configuration == null || !File(configuration.demoVideoLocalUrl).exists() || configuration.privacyPolicyStatementAudioLocalUrl?.let {
+                    File(
+                        it
+                    ).exists()
+                } != true
             ) {
                 binding.appStatusInfo.text = getString(R.string.outdated_config_info)
                 binding.appStatusInfo.setTextColor(Color.rgb(200, 50, 50))
@@ -187,11 +196,6 @@ class MainActivity : AppCompatActivity() {
         // Get images without required number of descriptions
         viewModel.getImages()?.observe(this) { images ->
             binding.assignedImagesInfo.text = "${images.size} Assigned Images"
-        }
-
-        // Update recorded descriptions
-        viewModel.getAudios()?.observe(this) { audios ->
-            binding.recordedAudioLabel.text = getString(R.string.recorded_audios, audios.size)
         }
 
         // Downloaded validations

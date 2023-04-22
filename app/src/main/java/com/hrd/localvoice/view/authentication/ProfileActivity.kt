@@ -221,7 +221,7 @@ class ProfileActivity : AppCompatActivity() {
             binding.localeErrorLabel.visibility = View.GONE
 
             when (lo.lowercase()) {
-                "twi" -> locale = "ak_gh"
+                "akan" -> locale = "ak_gh"
                 "ewe" -> locale = "ee_gh"
                 "dagbani" -> locale = "dga_gh"
                 "dagaare" -> locale = "dag_gh"
@@ -313,22 +313,21 @@ class ProfileActivity : AppCompatActivity() {
                         database.ImageDao().deleteAll()
                     }
                 }
-
-                // Delete all audios
-                database?.AudioDao()?.getAudios()?.observe(this) {
-                    it.forEach { audio ->
-                        val file = File(audio.localFileURl)
-                        if (file.exists()) {
-                            file.delete()
-                        }
-                    }
-
-                    AppRoomDatabase.databaseWriteExecutor.execute {
-                        // Delete record in db
-                        database.AudioDao().deleteAll()
-                    }
-                }
-                Toast.makeText(this, "All app data cleared", Toast.LENGTH_SHORT).show()
+//                // Delete all audios
+//                database?.AudioDao()?.getAudios()?.observe(this) {
+//                    it.forEach { audio ->
+//                        val file = File(audio.localFileURl)
+//                        if (file.exists()) {
+//                            file.delete()
+//                        }
+//                    }
+//
+//                    AppRoomDatabase.databaseWriteExecutor.execute {
+//                        // Delete record in db
+//                        database.AudioDao().deleteAll()
+//                    }
+//                }
+//                Toast.makeText(this, "All app data cleared", Toast.LENGTH_SHORT).show()
             }
         dialog.setMessage("Are you sure you want to delete app data i.e., images, audios, and configurations?")
         dialog.create()

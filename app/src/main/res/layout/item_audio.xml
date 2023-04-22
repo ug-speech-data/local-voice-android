@@ -53,6 +53,16 @@
                 android:layout_height="wrap_content"
                 tools:text="Oct 2, 2022 9.10am" />
 
+
+            <TextView
+                android:id="@+id/conversion_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/uploaded_caps"
+                android:textColor="@color/teal_200"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

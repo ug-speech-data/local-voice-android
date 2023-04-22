@@ -9,6 +9,7 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -17,12 +18,13 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.hrd.localvoice.AppRoomDatabase
 import com.hrd.localvoice.R
 import com.hrd.localvoice.adapters.AudioAdapter
 import com.hrd.localvoice.databinding.ActivityMyAudiosBinding
 import com.hrd.localvoice.databinding.PlayBackBottomSheetDialogLayoutBinding
 import com.hrd.localvoice.models.Audio
-import com.hrd.localvoice.workers.ForceUploadWorker
+import com.hrd.localvoice.models.User
 import com.hrd.localvoice.workers.UploadWorker
 import java.io.File
 import java.io.IOException
@@ -37,6 +39,7 @@ class MyAudiosActivity : AppCompatActivity() {
     private var currentAudio: Audio? = null
     private var audios: List<Audio>? = null
     private lateinit var playerDialog: BottomSheetDialog
+    private var user: User? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,9 +49,12 @@ class MyAudiosActivity : AppCompatActivity() {
 
         // Show back button
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
         setup()
-        loadAudios()
+
+        viewModel.user?.observe(this) {
+            user = it
+            loadAudios()
+        }
 
         // Swipe to refresh
         binding.swiperefresh.setOnRefreshListener {
@@ -73,10 +79,9 @@ class MyAudiosActivity : AppCompatActivity() {
                 val imageView = playerDialog.findViewById<ImageView>(R.id.image_view)
                 if (audio.localImageURl?.isNotEmpty() == true && imageView != null) {
                     val imageUrl = audio.localImageURl
-                    val options: RequestOptions =
-                        RequestOptions().fitCenter()
-                            .placeholder(R.drawable.ic_outline_audio_file_24)
-                            .error(R.drawable.ic_outline_audio_file_24)
+                    val options: RequestOptions = RequestOptions().fitCenter()
+                        .placeholder(R.drawable.ic_outline_audio_file_24)
+                        .error(R.drawable.ic_outline_audio_file_24)
                     Glide.with(this@MyAudiosActivity).load(imageUrl).apply(options)
                         .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC).into(imageView)
                 }
@@ -104,6 +109,9 @@ class MyAudiosActivity : AppCompatActivity() {
                             }
                         }
                 }
+                dialogBinding.deleteButton.setOnClickListener {
+                    showDeleteAudioButton(audio, playerDialog)
+                }
 
                 dialogBinding.playStopButton.setOnClickListener {
                     if (mediaPlayer?.isPlaying == true && currentAudio?.localFileURl == audio.localFileURl) {
@@ -123,10 +131,30 @@ class MyAudiosActivity : AppCompatActivity() {
                 playerDialog.setOnCancelListener {
                     mediaPlayer?.stop()
                 }
-
                 playerDialog.show()
             }
         })
+    }
+
+    private fun showDeleteAudioButton(audio: Audio, playerDialog: BottomSheetDialog) {
+        val dialog = AlertDialog.Builder(this).setTitle("DELETE AUDIO").setCancelable(true)
+            .setNegativeButton("CANCEL") { _, _ ->
+            }.setPositiveButton("YES") { _, _ ->
+                AppRoomDatabase.databaseWriteExecutor.execute {
+                    val file = audio.localFileURl
+                    if (File(file).exists()) {
+                        File(file).delete()
+                    }
+                    AppRoomDatabase.INSTANCE?.AudioDao()?.deleteAudio(audio)
+                    runOnUiThread {
+                        Toast.makeText(this, "Audio deleted successfully.", Toast.LENGTH_SHORT)
+                            .show()
+                        playerDialog.hide()
+                    }
+                }
+            }.setMessage("Are you sure you want to permanently delete this audio from your device?")
+        dialog.create()
+        dialog.show()
     }
 
     private val updateProgressRunnable = Runnable {
@@ -137,11 +165,10 @@ class MyAudiosActivity : AppCompatActivity() {
                 val duration = mediaPlayer!!.currentPosition
 
                 val progressBar = playerDialog.findViewById<ProgressBar>(R.id.progress_bar)
-                if (progressBar != null && totalDuration > 0)
-                    runOnUiThread {
-                        progressBar.progress =
-                            ((duration.toFloat() / totalDuration.toFloat()) * 100).toInt()
-                    }
+                if (progressBar != null && totalDuration > 0) runOnUiThread {
+                    progressBar.progress =
+                        ((duration.toFloat() / totalDuration.toFloat()) * 100).toInt()
+                }
             }
             Thread.sleep(1000)
             if (mediaPlayer?.isPlaying != true) {
@@ -149,6 +176,7 @@ class MyAudiosActivity : AppCompatActivity() {
             }
         }
     }
+
 
     private fun setup() {
         viewModel = ViewModelProvider(this)[MyAudiosActivityViewModel::class.java]
@@ -158,7 +186,7 @@ class MyAudiosActivity : AppCompatActivity() {
     }
 
     private fun loadAudios() {
-        viewModel.getAudios()?.observe(this) {
+        viewModel.getAudios(user?.id)?.observe(this) {
             audios = it
             adapter.setData(it)
             binding.swiperefresh.isRefreshing = false
@@ -210,19 +238,6 @@ class MyAudiosActivity : AppCompatActivity() {
                 workManager.enqueueUniquePeriodicWork(
                     "AudioUploadWorker", ExistingPeriodicWorkPolicy.REPLACE, uploadWorker
                 )
-            }
-            R.id.action_reupload_audios -> {
-                // Schedule on-time work
-                val constraints = Constraints.Builder().apply {
-                    setRequiredNetworkType(NetworkType.CONNECTED)
-                }.build()
-                val workManager = WorkManager.getInstance(application)
-                val workRequest =
-                    OneTimeWorkRequestBuilder<ForceUploadWorker>().setConstraints(
-                        constraints
-                    ).build()
-                workManager.enqueue(workRequest)
-                Toast.makeText(this, "Scheduled force upload.", Toast.LENGTH_LONG).show()
             }
             android.R.id.home -> finish()
         }

@@ -32,7 +32,7 @@ class AudioUtil {
 
                     if (convertedDuration != null && rawDuration != null && convertedDuration == rawDuration) {
                         audio.localFileURl = outputFile
-                        audio.conversionStatus = CONVERSION_STATUS.CONVERTED
+                        audio.conversionStatus = ConversionStatus.CONVERTED
                         AppRoomDatabase.databaseWriteExecutor.execute {
                             val id =
                                 AppRoomDatabase.getDatabase(application)?.AudioDao()
@@ -66,10 +66,10 @@ class AudioUtil {
         }
 
         private fun updateConversionStatus(audio: Audio, application: Application) {
-            if (audio.conversionStatus == CONVERSION_STATUS.RETRY) {
-                audio.conversionStatus = CONVERSION_STATUS.FAILED
+            if (audio.conversionStatus == ConversionStatus.RETRY) {
+                audio.conversionStatus = ConversionStatus.FAILED
             } else {
-                audio.conversionStatus = CONVERSION_STATUS.RETRY
+                audio.conversionStatus = ConversionStatus.RETRY
             }
             AppRoomDatabase.databaseWriteExecutor.execute {
                 AppRoomDatabase.getDatabase(application)?.AudioDao()

@@ -36,7 +36,7 @@ object AudioStatus {
     const val REJECTED = "reject"
 }
 
-object CONVERSION_STATUS {
+object ConversionStatus {
     const val RETRY = "RETRY"
     const val CONVERTED = "CONVERTED"
     const val FAILED = "FAILED"

@@ -11,7 +11,7 @@ import com.hrd.localvoice.BuildConfig
 import com.hrd.localvoice.models.Participant
 import com.hrd.localvoice.network.RestApiFactory
 import com.hrd.localvoice.utils.AudioUtil
-import com.hrd.localvoice.utils.CONVERSION_STATUS
+import com.hrd.localvoice.utils.ConversionStatus
 import com.hrd.localvoice.utils.Constants.AUDIO_STATUS_UPLOADED
 import com.hrd.localvoice.utils.Functions.Companion.syncUploadedAudios
 import okhttp3.MediaType
@@ -38,10 +38,12 @@ class UploadWorker(
 
         audios?.forEach { audio ->
             // Insert audio and convert to mp3
-            if (audio.conversionStatus == CONVERSION_STATUS.NEW || audio.conversionStatus == CONVERSION_STATUS.RETRY) {
+            val file = File(audio.localFileURl)
+            val fileSize = file.length() / (1024 * 1024).toFloat()
+            if (audio.conversionStatus == ConversionStatus.NEW || audio.conversionStatus == ConversionStatus.RETRY) {
                 // Convert to mp3
                 AudioUtil.convert(audio, context as Application)
-            } else {
+            } else if (fileSize > 0.01) {
                 var participant: Participant? = null
                 if (audio.participantId != null) {
                     participant = AppRoomDatabase.INSTANCE?.ParticipantDao()
@@ -56,7 +58,6 @@ class UploadWorker(
                 }
                 val participantString = gson.toJson(participant)
 
-                val file = File(audio.localFileURl)
                 if (file.exists() && (participant == null || participant.momoNumber != null)) {
                     // Ensure that participants compensation details are filled before uploading audio
                     // If audio is done by a participant

@@ -9,7 +9,6 @@ import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -73,8 +72,11 @@ class AudioRecorderActivity : AppCompatActivity() {
             e.localizedMessage?.let { showErrorDialog(it) }
         }
 
-        viewModel.getConfiguration()?.observe(this) {
-            configuration = it
+        viewModel.getConfiguration()?.observe(this) { conf ->
+            configuration = conf
+            configuration?.numberOfAudiosPerParticipant?.let { count ->
+                totalExpectedDescription = count
+            }
         }
 
         // App bar actions
@@ -83,13 +85,11 @@ class AudioRecorderActivity : AppCompatActivity() {
         }
 
         binding.buttonDone.setOnClickListener {
-            val dialog =
-                AlertDialog.Builder(this)
-                    .setTitle("Done?")
-                    .setNegativeButton(getString(R.string.no)) { _, _ -> }
-                    .setPositiveButton(getString(R.string.yes)) { _, _ ->
-                        done()
-                    }
+            val dialog = AlertDialog.Builder(this).setTitle("Done?")
+                .setNegativeButton(getString(R.string.no)) { _, _ -> }
+                .setPositiveButton(getString(R.string.yes)) { _, _ ->
+                    done()
+                }
             val message = "Do you want to end the current session?"
             dialog.setMessage(message)
             dialog.create()
@@ -207,8 +207,7 @@ class AudioRecorderActivity : AppCompatActivity() {
         val currentParticipantId = currentParticipant?.id
         AppRoomDatabase.databaseWriteExecutor.execute {
             val audios: List<Audio>? = if (currentParticipantId != null) {
-                AppRoomDatabase.INSTANCE?.AudioDao()
-                    ?.getAudiosByParticipant(currentParticipantId)
+                AppRoomDatabase.INSTANCE?.AudioDao()?.getAudiosByParticipant(currentParticipantId)
             } else {
                 AppRoomDatabase.INSTANCE?.AudioDao()?.getAudiosByUser()
             }
@@ -254,10 +253,9 @@ class AudioRecorderActivity : AppCompatActivity() {
 
     private fun saveAudioIntoFile() {
         val currentImage = availableImages[currentImageIndex.mod(availableImages.size)]
-        val fileName =
-            currentUser?.locale + "_image_" + currentImage.remoteId.toString().padStart(
-                4, '0'
-            ) + "_u${currentUser?.id}_${currentImage.descriptionCount + 1}_${System.currentTimeMillis()}.wav"
+        val fileName = currentUser?.locale + "_image_" + currentImage.remoteId.toString().padStart(
+            4, '0'
+        ) + "_u${currentUser?.id}_${currentImage.descriptionCount + 1}_${System.currentTimeMillis()}.wav"
 
 
         val duration = waveRecorder2.audioDuration()
@@ -281,8 +279,7 @@ class AudioRecorderActivity : AppCompatActivity() {
 
             // Insert audio and convert to mp3
             AppRoomDatabase.databaseWriteExecutor.execute {
-                val id =
-                    AppRoomDatabase.getDatabase(application)?.AudioDao()?.insertAudio(audio)
+                val id = AppRoomDatabase.getDatabase(application)?.AudioDao()?.insertAudio(audio)
                 if (id != null) {
                     audio.id = id
                     // Convert to mp3
@@ -390,13 +387,12 @@ class AudioRecorderActivity : AppCompatActivity() {
     }
 
     private fun showRecordingCompletedDialog() {
-        val dialog =
-            AlertDialog.Builder(this).setTitle("Recording completed").setCancelable(false)
-                .setPositiveButton(getString(R.string.ok)) { _, _ ->
-                    resetTimerLabel()
-                    waveRecorder2.stopRecording()
-                    waveRecorder2.reset()
-                }
+        val dialog = AlertDialog.Builder(this).setTitle("Recording completed").setCancelable(false)
+            .setPositiveButton(getString(R.string.ok)) { _, _ ->
+                resetTimerLabel()
+                waveRecorder2.stopRecording()
+                waveRecorder2.reset()
+            }
 
         var message = ""
         if (waveRecorder2.silentDuration() >= allowedPauseDuration) {

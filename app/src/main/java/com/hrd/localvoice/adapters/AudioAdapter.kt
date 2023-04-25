@@ -12,7 +12,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.hrd.localvoice.R
 import com.hrd.localvoice.databinding.ItemAudioBinding
 import com.hrd.localvoice.models.Audio
-import com.hrd.localvoice.utils.CONVERSION_STATUS
+import com.hrd.localvoice.utils.ConversionStatus
 import com.hrd.localvoice.utils.Constants.UPLOAD_STATUS_PENDING
 import java.io.File
 import java.util.*
@@ -75,7 +75,7 @@ class AudioAdapter(private val context: Context) :
                 }
 
                 // Color code conversion status
-                if (audio.conversionStatus == CONVERSION_STATUS.CONVERTED) {
+                if (audio.conversionStatus == ConversionStatus.CONVERTED) {
                     conversionStatus.setTextColor(context.getColor(R.color.color_success))
                 } else {
                     conversionStatus.setTextColor(context.getColor(R.color.color_warning))

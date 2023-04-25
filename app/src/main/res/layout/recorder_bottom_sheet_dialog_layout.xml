@@ -19,7 +19,6 @@
 
         <Button
             android:id="@+id/play_stop_button"
-            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:drawableStart="@drawable/baseline_mic_none_24"

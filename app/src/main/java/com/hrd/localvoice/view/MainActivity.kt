@@ -309,8 +309,7 @@ class MainActivity : AppCompatActivity() {
         )
 
         intent.setDataAndType(uri, "application/vnd.android.package-archive")
-        intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-
+        intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION;
         startActivity(intent)
     }
 
@@ -332,7 +331,9 @@ class MainActivity : AppCompatActivity() {
             prefs.remove(Constants.IS_NEW_USER)
             prefs.remove(Constants.USER_TOKEN)
             prefs.apply()
-            startActivity(Intent(this, LoginActivity::class.java))
+            val intent = Intent(this, LoginActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+            startActivity(intent)
             finish()
         }
         if (item.itemId == R.id.action_profile) {

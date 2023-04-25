@@ -22,7 +22,7 @@ android {
         minSdk 24
         targetSdk 33
         versionCode 27
-        versionName "2.8.4"
+        versionName "2.8.5"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         archivesBaseName = "localvoice-v$versionName"
 

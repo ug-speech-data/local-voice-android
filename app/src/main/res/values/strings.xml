@@ -104,7 +104,7 @@
     <string name="play_button">Play Button</string>
     <string name="locale">Locale</string>
     <string name="duration">Duration</string>
-    <string name="audio_validation_message">Validate audios submitted by others by ensuring that audios correctly describe the images.</string>
+    <string name="audio_validation_message">Download and validate audios submitted by others by ensuring that audios correctly describe the images.</string>
     <string name="home_screen_intro_text">Choose an activity below to start with.</string>
     <string name="audio_validation">Audio Validation</string>
     <string name="no_more_audios">No more audios</string>

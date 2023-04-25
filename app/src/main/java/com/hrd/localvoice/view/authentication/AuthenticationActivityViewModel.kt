@@ -82,7 +82,7 @@ class AuthenticationActivityViewModel(application: Application) : AndroidViewMod
                 }
 
                 override fun onFailure(call: Call<AuthenticationResponse?>, t: Throwable) {
-                    errorMessage.value = "Couldn't connect to server."
+                    errorMessage.value = "Couldn't connect to the internet."
                     isLoading.value = false
                 }
             })
@@ -136,7 +136,7 @@ class AuthenticationActivityViewModel(application: Application) : AndroidViewMod
                 }
 
                 override fun onFailure(call: Call<AuthenticationResponse?>, t: Throwable) {
-                    errorMessage.value = "Couldn't connect to server."
+                    errorMessage.value = "Couldn't connect to the internet."
                     isLoading.value = false
                 }
             })
@@ -184,7 +184,7 @@ class AuthenticationActivityViewModel(application: Application) : AndroidViewMod
                 }
 
                 override fun onFailure(call: Call<AuthenticationResponse?>, t: Throwable) {
-                    errorMessage.value = "Couldn't connect to server."
+                    errorMessage.value = "Couldn't connect to the internet."
                     isLoading.value = false
                     profileUpdate.value = false
                 }
@@ -233,7 +233,7 @@ class AuthenticationActivityViewModel(application: Application) : AndroidViewMod
                 }
 
                 override fun onFailure(call: Call<AuthenticationResponse?>, t: Throwable) {
-                    errorMessage.value = "Couldn't connect to server."
+                    errorMessage.value = "Couldn't connect to the internet."
                     isLoading.value = false
                 }
             })

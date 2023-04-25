@@ -38,7 +38,7 @@ class UploadWorker(
 
         audios?.forEach { audio ->
             // Insert audio and convert to mp3
-            if (audio.localFileURl.split(".wav").size > 1 || audio.conversionStatus == CONVERSION_STATUS.RETRY) {
+            if (audio.conversionStatus == CONVERSION_STATUS.NEW || audio.conversionStatus == CONVERSION_STATUS.RETRY) {
                 // Convert to mp3
                 AudioUtil.convert(audio, context as Application)
             } else {

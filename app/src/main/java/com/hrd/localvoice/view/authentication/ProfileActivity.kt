@@ -1,6 +1,7 @@
 package com.hrd.localvoice.view.authentication
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
@@ -124,6 +125,18 @@ class ProfileActivity : AppCompatActivity() {
 
         binding.updateButton.setOnClickListener {
             updateProfile()
+        }
+
+        binding.logoutButton.setOnClickListener {
+            val prefs =
+                getSharedPreferences(Constants.SHARED_PREFS_FILE, Context.MODE_PRIVATE).edit()
+            prefs.remove(Constants.IS_NEW_USER)
+            prefs.remove(Constants.USER_TOKEN)
+            prefs.apply()
+            val intent = Intent(this, LoginActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+            startActivity(intent)
+            finish()
         }
     }
 

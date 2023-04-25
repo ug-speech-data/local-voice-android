@@ -8,20 +8,31 @@
     tools:context=".view.authentication.ProfileActivity">
 
     <LinearLayout
-        android:layout_width="400dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_marginHorizontal="10dp"
         android:layout_marginVertical="20dp"
         android:orientation="vertical">
 
+        <Button
+            android:id="@+id/logout_button"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:drawableStart="@drawable/baseline_logout_24"
+            android:text="@string/logout" />
+
         <ImageView
             android:id="@+id/image_view"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:layout_width="140dp"
+            android:layout_height="140dp"
             android:layout_gravity="center_horizontal"
+            android:background="@drawable/round_circle"
             android:contentDescription="@string/app_logo"
             android:foregroundTint="@color/gray_600"
+            android:padding="10dp"
             android:src="@drawable/ic_baseline_person_outline_24"
             app:tint="@color/gray_600" />
 
@@ -29,11 +40,12 @@
             android:id="@+id/email_address"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            android:text="@string/app_name"
+            android:layout_marginVertical="10dp"
+            android:text="email@ugspeechdata.com"
             android:textAlignment="center"
             android:textStyle="bold"
-            app:layout_constraintTop_toBottomOf="@id/image_view" />
+            app:layout_constraintTop_toBottomOf="@id/image_view"
+            tools:ignore="HardcodedText" />
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"

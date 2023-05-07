@@ -3,6 +3,7 @@ package com.hrd.localvoice.utils
 object Constants {
     const val AUDIOS_TABLE = "audios"
     const val AUDIO_VALIDATION_TABLE = "validation_audios"
+    const val AUDIO_TRANSCRIPTION_TABLE = "transcription_audios"
     const val IMAGES_TABLE = "images"
     const val CONFIGURATIONS_TABLE = "configurations"
     const val ACTIVITY_STATUS_TABLE = "activity_status"
@@ -18,6 +19,7 @@ object Constants {
     const val IS_NEW_USER = "com.hrd.localvoice.IS_NEW_USER"
     const val USER_OBJECT = "com.hrd.localvoice.USER_OBJECT"
     const val DO_NOT_SHOW_SKIP_WARNING = "com.hrd.localvoice.DO_NOT_SHOW_SKIP_WARNING"
+    const val DO_NOT_SHOW_TRANSCRIPTION_SKIP_WARNING = "com.hrd.localvoice.DO_NOT_SHOW_TRANSCRIPTION_SKIP_WARNING"
     const val IGNORED_UPDATE_VERSION = "com.hrd.localvoice.DO_NOT_UPDATE_WARNING"
 
     val ENVIRONMENTS = arrayOf(
@@ -41,4 +43,10 @@ object ConversionStatus {
     const val CONVERTED = "CONVERTED"
     const val FAILED = "FAILED"
     const val NEW = "NEW"
+}
+
+object TranscriptionStatus {
+    const val PENDING = "PENDING"
+    const val TRANSCRIBED = "TRANSCRIBED"
+    const val UPLOADED = "UPLOADED"
 }

@@ -20,6 +20,10 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         return repository.getValidationAudios()
     }
 
+    fun getPendingAudioTranscriptions(): LiveData<List<TranscriptionAudio>>? {
+        return repository.getPendingAudioTranscriptions()
+    }
+
     fun getAudios(id: Long?): LiveData<List<Audio>>? {
         return repository.getAudios(id)
     }

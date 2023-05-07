@@ -68,6 +68,9 @@ interface ApiService {
     @GET("get-assigned-audios-to-validate/")
     fun getAssignedAudios(@Query("completed") completed: Boolean = false): Call<ValidationAudiosResponse?>?
 
+    @GET("get-assigned-audios-to-transcribe/")
+    fun updateAssignedTranscriptionAudiosWorker(@Query("completed") completed: Boolean = false): Call<TranscriptionAudiosResponse?>?
+
     @GET("get-uploaded-audios/")
     fun getUploadedAudios(): Call<AudiosResponse?>?
 
@@ -81,5 +84,12 @@ interface ApiService {
     fun validateAudio(
         @Field("id") id: Long, @Field("status") status: String
     ): Call<AudioValidationResponse>?
+
+    @FormUrlEncoded
+    @POST("submit-transcription/")
+    fun submitTranscription(
+        @Field("id") id: Long, @Field("text") text: String
+    ): Call<AudioValidationResponse>?
+
 
 }

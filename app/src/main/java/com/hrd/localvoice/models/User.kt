@@ -31,6 +31,7 @@ data class User(
     @SerializedName("balance") val balance: String = "0.00",
     @SerializedName("audios_submitted") val audiosSubmitted: Int = 0,
     @SerializedName("audios_validated") val audiosValidated: Int = 0,
+    @ColumnInfo(defaultValue = "0") @SerializedName("audios_transcribed") val audiosTranscribed: Int = 0,
     @SerializedName("audios_pending") @ColumnInfo(defaultValue = "0") val audiosPending: Int = 0,
     @SerializedName("audios_accepted") @ColumnInfo(defaultValue = "0") val audiosAccepted: Int = 0,
     @SerializedName("audios_rejected") @ColumnInfo(defaultValue = "0") val audiosRejected: Int = 0,

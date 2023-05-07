@@ -8,9 +8,7 @@ import com.hrd.localvoice.models.*
 class DataRepository(application: Application) {
     private var application: Application
     private var db: AppRoomDatabase?
-
     val configuration: LiveData<Configuration?>?
-
     val participants: LiveData<List<Participant>>?
     val user: LiveData<User?>?
 
@@ -20,6 +18,7 @@ class DataRepository(application: Application) {
     private val imageDao: ImageDao?
     private val userDao: UserDao?
     private val validationAudioDao: ValidationAudioDao?
+    private val transcriptionAudioDao: TranscriptionAudioDao?
 
     fun getAssignedImages(excludes: List<Long>): LiveData<List<Image>>? {
         return imageDao?.getImagesLive(excludes)
@@ -27,6 +26,14 @@ class DataRepository(application: Application) {
 
     fun getValidationAudios(): LiveData<List<ValidationAudio>>? {
         return validationAudioDao?.getValidationAudios()
+    }
+
+    fun getTranscriptionAudios(): LiveData<List<TranscriptionAudio>>? {
+        return transcriptionAudioDao?.getTranscriptionAudios()
+    }
+
+    fun getPendingAudioTranscriptions(): LiveData<List<TranscriptionAudio>>? {
+        return transcriptionAudioDao?.getPendingAudioTranscriptions()
     }
 
     fun getPendingAudioValidations(): LiveData<List<ValidationAudio>>? {
@@ -61,7 +68,7 @@ class DataRepository(application: Application) {
         }
     }
 
-    fun getAudios(id:Long?): LiveData<List<Audio>>? {
+    fun getAudios(id: Long?): LiveData<List<Audio>>? {
         return audioDao?.getAudios(id)
     }
 
@@ -96,6 +103,7 @@ class DataRepository(application: Application) {
         configurationDao = db?.ConfigurationDao()
         userDao = db?.UserDao()
         validationAudioDao = db?.ValidationAudioDao()
+        transcriptionAudioDao = db?.TranscriptionAudioDao()
 
         participants = participantDao?.getParticipants()
         user = userDao?.getUserAsync()

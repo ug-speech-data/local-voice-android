@@ -1,4 +1,4 @@
-package com.hrd.localvoice.view.validations
+package com.hrd.localvoice.view.transcriptions
 
 import android.content.Intent
 import android.content.SharedPreferences
@@ -7,64 +7,48 @@ import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.SeekBar
+import android.widget.SeekBar.OnSeekBarChangeListener
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.bumptech.glide.request.RequestOptions
 import com.google.android.exoplayer2.*
 import com.hrd.localvoice.AppRoomDatabase
 import com.hrd.localvoice.R
-import com.hrd.localvoice.databinding.ActivityAudioValidationBinding
+import com.hrd.localvoice.databinding.ActivityTranscriptionBinding
 import com.hrd.localvoice.databinding.LayoutSkipWarningBinding
-import com.hrd.localvoice.models.ValidationAudio
-import com.hrd.localvoice.utils.AudioStatus
+import com.hrd.localvoice.models.TranscriptionAudio
 import com.hrd.localvoice.utils.Constants
-import com.hrd.localvoice.utils.Constants.DO_NOT_SHOW_SKIP_WARNING
+import com.hrd.localvoice.utils.TranscriptionStatus
 import com.hrd.localvoice.view.MainActivity
 import java.io.File
 
 
-class AudioValidationActivity : AppCompatActivity() {
-    val tag = "AudioValidationActivity"
-    lateinit var binding: ActivityAudioValidationBinding
-    private lateinit var viewModel: ValidationActivityViewModel
+class TranscriptionActivity : AppCompatActivity() {
+    val tag = "TranscriptionActivity"
+    lateinit var binding: ActivityTranscriptionBinding
+    private lateinit var viewModel: TranscriptionActivityViewModel
     private var player: ExoPlayer? = null
     private var isAudioPlaying = false
     private var playedFullAudio = false
     private var progressBarThread: Thread? = null
-    private var allAudios: MutableList<ValidationAudio> = mutableListOf()
+    private var allAudios: MutableList<TranscriptionAudio> = mutableListOf()
     private var currentIndex = 0
-    private var currentAudio: ValidationAudio? = null
+    private var currentAudio: TranscriptionAudio? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityAudioValidationBinding.inflate(layoutInflater)
+        binding = ActivityTranscriptionBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        title = getString(R.string.audio_validation)
+        title = "Transcriptions"
         // Show back button
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        viewModel = ViewModelProvider(this)[TranscriptionActivityViewModel::class.java]
 
         var currentIndex = intent.getIntExtra("position", 0)
-
         val preferences: SharedPreferences =
             getSharedPreferences(Constants.SHARED_PREFS_FILE, MODE_PRIVATE)
-
-        viewModel = ViewModelProvider(this)[ValidationActivityViewModel::class.java]
-        viewModel.isLoading.observe(this) { value ->
-            if (value) {
-                binding.loadingProcessBar.visibility = View.VISIBLE
-                binding.skipButton.isEnabled = false
-                binding.acceptButton.isEnabled = false
-                binding.rejectButton.isEnabled = false
-            } else {
-                binding.loadingProcessBar.visibility = View.GONE
-                binding.skipButton.isEnabled = true
-            }
-        }
 
         // If user does not have permission, close the activity.
         viewModel.user?.observe(this) { user ->
@@ -75,9 +59,9 @@ class AudioValidationActivity : AppCompatActivity() {
         }
 
         AppRoomDatabase.databaseWriteExecutor.execute {
-            val audios =
-                AppRoomDatabase.INSTANCE?.ValidationAudioDao()?.getSyncPendingAudioValidations()
-            allAudios = audios as MutableList<ValidationAudio>
+            val audios = AppRoomDatabase.INSTANCE?.TranscriptionAudioDao()
+                ?.getSyncPendingAudioTranscriptions()
+            allAudios = audios as MutableList<TranscriptionAudio>
             currentIndex = allAudios.size - currentIndex - 1
             runOnUiThread {
                 showAudioAtIndex(currentIndex)
@@ -85,46 +69,25 @@ class AudioValidationActivity : AppCompatActivity() {
         }
 
         viewModel.errorMessage.observe(this) { message ->
-            binding.messageTextView.text = message
+            if (message.isNotEmpty()) {
+                binding.messageTextView.visibility = View.VISIBLE
+                binding.messageTextView.text = message
+            } else {
+                binding.messageTextView.visibility = View.GONE
+            }
         }
 
         // Image navigation
         binding.skipButton.setOnClickListener {
-            if (!preferences.getBoolean(DO_NOT_SHOW_SKIP_WARNING, false)) {
+            if (!preferences.getBoolean(Constants.DO_NOT_SHOW_TRANSCRIPTION_SKIP_WARNING, false)) {
                 showSkipWarning()
             } else {
                 deleteAudio(currentAudio!!)
             }
         }
 
-        binding.acceptButton.setOnClickListener {
-            currentAudio?.let { audio ->
-                AppRoomDatabase.databaseWriteExecutor.execute {
-                    audio.validatedStatus = AudioStatus.ACCEPTED
-                    audio.updatedAt = System.currentTimeMillis()
-                    AppRoomDatabase.INSTANCE?.ValidationAudioDao()
-                        ?.updateAudioValidation(audio)
-                    runOnUiThread {
-                        allAudios.remove(audio)
-                        showAudioAtIndex(currentIndex)
-                    }
-                }
-            }
-        }
-
-        binding.rejectButton.setOnClickListener {
-            currentAudio?.let { audio ->
-                AppRoomDatabase.databaseWriteExecutor.execute {
-                    audio.validatedStatus = AudioStatus.REJECTED
-                    audio.updatedAt = System.currentTimeMillis()
-                    AppRoomDatabase.INSTANCE?.ValidationAudioDao()
-                        ?.updateAudioValidation(audio)
-                    runOnUiThread {
-                        allAudios.remove(audio)
-                        showAudioAtIndex(currentIndex)
-                    }
-                }
-            }
+        binding.saveButton.setOnClickListener {
+            showSaveConfirmationDialog()
         }
 
         binding.playPauseButton.setOnClickListener {
@@ -137,8 +100,7 @@ class AudioValidationActivity : AppCompatActivity() {
             }
         }
 
-        binding.playerProgressBar.setOnSeekBarChangeListener(object :
-            SeekBar.OnSeekBarChangeListener {
+        binding.playerProgressBar.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
             override fun onStopTrackingTouch(seekBar: SeekBar) {
             }
 
@@ -151,7 +113,7 @@ class AudioValidationActivity : AppCompatActivity() {
                         player.seekTo(player.duration * progress / 100)
                     } else {
                         Toast.makeText(
-                            this@AudioValidationActivity,
+                            this@TranscriptionActivity,
                             "Cannot seek around until full audio is played.",
                             Toast.LENGTH_SHORT
                         ).show()
@@ -172,89 +134,39 @@ class AudioValidationActivity : AppCompatActivity() {
         val builder = AlertDialog.Builder(this)
         builder.setTitle("SKIP AUDIO")
         builder.setMessage("Audios skipped will be deleted from your device. Continue to skip?")
-            .setView(skipWarningBinding.root)
-            .setCancelable(false)
-            .setPositiveButton("Yes") { dialog, id ->
+            .setView(skipWarningBinding.root).setCancelable(false)
+            .setPositiveButton("Yes") { _, _ ->
                 val editPref =
                     getSharedPreferences(Constants.SHARED_PREFS_FILE, MODE_PRIVATE).edit()
-                editPref.putBoolean(DO_NOT_SHOW_SKIP_WARNING, doDoNotShow).apply()
+                editPref.putBoolean(Constants.DO_NOT_SHOW_TRANSCRIPTION_SKIP_WARNING, doDoNotShow)
+                    .apply()
                 deleteAudio(currentAudio!!)
-            }
-            .setNegativeButton(
+            }.setNegativeButton(
                 "No"
             ) { dialog, id -> dialog.cancel() }.show()
     }
 
-    private fun deleteAudio(audio: ValidationAudio) {
-        player?.stop()
-
-        if (audio.localImageUrl?.let { it1 -> File(it1).exists() } == true) audio.localImageUrl?.let { it1 ->
-            File(
-                it1
-            ).delete()
-        }
-        if (audio.localAudioUrl?.let { it1 -> File(it1).exists() } == true) audio.localAudioUrl?.let { it1 ->
-            File(
-                it1
-            ).delete()
-        }
-        AppRoomDatabase.databaseWriteExecutor.execute {
-            AppRoomDatabase.INSTANCE?.ValidationAudioDao()?.delete(audio)
-            runOnUiThread {
-                Toast.makeText(
-                    this@AudioValidationActivity,
-                    "Removed audio ${audio.id} from device.",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        }
-
-        allAudios.remove(audio)
-        showAudioAtIndex(currentIndex)
-    }
-
-    private fun showNoAudiosDialog() {
-        val dialog = AlertDialog.Builder(this).setTitle("No audios found").setCancelable(false)
-            .setPositiveButton("GO HOME") { _, _ ->
-                val intent = Intent(this, MainActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
-                startActivity(intent)
-                finish()
-            }
-        dialog.setMessage("Please refresh your validation list.")
-        dialog.create()
-        dialog.show()
-    }
-
     private fun showAudioAtIndex(index: Int) {
         playedFullAudio = false
+        binding.textArea.text?.clear()
         if (allAudios.isEmpty()) {
             showNoAudiosDialog()
             return
         }
         currentAudio = allAudios[index.mod(allAudios.size)]
-        if (currentAudio == null) return
-
-        binding.audioLocale.text = currentAudio!!.locale
-        binding.audioEnvironment.text = currentAudio!!.environment
-        binding.audioDuration.text = currentAudio!!.duration.toString()
-        binding.audioName.text = currentAudio!!.id.toString()
-
-        // Load images
-        val imageUrl = currentAudio!!.localImageUrl
-        val options: RequestOptions =
-            RequestOptions().fitCenter().placeholder(R.drawable.placeholder)
-                .error(R.drawable.placeholder)
-        Glide.with(this).load(imageUrl).apply(options)
-            .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC).into(binding.imageView)
-
-        initializePlayer()
+        currentAudio?.let { audio ->
+            binding.audioLocale.text = audio.locale
+            audio.text?.let { text -> binding.textArea.setText(text, TextView.BufferType.EDITABLE) }
+            binding.audioEnvironment.text = audio.environment
+            binding.audioDuration.text = audio.duration.toString()
+            binding.audioName.text = audio.id.toString()
+            initializePlayer()
+        }
     }
 
     private fun initializePlayer() {
         if (currentAudio == null) return
-        binding.rejectButton.isEnabled = false
-        binding.acceptButton.isEnabled = false
+        binding.saveButton.isEnabled = false
 
         if (player == null) {
             player = ExoPlayer.Builder(this).build()
@@ -273,12 +185,11 @@ class AudioValidationActivity : AppCompatActivity() {
                 binding.playPauseButton.isEnabled = false
                 when (playbackState) {
                     Player.STATE_ENDED -> {
-                        binding.rejectButton.isEnabled = true
-                        binding.acceptButton.isEnabled = true
+                        binding.saveButton.isEnabled = binding.textArea.text.toString().isNotEmpty()
                         binding.playPauseButton.isEnabled = true
-                        playedFullAudio = true
                         player?.pause()
                         player?.seekTo(0)
+                        playedFullAudio = true
                     }
                     Player.STATE_IDLE, Player.STATE_READY -> {
                         binding.playerLoading.visibility = View.GONE
@@ -292,7 +203,7 @@ class AudioValidationActivity : AppCompatActivity() {
                 super.onPlayerError(error)
                 binding.playerLoading.visibility = View.GONE
                 Toast.makeText(
-                    this@AudioValidationActivity,
+                    this@TranscriptionActivity,
                     "Couldn't play audio: ${error.errorCodeName}",
                     Toast.LENGTH_SHORT
                 ).show()
@@ -329,6 +240,64 @@ class AudioValidationActivity : AppCompatActivity() {
                 break
             }
         }
+    }
+
+    private fun deleteAudio(audio: TranscriptionAudio) {
+        player?.stop()
+        if (audio.localAudioUrl?.let { it1 -> File(it1).exists() } == true) audio.localAudioUrl?.let { it1 ->
+            File(
+                it1
+            ).delete()
+        }
+        AppRoomDatabase.databaseWriteExecutor.execute {
+            AppRoomDatabase.INSTANCE?.TranscriptionAudioDao()?.delete(audio)
+            runOnUiThread {
+                Toast.makeText(
+                    this@TranscriptionActivity,
+                    "Removed audio ${audio.id} from device.",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+
+        allAudios.remove(audio)
+        showAudioAtIndex(currentIndex)
+    }
+
+    private fun showNoAudiosDialog() {
+        val dialog = AlertDialog.Builder(this).setTitle("No audios found").setCancelable(false)
+            .setPositiveButton("GO HOME") { _, _ ->
+                val intent = Intent(this, MainActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+                startActivity(intent)
+                finish()
+            }
+        dialog.setMessage("Please refresh your transcription list.")
+        dialog.create()
+        dialog.show()
+    }
+
+    private fun showSaveConfirmationDialog() {
+        val dialog = AlertDialog.Builder(this).setTitle("Save").setCancelable(false)
+            .setNegativeButton("No") { _, _ -> }
+            .setPositiveButton("Yes") { _, _ ->
+                currentAudio?.let { audio ->
+                    AppRoomDatabase.databaseWriteExecutor.execute {
+                        audio.transcriptionStatus = TranscriptionStatus.TRANSCRIBED
+                        audio.text = binding.textArea.text.toString()
+                        audio.updatedAt = System.currentTimeMillis()
+                        AppRoomDatabase.INSTANCE?.TranscriptionAudioDao()
+                            ?.updateAudioTranscription(audio)
+                        runOnUiThread {
+                            allAudios.remove(audio)
+                            showAudioAtIndex(currentIndex)
+                        }
+                    }
+                }
+            }
+        dialog.setMessage("Are you sure you want to save your transcription?")
+        dialog.create()
+        dialog.show()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

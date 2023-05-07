@@ -59,6 +59,7 @@
     <string name="previous_audios_message">All audios will be uploaded automatically when there\'s internet and the battery is not low.</string>
     <string name="recorded_audios">%1$d Recorded Audios</string>
     <string name="audios_to_validate">%1$d Audios to validate</string>
+    <string name="audios_to_transcribe">%1$d Audios to transcribe</string>
     <string name="background_noise_check_message">Checking background noise level. \nPlease be silent 3 seconds.</string>
     <string name="no_data_found">No data found.</string>
     <string name="update_local_images">Download Assigned Images</string>
@@ -104,7 +105,8 @@
     <string name="play_button">Play Button</string>
     <string name="locale">Locale</string>
     <string name="duration">Duration</string>
-    <string name="audio_validation_message">Download and validate audios submitted by others by ensuring that audios correctly describe the images.</string>
+    <string name="audio_validation_message">Download and validate audios using our validation protocol.</string>
+    <string name="audio_transcription_message">Download and transcribe audios word for word  in your locale.</string>
     <string name="home_screen_intro_text">Choose an activity below to start with.</string>
     <string name="audio_validation">Audio Validation</string>
     <string name="no_more_audios">No more audios</string>
@@ -166,7 +168,18 @@
     <string name="upload_validations">Upload validations</string>
     <string name="get_assigned_audios">Get assigned audios</string>
     <string name="validation_audios_availability">Audios assigned to you are only available for a limited time. If not validated, they may be reassigned to another user.</string>
+    <string name="transcription_audios_availability">Audios assigned to you are only available for a limited time. If not transcribed, they may be reassigned to another user.</string>
     <string name="clear_all_pending">Clear all pending</string>
-    <string name="do_not_show_again">Ignore this version.</string>
+    <string name="ignore_this_version">Ignore this version.</string>
+    <string name="do_not_show_again">Do not show again.</string>
     <string name="delete_audio">Delete audio</string>
+    <string name="audio_transcription">Audio Transcription</string>
+    <string name="audios_you_transcribed">Audios You Transcribed</string>
+    <string name="start_transcription">Start transcription</string>
+    <string name="tap_to_download_transcription">Tap the button below to download the audios you have been assigned to transcribe.</string>
+    <string name="tap_to_download_validation">Tap the button below to download the audios you have been assigned to validate.</string>
+    <string name="upload_transcriptions">Upload transcriptions</string>
+    <string name="validate">Validate</string>
+    <string name="transcribe">Transcribe</string>
+    <string name="transcription_instruction">Play the full audio and transcribe the audio word for word using only the alphabets of your locale.</string>
 </resources>

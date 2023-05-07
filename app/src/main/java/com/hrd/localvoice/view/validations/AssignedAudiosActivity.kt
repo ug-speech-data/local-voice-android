@@ -113,6 +113,15 @@ class AssignedAudiosActivity : AppCompatActivity() {
                         AppRoomDatabase.databaseWriteExecutor.execute {
                             val pendingAudios = AppRoomDatabase.INSTANCE?.ValidationAudioDao()
                                 ?.getSyncPendingAudioValidations()
+                            pendingAudios?.forEach { audio ->
+                                // Remove audio
+                                if (audio.localImageUrl?.let { it1 -> File(it1).exists() } == true) audio.localImageUrl?.let { it1 ->
+                                    File(it1).delete()
+                                }
+                                if (audio.localAudioUrl?.let { it1 -> File(it1).exists() } == true) audio.localAudioUrl?.let { it1 ->
+                                    File(it1).delete()
+                                }
+                            }
                             if (pendingAudios?.isNotEmpty() == true) {
                                 AppRoomDatabase.INSTANCE?.ValidationAudioDao()
                                     ?.delete(pendingAudios)
@@ -171,6 +180,7 @@ class AssignedAudiosActivity : AppCompatActivity() {
             adapter.setData(it)
             binding.swiperefresh.isRefreshing = false
             binding.pendingCountLabel.text = "${audios?.size} Pending"
+            binding.fab.isEnabled = it.isNotEmpty()
 
             AppRoomDatabase.databaseWriteExecutor.execute {
                 val hoursToKeepAudiosForValidation = AppRoomDatabase.INSTANCE?.ConfigurationDao()

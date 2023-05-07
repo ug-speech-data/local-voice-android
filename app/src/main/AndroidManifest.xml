@@ -20,6 +20,12 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".view.transcriptions.TranscriptionActivity"
+            android:exported="false" />
+        <activity
+            android:name=".view.transcriptions.AssignedTranscriptionsActivity"
+            android:exported="false" />
+        <activity
             android:name=".view.validations.AssignedAudiosActivity"
             android:exported="false" />
 

@@ -29,6 +29,7 @@ import com.hrd.localvoice.view.configurations.ConfigurationActivity
 import com.hrd.localvoice.view.local_files.MyAudiosActivity
 import com.hrd.localvoice.view.local_files.MyImagesActivity
 import com.hrd.localvoice.view.participants.ParticipantBioActivity
+import com.hrd.localvoice.view.transcriptions.AssignedTranscriptionsActivity
 import com.hrd.localvoice.view.validations.AssignedAudiosActivity
 import com.hrd.localvoice.view.videoplayer.VideoPlayerActivity
 import com.hrd.localvoice.workers.UpdateAssignedImagesWorker
@@ -48,8 +49,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         viewModel = ViewModelProvider(this)[MainActivityViewModel::class.java]
-        val preferences: SharedPreferences =
-            getSharedPreferences(SHARED_PREFS_FILE, MODE_PRIVATE)
+        val preferences: SharedPreferences = getSharedPreferences(SHARED_PREFS_FILE, MODE_PRIVATE)
 
         // Background work manager
         val constraints = Constraints.Builder().apply {
@@ -79,6 +79,7 @@ class MainActivity : AppCompatActivity() {
                         binding.balanceView.text = getString(R.string.balance, user?.balance);
                         binding.audiosSubmittedView.text = user?.audiosSubmitted.toString()
                         binding.audiosValidatedView.text = user?.audiosValidated.toString()
+                        binding.audiosTranscribedView.text = user?.audiosTranscribed.toString()
 
                         binding.audiosPendingView.text = user?.audiosPending.toString()
 
@@ -91,15 +92,36 @@ class MainActivity : AppCompatActivity() {
                         );
                     }
 
-                    // Hide/Show Audio validation button
+                    // Show/hide activity buttons based on user permission
+                    // Validation
                     if (user?.permissions?.contains("validate_audio") != true) {
                         binding.audioValidationCard.visibility = View.GONE
                     } else {
                         binding.audioValidationCard.visibility = View.VISIBLE
                     }
 
+                    // Balance
                     if (user?.permissions?.contains("record_self") != true) {
                         binding.balanceView.visibility = View.GONE
+                    }
+
+                    // Recording
+                    if (user?.permissions?.contains("record_others") == true || user?.permissions?.contains(
+                            "record_self"
+                        ) == true
+                    ) {
+                        binding.recordingCard.visibility = View.VISIBLE
+                    } else {
+                        binding.recordingCard.visibility = View.GONE
+                    }
+
+                    // Transcription
+                    if (user?.permissions?.contains("transcribe_audio") == true) {
+                        binding.audioTranscriptionCard.visibility = View.VISIBLE
+                        binding.audioTranscriptionCountCard.visibility = View.VISIBLE
+                    } else {
+                        binding.audioTranscriptionCard.visibility = View.GONE
+                        binding.audioTranscriptionCountCard.visibility = View.GONE
                     }
 
                     // Update recorded descriptions
@@ -142,16 +164,6 @@ class MainActivity : AppCompatActivity() {
                 intent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
                 startActivity(intent)
             }
-
-            // Show/Hide record depending on user's permission
-            if (user?.permissions?.contains("record_others") == true || user?.permissions?.contains(
-                    "record_self"
-                ) == true
-            ) {
-                binding.recordingCard.visibility = View.VISIBLE
-            } else {
-                binding.recordingCard.visibility = View.GONE
-            }
         }
 
         // Open recorded audios activity
@@ -168,6 +180,17 @@ class MainActivity : AppCompatActivity() {
         binding.audioValidationCard.setOnClickListener {
             startActivity(Intent(this, AssignedAudiosActivity::class.java))
         }
+        binding.startValidationButton.setOnClickListener {
+            startActivity(Intent(this, AssignedAudiosActivity::class.java))
+        }
+
+        // Open audio transcription activity
+        binding.audioTranscriptionCard.setOnClickListener {
+            startActivity(Intent(this, AssignedTranscriptionsActivity::class.java))
+        }
+        binding.startTranscriptionButton.setOnClickListener {
+            startActivity(Intent(this, AssignedTranscriptionsActivity::class.java))
+        }
 
         // Fetch maximum description count from db
         viewModel.getConfiguration()?.observe(this) { configuration ->
@@ -175,8 +198,7 @@ class MainActivity : AppCompatActivity() {
                     File(
                         it
                     ).exists()
-                } != true
-            ) {
+                } != true) {
                 binding.appStatusInfo.text = getString(R.string.outdated_config_info)
                 binding.appStatusInfo.setTextColor(Color.rgb(200, 50, 50))
             } else {
@@ -202,6 +224,12 @@ class MainActivity : AppCompatActivity() {
         viewModel.getValidationAudios()?.observe(this) { audios ->
             binding.audioValidationTextLabel.text =
                 getString(R.string.audios_to_validate, audios.size)
+        }
+
+        // Downloaded validations
+        viewModel.getPendingAudioTranscriptions()?.observe(this) { audios ->
+            binding.audioTranscriptionTextLabel.text =
+                getString(R.string.audios_to_transcribe, audios.size)
         }
 
         // Attach listener to update local images button
@@ -248,14 +276,13 @@ class MainActivity : AppCompatActivity() {
         ignoreCheckBox.checkbox.setOnCheckedChangeListener { _, isChecked ->
             doDoNotShow = isChecked
         }
-        ignoreCheckBox.checkbox.text = getString(R.string.do_not_show_again)
+        ignoreCheckBox.checkbox.text = getString(R.string.ignore_this_version)
         val dialog = AlertDialog.Builder(this).setTitle("NEW UPDATE").setCancelable(true)
             .setView(ignoreCheckBox.root).setNegativeButton("CANCEL") { _, _ ->
                 if (doDoNotShow) {
                     val editPref = getSharedPreferences(SHARED_PREFS_FILE, MODE_PRIVATE).edit()
                     editPref.putString(
-                        Constants.IGNORED_UPDATE_VERSION,
-                        configuration.currentAPKVersion
+                        Constants.IGNORED_UPDATE_VERSION, configuration.currentAPKVersion
                     ).apply()
                 }
             }.setPositiveButton("DOWNLOAD") { _, _ ->

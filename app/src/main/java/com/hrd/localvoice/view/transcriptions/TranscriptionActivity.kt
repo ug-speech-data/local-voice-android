@@ -52,7 +52,7 @@ class TranscriptionActivity : AppCompatActivity() {
 
         // If user does not have permission, close the activity.
         viewModel.user?.observe(this) { user ->
-            if (user?.permissions?.contains("validate_audio") != true) {
+            if (user?.permissions?.contains("transcribe_audio") != true) {
                 Toast.makeText(this, "Unauthorised", Toast.LENGTH_SHORT).show()
                 finish()
             }

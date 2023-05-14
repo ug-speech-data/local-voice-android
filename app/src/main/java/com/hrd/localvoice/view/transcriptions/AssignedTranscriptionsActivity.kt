@@ -106,9 +106,9 @@ class AssignedTranscriptionsActivity : AppCompatActivity() {
             binding.startButton.isEnabled = it.isNotEmpty()
 
             AppRoomDatabase.databaseWriteExecutor.execute {
-                val hoursToKeepAudiosForValidation = AppRoomDatabase.INSTANCE?.ConfigurationDao()
-                    ?.getConfiguration()?.hoursToKeepAudiosForValidation
-                hoursToKeepAudiosForValidation?.let { hours ->
+                val hoursToKeepAudiosForTranscription = AppRoomDatabase.INSTANCE?.ConfigurationDao()
+                    ?.getConfiguration()?.hoursToKeepAudiosForTranscription
+                hoursToKeepAudiosForTranscription?.let { hours ->
                     if (audios.isNullOrEmpty()) return@execute
 
                     val lastAudio = audios?.let { aus -> aus[aus.size - 1].createdAt }
@@ -135,7 +135,7 @@ class AssignedTranscriptionsActivity : AppCompatActivity() {
     private fun deleteExpiredAudios() {
         AppRoomDatabase.databaseWriteExecutor.execute {
             val hoursToKeepAudiosForTranscription = AppRoomDatabase.INSTANCE?.ConfigurationDao()
-                ?.getConfiguration()?.hoursToKeepAudiosForValidation
+                ?.getConfiguration()?.hoursToKeepAudiosForTranscription
             hoursToKeepAudiosForTranscription?.let { hours ->
                 val total = System.currentTimeMillis() - (hours * 3600 * 1000)
                 val audios =

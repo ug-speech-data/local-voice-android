@@ -504,7 +504,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="end"
                                 android:layout_marginHorizontal="10dp"
-                                android:backgroundTint="@color/purple_500"
+                                android:backgroundTint="#666200EE"
                                 android:text="@string/start"
                                 android:textAllCaps="false"
                                 android:textColor="@color/white" />
@@ -558,7 +558,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="end"
                                 android:layout_marginHorizontal="10dp"
-                                android:backgroundTint="@color/purple_500"
+                                android:backgroundTint="#666200EE"
                                 android:text="@string/start"
                                 android:textAllCaps="false"
                                 android:textColor="@color/white" />

@@ -158,7 +158,7 @@
                 style="?android:attr/buttonBarStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
+                android:gravity="center_vertical"
                 android:orientation="horizontal"
                 app:layout_constraintBottom_toTopOf="@id/validation_controls"
                 app:layout_constraintTop_toBottomOf="@id/messageTextView">
@@ -195,8 +195,10 @@
 
                 <SeekBar
                     android:id="@+id/player_progress_bar"
-                    android:layout_width="200dp"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:paddingHorizontal="10dp"
                     tools:progress="50" />
 
                 <TextView
@@ -218,7 +220,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="10dp"
-                android:gravity="center"
+                android:gravity="end"
                 android:orientation="horizontal"
                 android:paddingVertical="10dp"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -231,12 +233,12 @@
                     android:layout_height="wrap_content"
                     android:drawableLeft="@drawable/ic_baseline_thumb_down_24"
                     android:drawableTint="@color/white"
-                    android:text="@string/reject" />
+                    android:text="@string/bad" />
 
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
+                    android:layout_marginHorizontal="10dp"
                     android:gravity="center">
 
                     <ImageButton
@@ -260,7 +262,7 @@
                     android:layout_height="wrap_content"
                     android:drawableEnd="@drawable/ic_baseline_thumb_up_24"
                     android:drawableTint="@color/white"
-                    android:text="@string/accept"
+                    android:text="@string/good"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent" />

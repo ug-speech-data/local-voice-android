@@ -184,4 +184,6 @@
     <string name="transcription_instruction">Play the full audio and transcribe the audio word for word using only the alphabets of your locale.</string>
     <string name="using_lastest_app_version">Great. You\'re using the latest version of the app.</string>
     <string name="skip_button">Skip button</string>
+    <string name="bad">Bad</string>
+    <string name="good">Good</string>
 </resources>

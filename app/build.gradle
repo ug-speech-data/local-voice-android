@@ -13,18 +13,17 @@ android {
     properties.load(project.rootProject.file("local.properties").newDataInputStream())
 
     defaultConfig {
-        resValue "string", "test_base_api_url", properties.getProperty("test.base.api.url", "https://sdapi.ugspeechdata.com/api/")
-        resValue "string", "live_base_api_url", properties.getProperty("live.base.api.url", "https://sdapi.ugspeechdata.com/api/")
-    }
-
-    defaultConfig {
         applicationId "com.hrd.localvoice"
         minSdk 24
         targetSdk 33
-        versionCode 28
-        versionName "2.9.1"
+        versionCode 30
+        versionName "3.0.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        archivesBaseName = "localvoice-v$versionName"
+        archivesBaseName = "uspeechdata-v$versionName"
+
+        resValue "string", "test_base_api_url", properties.getProperty("test.base.api.url", "https://sdapi.ugspeechdata.com/api/")
+        resValue "string", "live_base_api_url", properties.getProperty("live.base.api.url", "https://sdapi.ugspeechdata.com/api/")
+        resValue "string", "app_version", "v$versionName"
 
         kapt {
             arguments {
@@ -60,6 +59,17 @@ android {
     packagingOptions {
         resources {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
+        }
+    }
+
+    flavorDimensions "default"
+    productFlavors {
+        initial {
+        }
+        nextgen {
+            applicationIdSuffix ".nextgen"
+            resValue "string", "test_base_api_url", properties.getProperty("test.base.api.url2", "https://sdapi2.ugspeechdata.com/api/")
+            resValue "string", "live_base_api_url", properties.getProperty("live.base.api.url2", "https://sdapi2.ugspeechdata.com/api/")
         }
     }
 }

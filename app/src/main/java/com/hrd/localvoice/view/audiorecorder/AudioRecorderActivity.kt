@@ -257,7 +257,6 @@ class AudioRecorderActivity : AppCompatActivity() {
             4, '0'
         ) + "_u${currentUser?.id}_${currentImage.descriptionCount + 1}_${System.currentTimeMillis()}.wav"
 
-
         val duration = waveRecorder2.audioDuration()
         val result = waveRecorder2.saveAudioIntoFile(fileName)
         if (result != null && currentUser != null && duration >= 0) {

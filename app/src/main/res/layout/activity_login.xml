@@ -111,7 +111,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginVertical="10dp"
                     android:textAlignment="center"
-                    android:textColor="@color/purple_500"
+                    android:textColor="@color/color_500"
                     android:visibility="gone"
                     tools:text="Error message"
                     tools:visibility="visible" />
@@ -124,7 +124,7 @@
                     android:focusable="true"
                     android:text="@string/forgot_password"
                     android:textAlignment="textEnd"
-                    android:textColor="@color/purple_700"
+                    android:textColor="@color/color_700"
                     android:textStyle="bold" />
 
                 <androidx.constraintlayout.widget.ConstraintLayout
@@ -164,7 +164,7 @@
                     android:layout_marginVertical="20dp"
                     android:text="@string/create_new_account"
                     android:textAlignment="center"
-                    android:textColor="@color/purple_700"
+                    android:textColor="@color/color_700"
                     android:textStyle="bold" />
             </LinearLayout>
 

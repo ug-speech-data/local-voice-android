@@ -45,7 +45,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/age_is_required"
-                    android:textColor="@color/purple_700"
+                    android:textColor="@color/color_700"
                     android:visibility="gone"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
@@ -84,7 +84,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/please_choose_gender"
-                    android:textColor="@color/purple_700"
+                    android:textColor="@color/color_700"
                     android:visibility="gone"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
@@ -108,7 +108,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/select_environment"
-                    android:textColor="@color/purple_700"
+                    android:textColor="@color/color_700"
                     android:visibility="gone"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
@@ -139,7 +139,7 @@
                         android:clickable="true"
                         android:focusable="true"
                         android:text="@string/privacy_policy"
-                        android:textColor="@color/purple_700" />
+                        android:textColor="@color/color_700" />
                 </LinearLayout>
 
                 <TextView
@@ -147,7 +147,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/please_accept_our_privacy_policy"
-                    android:textColor="@color/purple_700"
+                    android:textColor="@color/color_700"
                     android:visibility="gone"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"

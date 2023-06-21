@@ -15,11 +15,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModelProvider
 import androidx.work.*
+import com.google.android.material.snackbar.Snackbar
 import com.hrd.localvoice.AppRoomDatabase
 import com.hrd.localvoice.BuildConfig
 import com.hrd.localvoice.R
 import com.hrd.localvoice.databinding.ActivityMainBinding
 import com.hrd.localvoice.databinding.LayoutSkipWarningBinding
+import com.hrd.localvoice.models.Configuration
 import com.hrd.localvoice.models.User
 import com.hrd.localvoice.utils.Constants
 import com.hrd.localvoice.utils.Constants.SHARED_PREFS_FILE
@@ -43,13 +45,15 @@ class MainActivity : AppCompatActivity() {
     private lateinit var viewModel: MainActivityViewModel
     private var user: User? = null
     private lateinit var binding: ActivityMainBinding
+    private lateinit var preferences: SharedPreferences
+    private var appConfiguration: Configuration? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         viewModel = ViewModelProvider(this)[MainActivityViewModel::class.java]
-        val preferences: SharedPreferences = getSharedPreferences(SHARED_PREFS_FILE, MODE_PRIVATE)
+        preferences = getSharedPreferences(SHARED_PREFS_FILE, MODE_PRIVATE)
 
         // Background work manager
         val constraints = Constraints.Builder().apply {
@@ -194,6 +198,7 @@ class MainActivity : AppCompatActivity() {
 
         // Fetch maximum description count from db
         viewModel.getConfiguration()?.observe(this) { configuration ->
+            appConfiguration = configuration
             if (configuration == null || !File(configuration.demoVideoLocalUrl).exists() || configuration.privacyPolicyStatementAudioLocalUrl?.let {
                     File(
                         it
@@ -207,12 +212,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             // Alert if current server apk doesn't match
-            if (configuration?.currentAPKVersion?.isNotEmpty() == true && BuildConfig.VERSION_NAME != configuration.currentAPKVersion && preferences.getString(
-                    Constants.IGNORED_UPDATE_VERSION, ""
-                ) != configuration.currentAPKVersion
-            ) {
-                showUpdateAlert(configuration)
-            }
+            checkAppUpdate(configuration, preferences)
         }
 
         // Get images without required number of descriptions
@@ -270,7 +270,33 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun showUpdateAlert(configuration: com.hrd.localvoice.models.Configuration) {
+    private fun checkAppUpdate(
+        configuration: Configuration?,
+        preferences: SharedPreferences,
+        considerPreferences: Boolean = true
+    ) {
+        if (configuration?.currentAPKVersion?.isNotEmpty() == true
+            && BuildConfig.VERSION_NAME != configuration.currentAPKVersion
+            && (!considerPreferences
+                    || preferences.getString(
+                Constants.IGNORED_UPDATE_VERSION,
+                ""
+            ) != configuration.currentAPKVersion
+                    )
+        ) {
+            showUpdateAlert(configuration)
+        } else if (!considerPreferences) {
+            val snack = Snackbar.make(
+                binding.root,
+                getString(R.string.using_lastest_app_version),
+                Snackbar.LENGTH_SHORT
+            )
+            snack.setAction("OK", {})
+            snack.show()
+        }
+    }
+
+    private fun showUpdateAlert(configuration: Configuration) {
         val ignoreCheckBox = LayoutSkipWarningBinding.inflate(layoutInflater)
         var doDoNotShow = false
         ignoreCheckBox.checkbox.setOnCheckedChangeListener { _, isChecked ->
@@ -326,7 +352,7 @@ class MainActivity : AppCompatActivity() {
         dialog.show()
     }
 
-    private fun checkForUpdate() {
+    private fun autoUpdate() {
         val intent = Intent(Intent.ACTION_VIEW)
         var pathToApk = "/data/user/0/com.hrd.localvoice/files/localvoice-v15-release.apk"
         pathToApk = "/storage/emulated/0/Download/localvoice-v15-release.apk"
@@ -365,6 +391,9 @@ class MainActivity : AppCompatActivity() {
         }
         if (item.itemId == R.id.action_profile) {
             startActivity(Intent(this, ProfileActivity::class.java))
+        }
+        if (item.itemId == R.id.action_app_version) {
+            checkAppUpdate(appConfiguration, preferences, false)
         }
         return super.onOptionsItemSelected(item)
     }

@@ -33,7 +33,7 @@ interface TranscriptionAudioDao {
     @Query("SELECT * from $AUDIO_TRANSCRIPTION_TABLE WHERE transcriptionStatus = '$UPLOAD_STATUS_PENDING' ORDER BY createdAt ASC")
     fun getPendingAudioTranscriptions(): LiveData<List<TranscriptionAudio>>
 
-    @Query("SELECT * from $AUDIO_TRANSCRIPTION_TABLE ORDER BY createdAt ASC")
+    @Query("SELECT * from $AUDIO_TRANSCRIPTION_TABLE WHERE transcriptionStatus = '$UPLOAD_STATUS_PENDING' ORDER BY createdAt ASC")
     fun getSyncPendingAudioTranscriptions(): List<TranscriptionAudio>
 
     @Query("SELECT * from $AUDIO_TRANSCRIPTION_TABLE WHERE transcriptionStatus == '${TranscriptionStatus.TRANSCRIBED}' ORDER BY createdAt ASC")

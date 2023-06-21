@@ -4,15 +4,21 @@
     <item
         android:id="@+id/action_profile"
         android:icon="@drawable/ic_baseline_person_outline_24"
-        app:iconTint="@color/gray_400"
         android:orderInCategory="1"
         android:title="@string/profile"
+        app:iconTint="@color/gray_400"
         app:showAsAction="ifRoom" />
 
     <item
-        android:id="@+id/action_logout"
+        android:id="@+id/action_app_version"
+        android:orderInCategory="1"
+        android:title="@string/app_version"
         app:iconTint="@color/gray_400"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_logout"
         android:orderInCategory="1"
         android:title="@string/logout"
+        app:iconTint="@color/gray_400"
         app:showAsAction="ifRoom" />
 </menu>

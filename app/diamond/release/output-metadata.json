@@ -5,15 +5,15 @@
     "kind": "Directory"
   },
   "applicationId": "com.hrd.localvoice",
-  "variantName": "firstRelease",
+  "variantName": "diamondRelease",
   "elements": [
     {
       "type": "SINGLE",
       "filters": [],
       "attributes": [],
-      "versionCode": 28,
-      "versionName": "2.9.1",
-      "outputFile": "uspeechdata-v2.9.1-first-release.apk"
+      "versionCode": 30,
+      "versionName": "3.0.0",
+      "outputFile": "ugsd-v3.0.0-diamond-release.apk"
     }
   ],
   "elementType": "File"

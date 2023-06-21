@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">UG-SPEECHDATA</string>
+    <string name="app_name">UGSD-DIAMOND</string>
     <string name="search">Search</string>
     <string name="next">Next</string>
     <string name="image_to_describe">Image to describe</string>
@@ -183,4 +183,5 @@
     <string name="transcribe">Transcribe</string>
     <string name="transcription_instruction">Play the full audio and transcribe the audio word for word using only the alphabets of your locale.</string>
     <string name="using_lastest_app_version">Great. You\'re using the latest version of the app.</string>
+    <string name="skip_button">Skip button</string>
 </resources>

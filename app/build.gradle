@@ -19,7 +19,7 @@ android {
         versionCode 30
         versionName "3.0.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        archivesBaseName = "uspeechdata-v$versionName"
+        archivesBaseName = "ugsd-v$versionName"
 
         resValue "string", "test_base_api_url", properties.getProperty("test.base.api.url", "https://sdapi.ugspeechdata.com/api/")
         resValue "string", "live_base_api_url", properties.getProperty("live.base.api.url", "https://sdapi.ugspeechdata.com/api/")
@@ -64,12 +64,12 @@ android {
 
     flavorDimensions "default"
     productFlavors {
-        initial {
+        diamond {
         }
-        nextgen {
-            applicationIdSuffix ".nextgen"
-            resValue "string", "test_base_api_url", properties.getProperty("test.base.api.url2", "https://sdapi2.ugspeechdata.com/api/")
-            resValue "string", "live_base_api_url", properties.getProperty("live.base.api.url2", "https://sdapi2.ugspeechdata.com/api/")
+        gold {
+            applicationIdSuffix ".gold"
+            resValue "string", "test_base_api_url", properties.getProperty("test.base.api.url-gold", "https://sdapi2.ugspeechdata.com/api/")
+            resValue "string", "live_base_api_url", properties.getProperty("live.base.api.url-gold", "https://sdapi2.ugspeechdata.com/api/")
         }
     }
 }

@@ -318,6 +318,10 @@ class AudioValidationActivity : AppCompatActivity() {
                     binding.playerProgressBar.progress = progress.toInt()
                     isAudioPlaying = player?.isPlaying == true
 
+                    if (player!!.currentPosition >=5  && !binding.rejectButton.isEnabled) {
+                        binding.rejectButton.isEnabled = true
+                    }
+
                     if (isAudioPlaying) binding.playPauseButton.setImageResource(R.drawable.ic_baseline_pause_circle_outline_24)
                 }
             }

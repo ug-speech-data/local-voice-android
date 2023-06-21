@@ -233,17 +233,26 @@
                     android:drawableTint="@color/white"
                     android:text="@string/reject" />
 
-                <Button
-                    android:id="@+id/skip_button"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="10dp"
-                    android:drawableLeft="@drawable/baseline_recycling_24"
-                    android:drawableTint="@color/white"
-                    android:text="@string/skip"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent" />
+                    android:layout_weight="1"
+                    android:gravity="center">
+
+                    <ImageButton
+                        android:id="@+id/skip_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="10dp"
+                        android:backgroundTint="@color/color_500"
+                        android:contentDescription="@string/skip_button"
+                        android:foregroundTint="@color/white"
+                        android:src="@drawable/baseline_recycling_24"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:tint="@color/white" />
+                </LinearLayout>
 
                 <Button
                     android:id="@+id/accept_button"

@@ -4,8 +4,8 @@
     "type": "APK",
     "kind": "Directory"
   },
-  "applicationId": "com.hrd.localvoice.nextgen",
-  "variantName": "nextgenRelease",
+  "applicationId": "com.hrd.localvoice.gold",
+  "variantName": "goldRelease",
   "elements": [
     {
       "type": "SINGLE",
@@ -13,7 +13,7 @@
       "attributes": [],
       "versionCode": 30,
       "versionName": "3.0.0",
-      "outputFile": "uspeechdata-v3.0.0-nextgen-release.apk"
+      "outputFile": "ugsd-v3.0.0-gold-release.apk"
     }
   ],
   "elementType": "File"

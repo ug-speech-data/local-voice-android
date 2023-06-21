@@ -311,17 +311,17 @@ class AudioValidationActivity : AppCompatActivity() {
                 }
                 val playerDuration = player?.duration
                 if (playerDuration != 0L && duration != null && playerDuration != null) {
-                    val progress = (player!!.currentPosition * 100) / playerDuration
-                    val minutes = (duration / 60).toInt().toString().padStart(2, '0')
-                    val seconds = (duration % 60).toString().padStart(2, '0')
-                    binding.timerLabel.text = "${minutes}:${seconds}"
-                    binding.playerProgressBar.progress = progress.toInt()
-                    isAudioPlaying = player?.isPlaying == true
-
-                    if (player!!.currentPosition >=5  && !binding.rejectButton.isEnabled) {
-                        binding.rejectButton.isEnabled = true
+                    player?.let { player ->
+                        val progress = (player.currentPosition * 100) / playerDuration
+                        val minutes = (duration / 60).toInt().toString().padStart(2, '0')
+                        val seconds = (duration % 60).toString().padStart(2, '0')
+                        binding.timerLabel.text = "${minutes}:${seconds}"
+                        binding.playerProgressBar.progress = progress.toInt()
+                        isAudioPlaying = player.isPlaying == true
+                        if (player.currentPosition.div(1000) >= 5 && !binding.rejectButton.isEnabled) {
+                            binding.rejectButton.isEnabled = true
+                        }
                     }
-
                     if (isAudioPlaying) binding.playPauseButton.setImageResource(R.drawable.ic_baseline_pause_circle_outline_24)
                 }
             }

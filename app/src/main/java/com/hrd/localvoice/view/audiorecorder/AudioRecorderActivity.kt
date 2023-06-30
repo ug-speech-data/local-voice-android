@@ -145,10 +145,12 @@ class AudioRecorderActivity : AppCompatActivity() {
         }
 
         binding.previousImageButton.setOnClickListener {
+            if (waveRecorder2.isRecording() || availableImages.size < 1) return@setOnClickListener
             showImageAtIndex(--currentImageIndex)
         }
 
         binding.nextImageButton.setOnClickListener {
+            if (waveRecorder2.isRecording() || availableImages.size < 1) return@setOnClickListener
             showImageAtIndex(++currentImageIndex)
         }
 
@@ -345,7 +347,7 @@ class AudioRecorderActivity : AppCompatActivity() {
         dialog.setCancelable(false)
 
         // Playback
-        dialogBinding.playStopButton?.setOnClickListener {
+        dialogBinding.playStopButton.setOnClickListener {
             if (!waveRecorder2.isAudioPlaying()) {
                 waveRecorder2.playBackRecording()
                 dialogBinding.playStopButton.text = getString(R.string.stop)
@@ -458,8 +460,6 @@ class AudioRecorderActivity : AppCompatActivity() {
     }
 
     private fun showImageAtIndex(index: Int) {
-        if (waveRecorder2.isRecording() || availableImages.size < 1) return
-
         resetTimerLabel()
 
         val currentImage = availableImages[index.mod(availableImages.size)]

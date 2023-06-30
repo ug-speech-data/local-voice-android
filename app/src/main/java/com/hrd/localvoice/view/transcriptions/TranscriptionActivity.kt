@@ -79,7 +79,13 @@ class TranscriptionActivity : AppCompatActivity() {
 
         // Image navigation
         binding.skipButton.setOnClickListener {
-            if (!preferences.getBoolean(Constants.DO_NOT_SHOW_TRANSCRIPTION_SKIP_WARNING, false)) {
+            if (binding.textArea.text?.isNotEmpty() == true) {
+                showSkipTranscribedAudioDialog()
+            } else if (!preferences.getBoolean(
+                    Constants.DO_NOT_SHOW_TRANSCRIPTION_SKIP_WARNING,
+                    false
+                )
+            ) {
                 showSkipWarning()
             } else {
                 deleteAudio(currentAudio!!)
@@ -132,7 +138,7 @@ class TranscriptionActivity : AppCompatActivity() {
         skipWarningBinding.checkbox.text = getString(R.string.do_not_show_again)
 
         val builder = AlertDialog.Builder(this)
-        builder.setTitle("SKIP AUDIO")
+        builder.setTitle("Skip Audio")
         builder.setMessage("Audios skipped will be deleted from your device. Continue to skip?")
             .setView(skipWarningBinding.root).setCancelable(false)
             .setPositiveButton("Yes") { _, _ ->
@@ -277,6 +283,28 @@ class TranscriptionActivity : AppCompatActivity() {
         dialog.show()
     }
 
+    private fun showExitScreenDialog() {
+        val dialog = AlertDialog.Builder(this).setTitle("Confirmation").setCancelable(false)
+            .setNegativeButton("Cancel") { _, _ -> }
+            .setPositiveButton("Yes") { _, _ ->
+                finish()
+            }
+        dialog.setMessage("Are you sure you want to clear your text and go back?")
+        dialog.create()
+        dialog.show()
+    }
+
+    private fun showSkipTranscribedAudioDialog() {
+        val dialog = AlertDialog.Builder(this).setTitle("Confirmation").setCancelable(false)
+            .setNegativeButton("Cancel") { _, _ -> }
+            .setPositiveButton("Yes") { _, _ ->
+                deleteAudio(currentAudio!!)
+            }
+        dialog.setMessage("Are you sure you want to clear and skip this audio?")
+        dialog.create()
+        dialog.show()
+    }
+
     private fun showSaveConfirmationDialog() {
         val dialog = AlertDialog.Builder(this).setTitle("Save").setCancelable(false)
             .setNegativeButton("No") { _, _ -> }
@@ -302,7 +330,13 @@ class TranscriptionActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            android.R.id.home -> finish()
+            android.R.id.home -> {
+                if (binding.textArea.text?.isNotEmpty() == true) {
+                    showExitScreenDialog()
+                } else {
+                    finish()
+                }
+            }
         }
         return super.onOptionsItemSelected(item)
     }

@@ -152,7 +152,7 @@
     <string name="update_configuration">Update configuration</string>
     <string name="audio">Audio</string>
     <string name="back_button">Back button</string>
-    <string name="this_audio_was_not_recorded_on_this_device">This audio was not recorded on this device.</string>
+    <string name="this_audio_was_not_recorded_on_this_device">This audio is not saved on this device.</string>
     <string name="audios_you_uploaded">Audios You Uploaded</string>
     <string name="audios_you_validated">Audios You Validated</string>
     <string name="force_re_upload">Force re-upload all </string>

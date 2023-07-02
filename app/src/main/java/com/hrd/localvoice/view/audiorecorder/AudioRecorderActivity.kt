@@ -215,8 +215,7 @@ class AudioRecorderActivity : AppCompatActivity() {
             }
 
             // Prevent double description of same image
-            val excludedImageIds = mutableListOf<Long>()
-
+            val excludedImageIds = mutableSetOf<Long>()
             runOnUiThread {
                 viewModel.descriptionCount.value = audios?.size
                 audios?.size.also {
@@ -231,9 +230,13 @@ class AudioRecorderActivity : AppCompatActivity() {
             }
 
             // Get images, excluding already described by current participant
-            val images = AppRoomDatabase.INSTANCE?.ImageDao()?.getImages(excludedImageIds)
+            availableImages = mutableListOf()
+            AppRoomDatabase.INSTANCE?.ImageDao()?.getImages(listOf())?.forEach { image ->
+                if (!excludedImageIds.contains(image.remoteId)) {
+                    availableImages.add(image)
+                }
+            }
 
-            availableImages = images as MutableList<Image>
             currentImageIndex = 0
             if (availableImages.isEmpty()) {
                 runOnUiThread {
@@ -328,14 +331,18 @@ class AudioRecorderActivity : AppCompatActivity() {
     }
 
     private fun showNoImagesDialog() {
-        val dialog = AlertDialog.Builder(this).setTitle("No images found").setCancelable(false)
-            .setPositiveButton("GO HOME") { _, _ ->
-                val intent = Intent(this, MainActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
-                startActivity(intent)
-                finish()
+        var message = "Thank you for your cooperation."
+        var title = "Recording complete"
+        if (totalDescriptionCount < totalExpectedDescription || configuration?.allowToRecordMoreThanRequiredPerParticipant == true) {
+            message =
+                "Tap \"Update Local Images\" on the Home Screen to download additional images for recording."
+            title = "No images to record"
+        }
+        val dialog = AlertDialog.Builder(this).setTitle(title).setCancelable(false)
+            .setPositiveButton("OK") { _, _ ->
+                done()
             }
-        dialog.setMessage("Please download the images by tapping on \"Update Local Images\" on the home screen.")
+        dialog.setMessage(message)
         dialog.create()
         dialog.show()
     }

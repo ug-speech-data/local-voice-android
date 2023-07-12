@@ -1,7 +1,6 @@
 package com.hrd.localvoice.adapters
 
 import android.content.Context
-import android.content.Intent
 import android.graphics.Color
 import android.icu.text.SimpleDateFormat
 import android.view.LayoutInflater
@@ -11,7 +10,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.hrd.localvoice.databinding.ItemTranscriptionAudioBinding
 import com.hrd.localvoice.models.TranscriptionAudio
 import com.hrd.localvoice.utils.Constants.UPLOAD_STATUS_PENDING
-import com.hrd.localvoice.view.transcriptions.TranscriptionActivity
 import java.io.File
 import java.util.*
 
@@ -19,13 +17,16 @@ import java.util.*
 class TranscriptionAudioAdapter(private val context: Context) :
     RecyclerView.Adapter<TranscriptionAudioAdapter.AudioViewHolder>() {
 
-    private var listener: OnPlayStopButtonClickListener? = null
+    private var listener: OnClickListener? = null
     private var dataset = listOf<TranscriptionAudio>()
 
-    interface OnPlayStopButtonClickListener {
-        fun playStopAudioListener(audio: TranscriptionAudio)
+    interface OnClickListener {
+        fun onItemClickListener(position: Int)
     }
 
+    fun setOnClickListener(listener: OnClickListener) {
+        this.listener = listener
+    }
 
     inner class AudioViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val binding = ItemTranscriptionAudioBinding.bind(view)
@@ -63,18 +64,12 @@ class TranscriptionAudioAdapter(private val context: Context) :
                     statusText.setTextColor(Color.rgb(200, 200, 200))
                 }
 
-                cardView.setOnClickListener {
-                    listener?.playStopAudioListener(audio)
-                }
-
                 val file = audio.localAudioUrl?.let { File(it) }
                 val fileSize = "%.2f".format((file?.length())?.div((1024 * 1024).toFloat()))
                 sizeText.text = "${audio.duration} seconds  $fileSize MB"
 
                 cardView.setOnClickListener {
-                    val intent = Intent(context, TranscriptionActivity::class.java)
-                    intent.putExtra("position", position)
-                    context.startActivity(intent)
+                    listener?.onItemClickListener(position)
                 }
             }
         }

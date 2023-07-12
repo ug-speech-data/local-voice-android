@@ -34,6 +34,7 @@ data class User(
     @ColumnInfo(defaultValue = "0") @SerializedName("audios_transcribed") val audiosTranscribed: Int = 0,
     @SerializedName("audios_pending") @ColumnInfo(defaultValue = "0") val audiosPending: Int = 0,
     @SerializedName("audios_accepted") @ColumnInfo(defaultValue = "0") val audiosAccepted: Int = 0,
+    @SerializedName("transcriptions_resolved") @ColumnInfo(defaultValue = "0") val transcriptionsResolved: Int = 0,
     @SerializedName("audios_rejected") @ColumnInfo(defaultValue = "0") val audiosRejected: Int = 0,
     @SerializedName("estimated_deduction_amount") @ColumnInfo(defaultValue = "0.0") val estimatedDeductionAmount: Float = 0.0f,
     @TypeConverters(StringListConvector::class) @SerializedName("user_permissions") val permissions: List<String>?

@@ -36,7 +36,8 @@ class AllMigrationsTest {
             AppRoomDatabase.migration29To30,
             AppRoomDatabase.migration32To33,
 //            AppRoomDatabase.migration35To36,
-        )
+            AppRoomDatabase.migration42To43,
+            )
             .build().apply {
                 openHelper.writableDatabase.close()
             }

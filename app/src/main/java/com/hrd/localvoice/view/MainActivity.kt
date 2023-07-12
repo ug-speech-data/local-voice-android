@@ -31,6 +31,7 @@ import com.hrd.localvoice.view.configurations.ConfigurationActivity
 import com.hrd.localvoice.view.local_files.MyAudiosActivity
 import com.hrd.localvoice.view.local_files.MyImagesActivity
 import com.hrd.localvoice.view.participants.ParticipantBioActivity
+import com.hrd.localvoice.view.transcriptions.AssignedTranscriptionResolutionsActivity
 import com.hrd.localvoice.view.transcriptions.AssignedTranscriptionsActivity
 import com.hrd.localvoice.view.validations.AssignedAudiosActivity
 import com.hrd.localvoice.view.videoplayer.VideoPlayerActivity
@@ -90,6 +91,8 @@ class MainActivity : AppCompatActivity() {
                         binding.audiosRejectedView.text = user?.audiosRejected.toString()
 
                         binding.audiosAcceptedView.text = user?.audiosAccepted.toString()
+                        binding.transcriptionResolvedView.text =
+                            user?.transcriptionsResolved.toString()
 
                         binding.balanceDeductionView.text = getString(
                             R.string.balance_deduction, user?.estimatedDeductionAmount.toString()
@@ -126,6 +129,15 @@ class MainActivity : AppCompatActivity() {
                     } else {
                         binding.audioTranscriptionCard.visibility = View.GONE
                         binding.audioTranscriptionCountCard.visibility = View.GONE
+                    }
+
+                    // Transcription Resolution
+                    if (user?.permissions?.contains("resolve_transcription") == true) {
+                        binding.audioTranscriptionResolutionCard.visibility = View.VISIBLE
+                        binding.transcriptionResolutionCountCard.visibility = View.VISIBLE
+                    } else {
+                        binding.audioTranscriptionResolutionCard.visibility = View.GONE
+                        binding.transcriptionResolutionCountCard.visibility = View.GONE
                     }
 
                     // Update recorded descriptions
@@ -188,6 +200,14 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, AssignedAudiosActivity::class.java))
         }
 
+        // Open transcription resolution
+        binding.startTranscriptionResolutionButton.setOnClickListener {
+            startActivity(Intent(this, AssignedTranscriptionResolutionsActivity::class.java))
+        }
+        binding.audioTranscriptionResolutionCard.setOnClickListener {
+            startActivity(Intent(this, AssignedTranscriptionResolutionsActivity::class.java))
+        }
+
         // Open audio transcription activity
         binding.audioTranscriptionCard.setOnClickListener {
             startActivity(Intent(this, AssignedTranscriptionsActivity::class.java))
@@ -226,10 +246,16 @@ class MainActivity : AppCompatActivity() {
                 getString(R.string.audios_to_validate, audios.size)
         }
 
-        // Downloaded validations
+        // Downloaded transcription
         viewModel.getPendingAudioTranscriptions()?.observe(this) { audios ->
             binding.audioTranscriptionTextLabel.text =
                 getString(R.string.audios_to_transcribe, audios.size)
+        }
+
+        // Downloaded transcription resolutions
+        viewModel.getTranscriptionToResolve()?.observe(this) { audios ->
+            binding.audioTranscriptionResolutionTextLabel.text =
+                getString(R.string.transcriptions_to_resolute, audios.size)
         }
 
         // Attach listener to update local images button

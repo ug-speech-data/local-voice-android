@@ -21,6 +21,7 @@ import com.hrd.localvoice.databinding.LayoutSkipWarningBinding
 import com.hrd.localvoice.models.TranscriptionAudio
 import com.hrd.localvoice.utils.Constants
 import com.hrd.localvoice.utils.TranscriptionStatus
+import com.hrd.localvoice.utils.TranscriptionType
 import com.hrd.localvoice.view.MainActivity
 import java.io.File
 
@@ -36,12 +37,22 @@ class TranscriptionActivity : AppCompatActivity() {
     private var allAudios: MutableList<TranscriptionAudio> = mutableListOf()
     private var currentIndex = 0
     private var currentAudio: TranscriptionAudio? = null
+    private var transcriptionType: String? = TranscriptionType.NEW
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityTranscriptionBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        title = "Transcriptions"
+        transcriptionType = intent.getStringExtra("TranscriptionType")
+        title = "Writer"
+        if (transcriptionType == TranscriptionType.RESOLUTION) {
+            binding.transcribedTextLayout.visibility = View.VISIBLE
+            binding.instructionLabel.text = getString(R.string.transcription_resolution_instruction)
+        } else {
+            binding.transcribedTextLayout.visibility = View.GONE
+            transcriptionType = TranscriptionType.NEW
+        }
+
         // Show back button
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         viewModel = ViewModelProvider(this)[TranscriptionActivityViewModel::class.java]
@@ -58,9 +69,21 @@ class TranscriptionActivity : AppCompatActivity() {
             }
         }
 
+        binding.editTextButton.setOnClickListener {
+            currentAudio?.text?.let { text ->
+                binding.textArea.setText(
+                    text, TextView.BufferType.EDITABLE
+                )
+            }
+        }
+
         AppRoomDatabase.databaseWriteExecutor.execute {
-            val audios = AppRoomDatabase.INSTANCE?.TranscriptionAudioDao()
-                ?.getSyncPendingAudioTranscriptions()
+            val audios =
+                if (transcriptionType == TranscriptionType.NEW) AppRoomDatabase.INSTANCE?.TranscriptionAudioDao()
+                    ?.getSyncPendingAudioTranscriptions() else {
+                    AppRoomDatabase.INSTANCE?.TranscriptionAudioDao()
+                        ?.getSyncTranscriptionToResolve()
+                }
             allAudios = audios as MutableList<TranscriptionAudio>
             currentIndex = allAudios.size - currentIndex - 1
             runOnUiThread {
@@ -82,8 +105,7 @@ class TranscriptionActivity : AppCompatActivity() {
             if (binding.textArea.text?.isNotEmpty() == true) {
                 showSkipTranscribedAudioDialog()
             } else if (!preferences.getBoolean(
-                    Constants.DO_NOT_SHOW_TRANSCRIPTION_SKIP_WARNING,
-                    false
+                    Constants.DO_NOT_SHOW_TRANSCRIPTION_SKIP_WARNING, false
                 )
             ) {
                 showSkipWarning()
@@ -162,8 +184,11 @@ class TranscriptionActivity : AppCompatActivity() {
         currentAudio = allAudios[index.mod(allAudios.size)]
         currentAudio?.let { audio ->
             binding.audioLocale.text = audio.locale
-            audio.text?.let { text -> binding.textArea.setText(text, TextView.BufferType.EDITABLE) }
-            binding.audioEnvironment.text = audio.environment
+            audio.text?.let { text ->
+                binding.transcriptionTextView.setText(
+                    text, TextView.BufferType.EDITABLE
+                )
+            }
             binding.audioDuration.text = audio.duration.toString()
             binding.audioName.text = audio.id.toString()
             initializePlayer()
@@ -285,8 +310,7 @@ class TranscriptionActivity : AppCompatActivity() {
 
     private fun showExitScreenDialog() {
         val dialog = AlertDialog.Builder(this).setTitle("Confirmation").setCancelable(false)
-            .setNegativeButton("Cancel") { _, _ -> }
-            .setPositiveButton("Yes") { _, _ ->
+            .setNegativeButton("Cancel") { _, _ -> }.setPositiveButton("Yes") { _, _ ->
                 finish()
             }
         dialog.setMessage("Are you sure you want to clear your text and go back?")
@@ -296,8 +320,7 @@ class TranscriptionActivity : AppCompatActivity() {
 
     private fun showSkipTranscribedAudioDialog() {
         val dialog = AlertDialog.Builder(this).setTitle("Confirmation").setCancelable(false)
-            .setNegativeButton("Cancel") { _, _ -> }
-            .setPositiveButton("Yes") { _, _ ->
+            .setNegativeButton("Cancel") { _, _ -> }.setPositiveButton("Yes") { _, _ ->
                 deleteAudio(currentAudio!!)
             }
         dialog.setMessage("Are you sure you want to clear and skip this audio?")
@@ -307,12 +330,16 @@ class TranscriptionActivity : AppCompatActivity() {
 
     private fun showSaveConfirmationDialog() {
         val dialog = AlertDialog.Builder(this).setTitle("Save").setCancelable(false)
-            .setNegativeButton("No") { _, _ -> }
-            .setPositiveButton("Yes") { _, _ ->
+            .setNegativeButton("No") { _, _ -> }.setPositiveButton("Yes") { _, _ ->
                 currentAudio?.let { audio ->
                     AppRoomDatabase.databaseWriteExecutor.execute {
-                        audio.transcriptionStatus = TranscriptionStatus.TRANSCRIBED
-                        audio.text = binding.textArea.text.toString()
+                        if (transcriptionType != TranscriptionType.NEW) {
+                            audio.correctedText = binding.textArea.text.toString()
+                            audio.transcriptionStatus = TranscriptionStatus.CORRECTED
+                        } else {
+                            audio.text = binding.textArea.text.toString()
+                            audio.transcriptionStatus = TranscriptionStatus.TRANSCRIBED
+                        }
                         audio.updatedAt = System.currentTimeMillis()
                         AppRoomDatabase.INSTANCE?.TranscriptionAudioDao()
                             ?.updateAudioTranscription(audio)

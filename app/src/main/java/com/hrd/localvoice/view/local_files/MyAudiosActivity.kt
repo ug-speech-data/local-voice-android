@@ -239,6 +239,19 @@ class MyAudiosActivity : AppCompatActivity() {
                     "AudioUploadWorker", ExistingPeriodicWorkPolicy.REPLACE, uploadWorker
                 )
             }
+            R.id.action_clear_uploaded -> {
+                AppRoomDatabase.databaseWriteExecutor.execute {
+                    val audios = AppRoomDatabase.INSTANCE?.AudioDao()?.getAudiosNotPendingUpload()
+                    audios?.forEach { audio ->
+                        if (audio.localFileURl.let { it1 -> File(it1).exists() }) audio.localFileURl.let { it1 ->
+                            File(
+                                it1
+                            ).delete()
+                        }
+                        AppRoomDatabase.INSTANCE?.AudioDao()?.deleteAudio(audio)
+                    }
+                }
+            }
             android.R.id.home -> finish()
         }
         return super.onOptionsItemSelected(item)

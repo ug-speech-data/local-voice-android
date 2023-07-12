@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".view.transcriptions.TranscriptionActivity">
+    tools:context=".view.transcriptions.TranscriptionResolutionActivity">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -40,23 +40,18 @@
                         android:orientation="vertical">
 
                         <TextView
-                            android:id="@+id/instruction_label"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginHorizontal="10dp"
                             android:layout_marginTop="5dp"
                             android:layout_marginBottom="20dp"
-                            android:text="@string/transcription_instruction" />
+                            android:text="@string/transcription_resolution_instruction" />
 
                         <LinearLayout
-                            android:id="@+id/transcribed_text_layout"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginHorizontal="5dp"
                             android:layout_marginBottom="20dp"
-                            android:orientation="horizontal"
-                            android:visibility="gone"
-                            tools:visibility="visible">
+                            android:orientation="horizontal">
 
                             <TextView
                                 android:id="@+id/transcription_text_view"
@@ -71,7 +66,7 @@
                                 tools:text="Please play the audio and correct the text below. Please play the audio and correct the text below. Please play the audio and correct the text below." />
 
                             <ImageButton
-                                android:id="@+id/edit_text_button"
+                                android:id="@+id/edit_text"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="bottom"

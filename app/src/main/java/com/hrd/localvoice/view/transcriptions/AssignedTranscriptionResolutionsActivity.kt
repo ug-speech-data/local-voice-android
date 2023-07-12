@@ -14,17 +14,17 @@ import androidx.work.*
 import com.hrd.localvoice.AppRoomDatabase
 import com.hrd.localvoice.R
 import com.hrd.localvoice.adapters.TranscriptionAudioAdapter
-import com.hrd.localvoice.databinding.ActivityAssingedTranscriptionsBinding
+import com.hrd.localvoice.databinding.ActivityAssignedTranscriptionResolutionsBinding
 import com.hrd.localvoice.models.TranscriptionAudio
 import com.hrd.localvoice.utils.TranscriptionType
 import com.hrd.localvoice.workers.TranscriptionUploadWorker
-import com.hrd.localvoice.workers.UpdateAssignedTranscriptionAudiosWorker
+import com.hrd.localvoice.workers.UpdateAssignedTranscriptionResolutionWorker
 import java.io.File
 import java.util.concurrent.TimeUnit
 import kotlin.math.max
 
-class AssignedTranscriptionsActivity : AppCompatActivity() {
-    lateinit var binding: ActivityAssingedTranscriptionsBinding
+class AssignedTranscriptionResolutionsActivity : AppCompatActivity() {
+    lateinit var binding: ActivityAssignedTranscriptionResolutionsBinding
     private lateinit var viewModel: TranscriptionActivityViewModel
     private lateinit var adapter: TranscriptionAudioAdapter
     private var audios: List<TranscriptionAudio>? = null
@@ -35,15 +35,19 @@ class AssignedTranscriptionsActivity : AppCompatActivity() {
     }.build()
     private val workManager = WorkManager.getInstance(application)
     private val transcriptionUploadWorker =
-        PeriodicWorkRequest.Builder(TranscriptionUploadWorker::class.java, 15, TimeUnit.MINUTES)
+        PeriodicWorkRequest.Builder(
+            TranscriptionUploadWorker::class.java,
+            15,
+            TimeUnit.MINUTES
+        )
             .setConstraints(constraints).build()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityAssingedTranscriptionsBinding.inflate(layoutInflater)
+        binding = ActivityAssignedTranscriptionResolutionsBinding.inflate(layoutInflater)
         setContentView(binding.root)
         viewModel = ViewModelProvider(this)[TranscriptionActivityViewModel::class.java]
-        title = "Transcriptions"
+        title = "Resolutions"
 
         // Show back button
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -52,9 +56,8 @@ class AssignedTranscriptionsActivity : AppCompatActivity() {
         adapter = TranscriptionAudioAdapter(this)
         adapter.setOnClickListener(object : TranscriptionAudioAdapter.OnClickListener {
             override fun onItemClickListener(position: Int) {
-                val intent =
-                    Intent(this@AssignedTranscriptionsActivity, TranscriptionActivity::class.java)
-                intent.putExtra("TranscriptionType", TranscriptionType.NEW)
+                val intent = Intent(this@AssignedTranscriptionResolutionsActivity, TranscriptionActivity::class.java)
+                intent.putExtra("TranscriptionType", TranscriptionType.RESOLUTION)
                 intent.putExtra("position", position)
                 startActivity(intent)
             }
@@ -63,6 +66,7 @@ class AssignedTranscriptionsActivity : AppCompatActivity() {
         binding.recyclerView.adapter = adapter
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
         loadAudios()
+
 
         // Swipe to refresh
         binding.swiperefresh.setOnRefreshListener {
@@ -79,7 +83,9 @@ class AssignedTranscriptionsActivity : AppCompatActivity() {
         }
 
         binding.startButton.setOnClickListener {
-            startActivity(Intent(this, TranscriptionActivity::class.java))
+            val intent = Intent(this, TranscriptionActivity::class.java)
+            intent.putExtra("TranscriptionType", TranscriptionType.RESOLUTION)
+            startActivity(intent)
         }
 
         // Schedule auto transcription upload.
@@ -95,21 +101,21 @@ class AssignedTranscriptionsActivity : AppCompatActivity() {
         workManager: WorkManager
     ) {
         val updateAssignedTranscriptionAudiosWorker = PeriodicWorkRequest.Builder(
-            UpdateAssignedTranscriptionAudiosWorker::class.java, 12, TimeUnit.HOURS
+            UpdateAssignedTranscriptionResolutionWorker::class.java, 12, TimeUnit.HOURS
         ).setConstraints(constraints).build()
 
         workManager.enqueueUniquePeriodicWork(
-            "UpdateAssignedTranscriptionAudiosWorker",
+            "UpdateAssignedTranscriptionResolutionWorker",
             ExistingPeriodicWorkPolicy.UPDATE,
             updateAssignedTranscriptionAudiosWorker
         )
         Toast.makeText(
-            this, "Requested new audios for transcription.", Toast.LENGTH_LONG
+            this, "Requested new transcriptions for resolution.", Toast.LENGTH_LONG
         ).show()
     }
 
     private fun loadAudios() {
-        viewModel.getTranscriptionAudios()?.observe(this) {
+        viewModel.getTranscriptionResolutionAudios()?.observe(this) {
             audios = it
             adapter.setData(it)
             binding.swiperefresh.isRefreshing = false
@@ -150,7 +156,8 @@ class AssignedTranscriptionsActivity : AppCompatActivity() {
             hoursToKeepAudiosForTranscription?.let { hours ->
                 val total = System.currentTimeMillis() - (hours * 3600 * 1000)
                 val audios =
-                    AppRoomDatabase.INSTANCE?.TranscriptionAudioDao()?.getExpiredAudios(total)
+                    AppRoomDatabase.INSTANCE?.TranscriptionAudioDao()
+                        ?.getExpiredAudios(total)
                 audios?.forEach { audio ->
                     if (audio.localAudioUrl?.let { it1 -> File(it1).exists() } == true) audio.localAudioUrl?.let { it1 ->
                         File(it1).delete()
@@ -188,8 +195,9 @@ class AssignedTranscriptionsActivity : AppCompatActivity() {
                 builder.setMessage("Are you sure you want to delete all audios awaiting your transcription?")
                     .setNegativeButton("CANCEL") { _, _ -> }.setPositiveButton("YES") { _, _ ->
                         AppRoomDatabase.databaseWriteExecutor.execute {
-                            val pendingAudios = AppRoomDatabase.INSTANCE?.TranscriptionAudioDao()
-                                ?.getSyncPendingAudioTranscriptions()
+                            val pendingAudios =
+                                AppRoomDatabase.INSTANCE?.TranscriptionAudioDao()
+                                    ?.getSyncTranscriptionToResolve()
                             pendingAudios?.forEach { audio ->
                                 if (audio.localAudioUrl?.let { it1 -> File(it1).exists() } == true) audio.localAudioUrl?.let { it1 ->
                                     File(it1).delete()
@@ -208,7 +216,11 @@ class AssignedTranscriptionsActivity : AppCompatActivity() {
                     ExistingPeriodicWorkPolicy.UPDATE,
                     transcriptionUploadWorker
                 )
-                Toast.makeText(this, "Scheduled upload for transcribed audios.", Toast.LENGTH_SHORT)
+                Toast.makeText(
+                    this,
+                    "Scheduled upload for resolved transcriptions.",
+                    Toast.LENGTH_SHORT
+                )
                     .show()
             }
             android.R.id.home -> finish()

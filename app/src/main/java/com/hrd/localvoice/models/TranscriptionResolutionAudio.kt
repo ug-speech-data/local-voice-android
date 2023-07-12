@@ -3,16 +3,16 @@ package com.hrd.localvoice.models
 import android.os.Parcelable
 import androidx.room.*
 import com.google.gson.annotations.SerializedName
-import com.hrd.localvoice.utils.Constants.AUDIO_TRANSCRIPTION_TABLE
+import com.hrd.localvoice.utils.Constants.AUDIO_TRANSCRIPTION_RESOLUTION_TABLE
 import com.hrd.localvoice.utils.Constants.UPLOAD_STATUS_PENDING
 import com.hrd.localvoice.utils.TranscriptionStatus
-import com.hrd.localvoice.utils.TranscriptionType
 import kotlinx.parcelize.Parcelize
 import java.io.Serializable
 
-@Entity(tableName = AUDIO_TRANSCRIPTION_TABLE)
+@Deprecated("Adapted TranscriptionAudio model to do the work.")
+@Entity(tableName = AUDIO_TRANSCRIPTION_RESOLUTION_TABLE)
 @Parcelize
-data class TranscriptionAudio(
+data class TranscriptionResolutionAudio(
     @ColumnInfo(defaultValue = "") @SerializedName("audio_url") val remoteAudioUrl: String,
     @ColumnInfo(defaultValue = "") val name: String,
     @ColumnInfo(defaultValue = "") val locale: String,
@@ -21,9 +21,8 @@ data class TranscriptionAudio(
     @ColumnInfo(defaultValue = "") var localAudioUrl: String? = "",
     @ColumnInfo(defaultValue = UPLOAD_STATUS_PENDING) var assetsDownloadStatus: String? = UPLOAD_STATUS_PENDING,
     @ColumnInfo(defaultValue = TranscriptionStatus.PENDING) var transcriptionStatus: String? = TranscriptionStatus.PENDING,
-    @ColumnInfo(defaultValue = "pending") var text: String? = "", // Ignore the default 'pending' text
-    @ColumnInfo(defaultValue = "") @SerializedName("corrected_text") var correctedText: String? = "",
-    @ColumnInfo(defaultValue = TranscriptionType.NEW) var type: String? = "",
+    @ColumnInfo(defaultValue = "") var text: String? = "",
+    @ColumnInfo(defaultValue = "") var resolvedText: String? = "",
     @ColumnInfo(defaultValue = "1") @SerializedName("id") @PrimaryKey() var id: Long = 0,
     @ColumnInfo(defaultValue = "0") var updatedAt: Long? = System.currentTimeMillis(),
     @ColumnInfo(defaultValue = "0") var createdAt: Long? = System.currentTimeMillis()

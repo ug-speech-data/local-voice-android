@@ -69,7 +69,7 @@ class DataRepository(application: Application) {
     }
 
     fun getAudios(id: Long?): LiveData<List<Audio>>? {
-        return audioDao?.getAudios(id)
+        return audioDao?.getAudios() // Ignore filtering the audios per user.
     }
 
     fun updateImage(image: Image) {
@@ -92,6 +92,11 @@ class DataRepository(application: Application) {
 
     fun getAudiosByParticipant(participantId: Long): LiveData<List<Audio>>? {
         return audioDao?.getAudiosByParticipantLive(participantId)
+    }
+
+    fun getTranscriptionToResolve(): LiveData<List<TranscriptionAudio>>? {
+        return transcriptionAudioDao?.getTranscriptionToResolve()
+
     }
 
     init {

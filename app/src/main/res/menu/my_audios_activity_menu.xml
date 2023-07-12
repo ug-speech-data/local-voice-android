@@ -8,4 +8,12 @@
         android:title="@string/upload_audios"
         app:iconTint="@color/white"
         app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_clear_uploaded"
+        android:icon="@drawable/ic_outline_delete_24"
+        android:orderInCategory="1"
+        android:title="@string/clear_uploaded"
+        app:iconTint="@color/white"
+        app:showAsAction="never" />
 </menu>

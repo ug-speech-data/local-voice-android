@@ -3,7 +3,6 @@ package com.hrd.localvoice.workers
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.widget.Toast
 import androidx.work.Worker
 import androidx.work.WorkerParameters
@@ -20,16 +19,16 @@ import retrofit2.Response
 import java.io.File
 
 
-class UpdateAssignedTranscriptionAudiosWorker(
+class UpdateAssignedTranscriptionResolutionWorker(
     private val context: Context, workerParams: WorkerParameters
 ) : Worker(context, workerParams) {
     override fun doWork(): Result {
-        val tag = "UpdateAssignedTranscriptionAudiosWorker"
+        val tag = "UpdateAssignedTranscriptionResolutionWorker"
         val database: AppRoomDatabase? = AppRoomDatabase.INSTANCE
         val apiService = RestApiFactory.create(context)
 
         val completed = database?.TranscriptionAudioDao()?.transcriptionAudiosExists() as Boolean
-        apiService?.updateAssignedTranscriptionAudiosWorker(!completed)
+        apiService?.updateAssignedTranscriptionResolutionsWorker(!completed)
             ?.enqueue(object : Callback<TranscriptionAudiosResponse?> {
                 override fun onResponse(
                     call: Call<TranscriptionAudiosResponse?>,
@@ -42,7 +41,7 @@ class UpdateAssignedTranscriptionAudiosWorker(
                             audios.forEach { audio ->
                                 audio.updatedAt = System.currentTimeMillis()
                                 audio.createdAt = System.currentTimeMillis()
-                                audio.type = TranscriptionType.NEW
+                                audio.type = TranscriptionType.RESOLUTION
                                 audio.transcriptionStatus = UPLOAD_STATUS_PENDING
                                 audio.assetsDownloadStatus = UPLOAD_STATUS_PENDING
                                 database.TranscriptionAudioDao().insertAudioTranscription(audio)

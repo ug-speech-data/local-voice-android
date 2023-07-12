@@ -17,7 +17,7 @@ android {
         minSdk 24
         targetSdk 33
         versionCode 30
-        versionName "3.0.2"
+        versionName "3.1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         archivesBaseName = "ugsd-v$versionName"
 

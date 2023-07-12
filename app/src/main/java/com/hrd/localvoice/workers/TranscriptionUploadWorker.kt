@@ -22,6 +22,7 @@ class TranscriptionUploadWorker(
 
     override fun doWork(): Result {
         uploadTranscribedAudios()
+        uploadCorrectedTranscribedAudios()
         return Result.success()
     }
 
@@ -46,6 +47,37 @@ class TranscriptionUploadWorker(
                                 }
                             }
                         }
+
+                        override fun onFailure(call: Call<AudioValidationResponse?>, t: Throwable) {
+                            Log.d(tag, "uploadTranscribedAudios: ${t.message}")
+                        }
+                    })
+            }
+        }
+    }
+
+    private fun uploadCorrectedTranscribedAudios() {
+        val audios = database?.TranscriptionAudioDao()?.getCorrectedTranscriptions()
+        Log.d(tag, "uploadCorrectedTranscribedAudios: ${audios?.size}")
+        audios?.forEach { audio ->
+            audio.text?.let {
+                apiService?.submitTranscriptionResolution(audio.id, it, "accepted")
+                    ?.enqueue(object : Callback<AudioValidationResponse?> {
+                        override fun onResponse(
+                            call: Call<AudioValidationResponse?>,
+                            response: Response<AudioValidationResponse?>
+                        ) {
+                            if (response.body()?.status == "success") {
+                                // Remove audio
+                                if (audio.localAudioUrl?.let { it1 -> File(it1).exists() } == true) audio.localAudioUrl?.let { it1 ->
+                                    File(it1).delete()
+                                }
+                                AppRoomDatabase.databaseWriteExecutor.execute {
+                                    database?.TranscriptionAudioDao()?.delete(audio)
+                                }
+                            }
+                        }
+
                         override fun onFailure(call: Call<AudioValidationResponse?>, t: Throwable) {
                             Log.d(tag, "uploadTranscribedAudios: ${t.message}")
                         }

@@ -59,6 +59,7 @@
     <string name="previous_audios_message">All audios will be uploaded automatically when there\'s internet and the battery is not low.</string>
     <string name="recorded_audios">%1$d Recorded Audios</string>
     <string name="audios_to_validate">%1$d Audios to validate</string>
+    <string name="transcriptions_to_resolute">%1$d Transcriptions to resolve</string>
     <string name="audios_to_transcribe">%1$d Audios to transcribe</string>
     <string name="background_noise_check_message">Checking background noise level. \nPlease be silent 3 seconds.</string>
     <string name="no_data_found">No data found.</string>
@@ -107,6 +108,7 @@
     <string name="duration">Duration</string>
     <string name="audio_validation_message">Download and validate audios using our validation protocol.</string>
     <string name="audio_transcription_message">Download and transcribe audios word for word  in your locale.</string>
+    <string name="audio_transcription_resolution_message">Download and resolve transcriptions in your locale.</string>
     <string name="home_screen_intro_text">Choose an activity below to start with.</string>
     <string name="audio_validation">Audio Validation</string>
     <string name="no_more_audios">No more audios</string>
@@ -186,4 +188,8 @@
     <string name="skip_button">Skip button</string>
     <string name="bad">Bad</string>
     <string name="good">Good</string>
+    <string name="clear_uploaded">Clear Uploaded</string>
+    <string name="transcription_resolution_instruction">Please play the audio and correct the text below.</string>
+    <string name="edit_text_button">Edit text button</string>
+    <string name="transcriptions_resolved">Transcriptions resolved</string>
 </resources>

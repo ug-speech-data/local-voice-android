@@ -165,7 +165,8 @@
                     android:text="@string/create_new_account"
                     android:textAlignment="center"
                     android:textColor="@color/color_700"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:visibility="gone" />
             </LinearLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>

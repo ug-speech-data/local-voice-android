@@ -293,7 +293,7 @@ class AudioValidationActivity : AppCompatActivity() {
                 binding.playerLoading.visibility = View.GONE
                 Toast.makeText(
                     this@AudioValidationActivity,
-                    "Couldn't play audio: ${error.errorCodeName}",
+                    "Couldn't play audio: ${error.message}",
                     Toast.LENGTH_SHORT
                 ).show()
                 Log.e(tag, "onPlayerError: ${error.message}")

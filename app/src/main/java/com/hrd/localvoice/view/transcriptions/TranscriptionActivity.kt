@@ -61,14 +61,6 @@ class TranscriptionActivity : AppCompatActivity() {
         val preferences: SharedPreferences =
             getSharedPreferences(Constants.SHARED_PREFS_FILE, MODE_PRIVATE)
 
-        // If user does not have permission, close the activity.
-        viewModel.user?.observe(this) { user ->
-            if (user?.permissions?.contains("transcribe_audio") != true) {
-                Toast.makeText(this, "Unauthorised", Toast.LENGTH_SHORT).show()
-                finish()
-            }
-        }
-
         binding.editTextButton.setOnClickListener {
             currentAudio?.text?.let { text ->
                 binding.textArea.setText(
